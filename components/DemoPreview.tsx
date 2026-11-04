@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
+import { MaquetaPreviewCanvas } from "@/components/three/demos/maqueta/MaquetaPreviewCanvas";
 
 type DemoPreviewProps = {
   kind: "maqueta" | "selector" | "sol";
@@ -13,20 +14,7 @@ export function DemoPreview({ kind }: DemoPreviewProps) {
     : { repeat: Infinity, duration: 4, ease: "easeInOut" as const };
 
   if (kind === "maqueta") {
-    return (
-      <div className="relative flex h-40 items-end justify-center gap-2 overflow-hidden rounded-xl bg-background p-4">
-        {[0.5, 0.9, 0.65, 1, 0.75].map((h, i) => (
-          <motion.div
-            key={i}
-            className="w-6 rounded-sm bg-foreground/15"
-            style={{ height: `${h * 100}%` }}
-            animate={shouldReduceMotion ? undefined : { opacity: [0.5, 1, 0.5] }}
-            transition={loop ? { ...loop, delay: i * 0.2 } : undefined}
-          />
-        ))}
-        <div className="absolute inset-0 bg-grid opacity-40" />
-      </div>
-    );
+    return <MaquetaPreviewCanvas />;
   }
 
   if (kind === "selector") {

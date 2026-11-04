@@ -1,0 +1,21 @@
+/** Shared, sober material palette for the procedural building demos. */
+export const MATERIAL_COLORS = {
+  concreteLight: "#d8d4c9",
+  concreteShadow: "#b9b4a7",
+  slab: "#c7c2b4",
+  glass: "#9fb8c2",
+  glassGround: "#bcd4da",
+  metalDark: "#2b2c30",
+  windowLitDay: "#2a2a2c",
+  windowLitNight: "#f6c66a",
+  windowUnlit: "#14151a",
+  roadAsphalt: "#2c2c30",
+  sidewalk: "#c9c6bd",
+  foliage: "#4f6b4a",
+  foliageTrunk: "#5a4634",
+  neighborLight: "#e9e6dc",
+  neighborMid: "#cfccc2",
+  lampPole: "#3a3b3f",
+  lampGlow: "#ffd98f",
+  groundGrass: "#5e7a53",
+} as const;
