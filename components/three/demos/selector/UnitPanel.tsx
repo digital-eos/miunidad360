@@ -17,10 +17,14 @@ export function UnitPanel({
   unit,
   projectSlug,
   onClose,
+  sunHoursVerano,
+  sunHoursInvierno,
 }: {
   unit: Unit;
   projectSlug: string;
   onClose: () => void;
+  sunHoursVerano?: number | null;
+  sunHoursInvierno?: number | null;
 }) {
   const [state, formAction, isPending] = useActionState(submitUnitLead, initialState);
   const areaM2 = Number.parseFloat(unit.areaM2);
@@ -88,6 +92,22 @@ export function UnitPanel({
             <dd>Tipo {unit.planType}</dd>
           </div>
         </dl>
+
+        {sunHoursVerano != null || sunHoursInvierno != null ? (
+          <div className="rounded-xl border border-border-subtle bg-background-elevated p-3">
+            <p className="text-xs font-medium text-foreground-muted">Sol directo en la fachada</p>
+            <div className="mt-2 grid grid-cols-2 gap-2 text-sm">
+              <div>
+                <p className="text-xs text-foreground-muted">Verano</p>
+                <p>{sunHoursVerano != null ? `${sunHoursVerano.toFixed(1)} h` : "calculando…"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-foreground-muted">Invierno</p>
+                <p>{sunHoursInvierno != null ? `${sunHoursInvierno.toFixed(1)} h` : "calculando…"}</p>
+              </div>
+            </div>
+          </div>
+        ) : null}
 
         <WhatsAppButton
           source="selector-unidad"

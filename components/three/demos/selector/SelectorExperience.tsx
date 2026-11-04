@@ -12,6 +12,8 @@ import { NightProvider } from "@/components/three/demos/maqueta/night-context";
 import { useIsMobile } from "@/lib/hooks/use-is-mobile";
 import { EMPTY_FILTERS, unitMatchesFilters, type UnitFilters } from "@/lib/units/filters";
 import { STATUS_COLORS } from "@/lib/units/status-colors";
+import { civilDateKey, solsticeDates, todayInBuenosAires } from "@/lib/sun/sun-position";
+import { useSunHours } from "@/lib/sun/use-sun-hours";
 import { SelectorScene } from "./SelectorScene";
 import { LegendCounter } from "./LegendCounter";
 import { FiltersPanel } from "./FiltersPanel";
@@ -127,6 +129,19 @@ export function SelectorExperience({ projectSlug }: { projectSlug: string }) {
 
   const units = useMemo(() => (state.status === "ready" ? state.units : []), [state]);
 
+  const lat = state.status === "ready" ? (state.project.latitude ?? -34.5755) : -34.5755;
+  const lng = state.status === "ready" ? (state.project.longitude ?? -58.4338) : -58.4338;
+  const { cache: sunHoursCache, requestDate } = useSunHours(lat, lng);
+
+  const { verano, invierno } = useMemo(() => solsticeDates(todayInBuenosAires().year), []);
+
+  useEffect(() => {
+    if (state.status !== "ready") return;
+    requestDate(verano);
+    requestDate(invierno);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.status, verano, invierno]);
+
   const apartmentColors = useMemo(() => {
     const colors: Record<string, string> = {};
     for (const unit of units) colors[unit.code] = STATUS_COLORS[unit.status];
@@ -229,6 +244,8 @@ export function SelectorExperience({ projectSlug }: { projectSlug: string }) {
               unit={selectedUnit}
               projectSlug={projectSlug}
               onClose={() => handleSelectUnit(null)}
+              sunHoursVerano={sunHoursCache[civilDateKey(verano)]?.[selectedUnit.code] ?? null}
+              sunHoursInvierno={sunHoursCache[civilDateKey(invierno)]?.[selectedUnit.code] ?? null}
             />
           ) : null}
         </>

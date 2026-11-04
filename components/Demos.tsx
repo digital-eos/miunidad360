@@ -23,8 +23,8 @@ const DEMOS = [
   {
     kind: "sol" as const,
     href: "/demos/sol",
-    title: "Simulador de sol",
-    description: "Mostrá cómo entra la luz en cada unidad en distintos horarios.",
+    title: "Estudio de asoleamiento",
+    description: "Mostrá cómo entra el sol en cada unidad según la hora y la época del año.",
   },
 ];
 

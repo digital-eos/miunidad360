@@ -57,16 +57,46 @@ export function DemoPreview({ kind }: DemoPreviewProps) {
     );
   }
 
+  const sunArcX = [20, 63.3, 106.7, 150, 193.3, 236.7, 280];
+  const sunArcY = [120, 75, 42.1, 30, 42.1, 75, 120];
+  const sunArcColor = ["#ffb066", "#ffcf8c", "#fff0cf", "#fff6e8", "#fff0cf", "#ffcf8c", "#ffb066"];
+
   return (
-    <div className="relative flex h-40 items-center justify-center overflow-hidden rounded-xl bg-background">
-      <motion.div
-        className="absolute h-24 w-24 rounded-full bg-accent/70 blur-xl"
-        animate={
-          shouldReduceMotion ? undefined : { x: [-60, 60, -60], y: [-10, 20, -10] }
-        }
-        transition={loop ? { ...loop, duration: 6 } : undefined}
-      />
-      <div className="absolute inset-x-6 bottom-6 h-px bg-border-subtle" />
+    <div className="relative h-40 overflow-hidden rounded-xl bg-background">
+      <svg viewBox="0 0 300 160" className="h-full w-full" aria-hidden>
+        <path
+          d="M 20 120 Q 150 -30 280 120"
+          fill="none"
+          stroke="var(--border-subtle)"
+          strokeWidth={1}
+          strokeDasharray="2 4"
+        />
+        <line x1={10} y1={122} x2={290} y2={122} stroke="var(--border-subtle)" strokeWidth={1} />
+        {[0, 1, 2, 3].map((i) => (
+          <rect
+            key={i}
+            x={140 + i * 14}
+            y={122 - (i % 2 === 0 ? 36 : 26)}
+            width={10}
+            height={i % 2 === 0 ? 36 : 26}
+            fill="var(--foreground)"
+            opacity={0.15}
+          />
+        ))}
+        <motion.circle
+          r={7}
+          animate={
+            shouldReduceMotion
+              ? undefined
+              : { cx: sunArcX, cy: sunArcY, fill: sunArcColor }
+          }
+          cx={shouldReduceMotion ? 150 : undefined}
+          cy={shouldReduceMotion ? 30 : undefined}
+          fill={shouldReduceMotion ? "#fff6e8" : undefined}
+          transition={loop ? { ...loop, duration: 6 } : undefined}
+          style={{ filter: "blur(0.5px)" }}
+        />
+      </svg>
     </div>
   );
 }
