@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Suspense } from "react";
 import { MaquetaCanvas } from "@/components/three/demos/maqueta/MaquetaCanvas";
+import { BackToHomeLink } from "@/components/capture/BackToHomeLink";
+import { ScrollCue } from "@/components/ScrollCue";
+import { DemoCTA } from "@/components/DemoCTA";
+import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "Maqueta 3D",
@@ -9,14 +13,16 @@ export const metadata: Metadata = {
 
 export default function MaquetaDemoPage() {
   return (
-    <main className="relative min-h-screen bg-background">
-      <MaquetaCanvas />
-      <Link
-        href="/"
-        className="absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-full border border-border-subtle bg-background/80 px-4 py-2 text-xs font-medium backdrop-blur-md transition-colors duration-200 hover:border-accent hover:text-accent sm:left-6 sm:top-6 sm:text-sm"
-      >
-        ← Volver al inicio
-      </Link>
+    <main className="relative bg-background">
+      <div className="relative">
+        <MaquetaCanvas />
+        <Suspense fallback={null}>
+          <BackToHomeLink />
+          <ScrollCue targetId="demo-cta" />
+        </Suspense>
+      </div>
+      <DemoCTA demo="maqueta" />
+      <Footer />
     </main>
   );
 }

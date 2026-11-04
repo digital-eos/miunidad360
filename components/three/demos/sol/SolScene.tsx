@@ -20,6 +20,7 @@ export type SolSceneProps = {
   isMobile: boolean;
   minDistance: number;
   maxDistance: number;
+  autoRotateEnabled?: boolean;
   apartmentColors?: Record<string, string>;
   hoveredId: string | null;
   onApartmentClick: (id: string, event: ThreeEvent<MouseEvent>) => void;
@@ -35,6 +36,7 @@ export function SolScene({
   isMobile,
   minDistance,
   maxDistance,
+  autoRotateEnabled = false,
   apartmentColors,
   hoveredId,
   onApartmentClick,
@@ -74,7 +76,8 @@ export function SolScene({
       <CameraRig
         target={cameraTarget}
         targetKey={cameraTargetKey}
-        autoRotateEnabled={false}
+        autoRotateEnabled={autoRotateEnabled}
+        autoRotateSpeed={0.4}
         minDistance={minDistance}
         maxDistance={maxDistance}
       />

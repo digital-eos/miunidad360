@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { Fraunces, Manrope, IBM_Plex_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
+import { organizationJsonLd } from "@/lib/structured-data";
+import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -70,7 +73,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${fraunces.variable} ${manrope.variable} ${plexMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
+        />
         {children}
+        <Suspense fallback={null}>
+          <FloatingWhatsApp />
+        </Suspense>
         <Analytics />
       </body>
     </html>

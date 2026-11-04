@@ -1,8 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCaptureMode } from "@/lib/hooks/use-capture-mode";
 import { Canvas } from "@react-three/fiber";
+import { PerformanceMonitor } from "@react-three/drei";
 import * as THREE from "three";
 import type { ThreeEvent } from "@react-three/fiber";
 import type { Project, Unit } from "@/db/schema";
@@ -14,6 +16,7 @@ import { EMPTY_FILTERS, unitMatchesFilters, type UnitFilters } from "@/lib/units
 import { STATUS_COLORS } from "@/lib/units/status-colors";
 import { civilDateKey, solsticeDates, todayInBuenosAires } from "@/lib/sun/sun-position";
 import { useSunHours } from "@/lib/sun/use-sun-hours";
+import { trackFilterUsed, trackUnitOpened } from "@/lib/analytics";
 import { SelectorScene } from "./SelectorScene";
 import { LegendCounter } from "./LegendCounter";
 import { FiltersPanel } from "./FiltersPanel";
@@ -44,6 +47,15 @@ function floorViewpoint(floor: number): Viewpoint {
   };
 }
 
+/** Tighter framing used for the capture-mode "open a unit card" beat. */
+function floorCloseupViewpoint(floor: number): Viewpoint {
+  const y = floorCenterY(floor);
+  return {
+    position: [config.buildingWidth * 0.4, y + config.floorHeight * 0.9, config.buildingDepth * 0.55],
+    target: [0, y, 0],
+  };
+}
+
 type FetchState =
   | { status: "loading" }
   | { status: "error" }
@@ -54,12 +66,16 @@ export function SelectorExperience({ projectSlug }: { projectSlug: string }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const isMobile = useIsMobile();
+  const captureMode = useCaptureMode();
+  const maxDpr = isMobile ? 1.5 : 2;
+  const [dpr, setDpr] = useState(maxDpr);
 
   const [state, setState] = useState<FetchState>({ status: "loading" });
   const [filters, setFilters] = useState<UnitFilters>(EMPTY_FILTERS);
   const [focusFloor, setFocusFloor] = useState<number | null>(null);
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
   const [hovered, setHovered] = useState<{ code: string; x: number; y: number } | null>(null);
+  const [captureCloseup, setCaptureCloseup] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -105,9 +121,15 @@ export function SelectorExperience({ projectSlug }: { projectSlug: string }) {
     (code: string | null) => {
       setSelectedCode(code);
       updateUrl(code);
+      if (code) trackUnitOpened("selector", code);
     },
     [updateUrl],
   );
+
+  const handleFiltersChange = useCallback((next: UnitFilters) => {
+    setFilters(next);
+    trackFilterUsed("selector");
+  }, []);
 
   const handleApartmentClick = useCallback(
     (code: string) => {
@@ -128,6 +150,49 @@ export function SelectorExperience({ projectSlug }: { projectSlug: string }) {
   }, []);
 
   const units = useMemo(() => (state.status === "ready" ? state.units : []), [state]);
+
+  // Scripted capture sequence: colored overview, isolate a floor, open a unit card.
+  const captureCycleRef = useRef(0);
+  useEffect(() => {
+    if (!captureMode.active || state.status !== "ready" || units.length === 0) return;
+
+    const floor = Math.ceil(config.floors / 2);
+    const targetUnit =
+      units.find((u) => u.floor === floor && u.status === "disponible") ??
+      units.find((u) => u.floor === floor) ??
+      null;
+
+    let cancelled = false;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    const cycleId = ++captureCycleRef.current;
+
+    function runCycle() {
+      if (cancelled || captureCycleRef.current !== cycleId) return;
+      setFocusFloor(null);
+      setCaptureCloseup(false);
+      handleSelectUnit(null);
+      timers.push(
+        setTimeout(() => {
+          if (!cancelled) setFocusFloor(floor);
+        }, 4000),
+      );
+      timers.push(
+        setTimeout(() => {
+          if (cancelled) return;
+          setCaptureCloseup(true);
+          if (targetUnit) handleSelectUnit(targetUnit.code);
+        }, 8000),
+      );
+      timers.push(setTimeout(runCycle, 13000));
+    }
+
+    runCycle();
+    return () => {
+      cancelled = true;
+      timers.forEach(clearTimeout);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [captureMode.active, state.status, units]);
 
   const lat = state.status === "ready" ? (state.project.latitude ?? -34.5755) : -34.5755;
   const lng = state.status === "ready" ? (state.project.longitude ?? -58.4338) : -58.4338;
@@ -176,8 +241,14 @@ export function SelectorExperience({ projectSlug }: { projectSlug: string }) {
     [units, hovered],
   );
 
-  const cameraTarget = focusFloor != null ? floorViewpoint(focusFloor) : overviewViewpoint();
-  const cameraTargetKey = focusFloor != null ? `floor-${focusFloor}` : "overview";
+  const cameraTarget =
+    focusFloor != null
+      ? captureCloseup
+        ? floorCloseupViewpoint(focusFloor)
+        : floorViewpoint(focusFloor)
+      : overviewViewpoint();
+  const cameraTargetKey =
+    focusFloor != null ? `floor-${focusFloor}${captureCloseup ? "-closeup" : ""}` : "overview";
 
   if (state.status === "error") {
     return (
@@ -191,10 +262,10 @@ export function SelectorExperience({ projectSlug }: { projectSlug: string }) {
   }
 
   return (
-    <div className="relative h-[100svh] w-full">
+    <div className="relative h-full w-full">
       <Canvas
         camera={{ position: overviewViewpoint().position, fov: 42, near: 0.1, far: 400 }}
-        dpr={isMobile ? [1, 1.5] : [1, 2]}
+        dpr={dpr}
         shadows={!isMobile}
         gl={{
           antialias: !isMobile,
@@ -203,6 +274,11 @@ export function SelectorExperience({ projectSlug }: { projectSlug: string }) {
           toneMappingExposure: 1.05,
         }}
       >
+        <PerformanceMonitor
+          bounds={() => [50, 58]}
+          onDecline={() => setDpr((d) => Math.max(0.75, d - 0.25))}
+          onIncline={() => setDpr((d) => Math.min(maxDpr, d + 0.25))}
+        />
         <NightProvider>
           <SelectorScene
             config={config}
@@ -231,9 +307,21 @@ export function SelectorExperience({ projectSlug }: { projectSlug: string }) {
         </div>
       ) : (
         <>
-          <LegendCounter availableCount={availableCount} />
-          <FiltersPanel filters={filters} onChange={setFilters} orientations={orientations} />
-          <FloorSelector floors={config.floors} activeFloor={focusFloor} onSelectFloor={setFocusFloor} />
+          {!captureMode.active ? (
+            <>
+              <LegendCounter availableCount={availableCount} />
+              <FiltersPanel
+                filters={filters}
+                onChange={handleFiltersChange}
+                orientations={orientations}
+              />
+              <FloorSelector
+                floors={config.floors}
+                activeFloor={focusFloor}
+                onSelectFloor={setFocusFloor}
+              />
+            </>
+          ) : null}
 
           {hoveredUnit && !isMobile ? (
             <UnitTooltip unit={hoveredUnit} x={hovered!.x} y={hovered!.y} />

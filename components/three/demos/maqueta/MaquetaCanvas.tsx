@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useWebGLSupport } from "@/lib/hooks/use-webgl-support";
+import { CaptureStage } from "@/components/capture/CaptureStage";
 
 const MaquetaScene = dynamic(() => import("./MaquetaScene"), {
   ssr: false,
@@ -37,5 +38,9 @@ export function MaquetaCanvas() {
     return <MaquetaFallback />;
   }
 
-  return <MaquetaScene />;
+  return (
+    <CaptureStage demo="maqueta">
+      <MaquetaScene />
+    </CaptureStage>
+  );
 }

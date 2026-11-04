@@ -15,6 +15,7 @@ export type SceneProps = {
   cameraTarget: Viewpoint;
   cameraTargetKey: string;
   autoRotateEnabled: boolean;
+  autoRotateSpeed?: number;
   isMobile: boolean;
   minDistance: number;
   maxDistance: number;
@@ -31,6 +32,7 @@ export function Scene({
   cameraTarget,
   cameraTargetKey,
   autoRotateEnabled,
+  autoRotateSpeed,
   isMobile,
   minDistance,
   maxDistance,
@@ -73,6 +75,7 @@ export function Scene({
         target={cameraTarget}
         targetKey={cameraTargetKey}
         autoRotateEnabled={autoRotateEnabled}
+        autoRotateSpeed={autoRotateSpeed}
         minDistance={minDistance}
         maxDistance={maxDistance}
       />

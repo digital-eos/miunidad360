@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useWebGLSupport } from "@/lib/hooks/use-webgl-support";
+import { CaptureStage } from "@/components/capture/CaptureStage";
 
 const SolExperience = dynamic(() => import("./SolExperience").then((mod) => mod.SolExperience), {
   ssr: false,
@@ -36,5 +37,9 @@ export function SolCanvas({ projectSlug }: { projectSlug: string }) {
     return <SolFallback />;
   }
 
-  return <SolExperience projectSlug={projectSlug} />;
+  return (
+    <CaptureStage demo="sol">
+      <SolExperience projectSlug={projectSlug} />
+    </CaptureStage>
+  );
 }

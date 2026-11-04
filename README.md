@@ -106,14 +106,47 @@ Abrí [http://localhost:3000](http://localhost:3000).
 
 ## Analítica
 
-Se trackean tres eventos personalizados con `@vercel/analytics`:
+Se trackean estos eventos personalizados con `@vercel/analytics` (`lib/analytics.ts`):
 
 - `demo_click` — clic en una de las tres tarjetas de demos (`maqueta`, `selector`, `sol`)
-- `whatsapp_click` — clic en cualquier botón de WhatsApp, con el origen (`hero`, `header`, `contact-section`, `demo-coming-soon`)
-- `form_submit` — intento de envío del formulario de contacto
+- `whatsapp_click` — clic en cualquier botón de WhatsApp, con el origen (`hero`, `header`,
+  `contact-section`, `floating-button`, `demo-{demo}-end`, `selector-unidad`, …)
+- `form_submit` — intento de envío de un formulario (contacto general o CTA de fin de demo)
+- `filter_used` — se aplicó un filtro en el selector de unidades
+- `unit_opened` — se abrió la ficha de una unidad (`selector` o `sol`)
+- `capture_mode_entered` — se entró al modo captura (`?capture=1`) de una demo, con el formato
+- `video_recorded` — se generó y descargó un video con el botón "Grabar video"
 
 Los eventos aparecen en el panel de Analytics del proyecto en Vercel una vez
 deployado (no se registran en `localhost`).
+
+## Modo captura para redes (Instagram/Reels)
+
+Cada demo (`/demos/maqueta`, `/demos/selector`, `/demos/sol`) acepta dos parámetros de URL
+pensados para grabar contenido vertical:
+
+- `?capture=1` — oculta toda la interfaz propia del sitio (header, controles, botón de
+  WhatsApp flotante) y muestra un cuadro recortado al formato elegido, con una secuencia de
+  cámara guionada de ~13s que se repite en loop (rotación aérea + atardecer en la maqueta,
+  zoom a un piso + apertura de una unidad en el selector, time-lapse de invierno en el
+  estudio de asoleamiento).
+- `&format=9x16` (Reels/Stories, 1080×1920, default) o `&format=4x5` (feed, 1080×1350).
+
+El botón **"Grabar video"** graba el canvas 3D con `canvas.captureStream` + `MediaRecorder`
+(compuesto sobre un canvas intermedio para exportar siempre a la resolución exacta del
+formato, sin importar el tamaño en pantalla) y descarga un `.webm` (o `.mp4` si el navegador
+lo soporta) con el logo y una frase de cierre incrustados de forma opcional. No se sube nada
+a ningún servidor: todo pasa en el navegador de quien graba.
+
+## Rendimiento y SEO
+
+- Calidad 3D adaptativa: `@react-three/drei`'s `PerformanceMonitor` baja el `dpr` del canvas
+  automáticamente si el framerate cae (en el hero y en las tres demos).
+- Fuentes autoalojadas con `next/font`, escenas 3D con carga diferida (`next/dynamic`,
+  `ssr: false`) y fallback estático si no hay WebGL.
+- `app/sitemap.ts` y `app/robots.ts` generan `/sitemap.xml` y `/robots.txt`; cada ruta tiene
+  su propia imagen Open Graph (`opengraph-image.tsx`) y hay datos estructurados
+  (`Organization` en el layout, `Product` en el home) vía `lib/structured-data.ts`.
 
 ## Notas de implementación
 
@@ -134,20 +167,49 @@ deployado (no se registran en `localhost`).
   oculto visualmente pero accesible para lectores de pantalla como "no
   completar") además del rate limit.
 
-## Qué falta configurar manualmente
+## Checklist de mise en production
 
-- [ ] Crear el proyecto en Neon y cargar `DATABASE_URL` (local y en Vercel).
-- [ ] Cargar `NEXT_PUBLIC_WHATSAPP_NUMBER` con el número real de Digital EOS.
-- [ ] Cargar `NEXT_PUBLIC_SITE_URL` con el dominio final del sitio.
-- [ ] Conectar el dominio propio en Vercel.
-- [ ] Activar Vercel Analytics en el proyecto (Project Settings → Analytics).
-- [ ] Revisar/journalizar el texto de `app/privacidad/page.tsx` con el área legal
-      de Digital EOS antes de publicar (el texto actual es un borrador genérico).
-- [ ] Reemplazar el placeholder 3D del hero por la maqueta real del producto
-      cuando esté disponible.
-- [ ] Construir las páginas reales de `/demos/maqueta`, `/demos/selector` y
-      `/demos/sol` (hoy muestran "Próximamente").
-- [ ] Si se espera mucho tráfico o abuso del formulario, migrar el rate limit en
-      memoria a una solución distribuida (ej. Upstash Redis).
-- [ ] Inicializar el repositorio Git (`git init`) si todavía no se hizo, y
-      configurar el remoto antes de conectar Vercel.
+**Dominio**
+- [ ] Conectar el dominio propio en Vercel (Project Settings → Domains) y esperar a que el
+      certificado SSL quede activo.
+- [ ] Cargar `NEXT_PUBLIC_SITE_URL` en Vercel con ese dominio final (sin barra final), por
+      ejemplo `https://miunidad360.com.ar`. Se usa en metadatos SEO, Open Graph, el
+      `sitemap.xml` y el `robots.txt`.
+
+**Variables de entorno en Vercel** (Project Settings → Environment Variables, mismos nombres
+que `.env.example`, valores de producción)
+- [ ] `DATABASE_URL` — connection string de la base de Neon de **producción** (no la de
+      desarrollo).
+- [ ] `NEXT_PUBLIC_WHATSAPP_NUMBER` — número real de Digital EOS, formato internacional sin
+      "+" ni espacios (ej. `5491122334455`).
+- [ ] `NEXT_PUBLIC_SITE_URL` — ver punto anterior.
+- [ ] `ADMIN_PASSWORD` y `ADMIN_SESSION_SECRET` — valores únicos y largos para producción,
+      distintos de los que se usan en local (`ADMIN_SESSION_SECRET` se genera con
+      `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`).
+
+**Base Neon de producción**
+- [ ] Crear (o confirmar) el proyecto/rama de Neon dedicado a producción — no reutilizar la
+      base de desarrollo.
+- [ ] Correr las migraciones contra esa base: `npm run db:migrate` con el `DATABASE_URL` de
+      producción (local o desde un paso de CI/deploy).
+- [ ] Cargar los proyectos/unidades reales (reemplazar o adaptar `db/seed.ts`) antes de
+      anunciar el sitio — hoy la base solo tiene el "Edificio Demo" de ejemplo.
+
+**WhatsApp**
+- [ ] Confirmar que `NEXT_PUBLIC_WHATSAPP_NUMBER` responde desde WhatsApp Business (probar
+      el botón flotante, el del header, el del final de cada demo y el de la ficha de unidad
+      del selector).
+
+**Antes de anunciar**
+- [ ] Activar Vercel Analytics en el proyecto (Project Settings → Analytics) — los eventos
+      personalizados (ver sección "Analítica") no se registran en local.
+- [ ] Revisar el texto de `app/privacidad/page.tsx` con el área legal de Digital EOS.
+- [ ] Reemplazar el placeholder 3D del hero por la maqueta real del producto cuando esté
+      disponible.
+- [ ] Probar el modo captura (`?capture=1`) y el botón "Grabar video" de las tres demos en
+      Chrome/Safari de escritorio y en iPhone Safari / Android Chrome.
+- [ ] Si se espera mucho tráfico o abuso de los formularios, migrar el rate limit en memoria
+      (`lib/rate-limit.ts`) a una solución distribuida (ej. Upstash Redis) — en serverless con
+      múltiples instancias no es un límite estrictamente global.
+- [ ] Correr `npm run build` localmente (o revisar el build de Vercel) y confirmar que no hay
+      errores ni warnings de tipos/lint antes de cada deploy a producción.

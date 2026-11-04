@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Canvas } from "@react-three/fiber";
+import { PerformanceMonitor } from "@react-three/drei";
 import * as THREE from "three";
 import type { Project } from "@/db/schema";
 import { defaultBuildingConfig, totalBuildingHeight } from "@/lib/three/building-config";
@@ -19,6 +20,8 @@ import {
 } from "@/lib/sun/sun-position";
 import { useSunHours } from "@/lib/sun/use-sun-hours";
 import { sunHoursToColor } from "@/lib/sun/color-scale";
+import { trackUnitOpened } from "@/lib/analytics";
+import { useCaptureMode } from "@/lib/hooks/use-capture-mode";
 import { SolScene } from "./SolScene";
 import { TimeControls, getDatePresets } from "./TimeControls";
 import { SolarMapLegend } from "./SolarMapLegend";
@@ -41,6 +44,9 @@ type FetchState = { status: "loading" } | { status: "error" } | { status: "ready
 
 export function SolExperience({ projectSlug }: { projectSlug: string }) {
   const isMobile = useIsMobile();
+  const captureMode = useCaptureMode();
+  const maxDpr = isMobile ? 1.5 : 2;
+  const [dpr, setDpr] = useState(maxDpr);
   const [state, setState] = useState<FetchState>({ status: "loading" });
 
   const [today] = useState<CivilDate>(() => todayInBuenosAires());
@@ -85,16 +91,17 @@ export function SolExperience({ projectSlug }: { projectSlug: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [civilDate, requestDate]);
 
-  // Playback: sweep the hour slider over ~10s.
+  // Playback: sweep the hour slider over ~10s (longer, cinematic loop while capturing).
   useEffect(() => {
     if (!isPlaying) return;
+    const duration = captureMode.active ? 13_000 : PLAYBACK_DURATION_MS;
     let raf = 0;
     let lastUpdate = 0;
     const start = performance.now();
 
     const tick = (now: number) => {
       const elapsed = now - start;
-      const progress = Math.min(1, elapsed / PLAYBACK_DURATION_MS);
+      const progress = Math.min(1, elapsed / duration);
       if (now - lastUpdate > 60) {
         setHour(PLAYBACK_START_HOUR + progress * (PLAYBACK_END_HOUR - PLAYBACK_START_HOUR));
         lastUpdate = now;
@@ -108,7 +115,20 @@ export function SolExperience({ projectSlug }: { projectSlug: string }) {
 
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [isPlaying]);
+  }, [isPlaying, captureMode.active]);
+
+  // Scripted capture sequence: winter solstice time-lapse, looping, with a slow orbit.
+  useEffect(() => {
+    if (!captureMode.active) return;
+    const id = setTimeout(() => setCivilDate(inviernoDate), 0);
+    return () => clearTimeout(id);
+  }, [captureMode.active, inviernoDate]);
+
+  useEffect(() => {
+    if (!captureMode.active || isPlaying) return;
+    const timer = setTimeout(() => setIsPlaying(true), 500);
+    return () => clearTimeout(timer);
+  }, [captureMode.active, isPlaying]);
 
   const sunPosition = useMemo(
     () => getSunPosition(buenosAiresDate(civilDate, hour), lat, lng),
@@ -131,6 +151,7 @@ export function SolExperience({ projectSlug }: { projectSlug: string }) {
 
   const handleApartmentClick = useCallback((id: string) => {
     setSelectedId(id);
+    trackUnitOpened("sol", id);
   }, []);
 
   const handleApartmentPointerOver = useCallback((id: string) => {
@@ -155,10 +176,10 @@ export function SolExperience({ projectSlug }: { projectSlug: string }) {
   const viewpoint = overviewViewpoint();
 
   return (
-    <div className="relative h-[100svh] w-full">
+    <div className="relative h-full w-full">
       <Canvas
         camera={{ position: viewpoint.position, fov: 42, near: 0.1, far: 500 }}
-        dpr={isMobile ? [1, 1.5] : [1, 2]}
+        dpr={dpr}
         shadows={!isMobile}
         gl={{
           antialias: !isMobile,
@@ -167,6 +188,11 @@ export function SolExperience({ projectSlug }: { projectSlug: string }) {
           toneMappingExposure: 1.05,
         }}
       >
+        <PerformanceMonitor
+          bounds={() => [50, 58]}
+          onDecline={() => setDpr((d) => Math.max(0.75, d - 0.25))}
+          onIncline={() => setDpr((d) => Math.min(maxDpr, d + 0.25))}
+        />
         <NightProvider>
           <SolScene
             config={config}
@@ -176,6 +202,7 @@ export function SolExperience({ projectSlug }: { projectSlug: string }) {
             isMobile={isMobile}
             minDistance={Math.max(config.buildingWidth, config.buildingDepth) * 0.5}
             maxDistance={Math.max(config.buildingWidth, config.buildingDepth) * 4}
+            autoRotateEnabled={captureMode.active}
             apartmentColors={apartmentColors}
             hoveredId={hoveredId}
             onApartmentClick={handleApartmentClick}
@@ -192,7 +219,7 @@ export function SolExperience({ projectSlug }: { projectSlug: string }) {
             Cargando estudio de asoleamiento…
           </p>
         </div>
-      ) : (
+      ) : captureMode.active ? null : (
         <>
           {mapaDeSol ? <SolarMapLegend /> : null}
 

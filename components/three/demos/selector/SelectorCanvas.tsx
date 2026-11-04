@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
 import { useWebGLSupport } from "@/lib/hooks/use-webgl-support";
+import { CaptureStage } from "@/components/capture/CaptureStage";
 
 const SelectorExperience = dynamic(
   () => import("./SelectorExperience").then((mod) => mod.SelectorExperience),
@@ -39,7 +40,9 @@ export function SelectorCanvas({ projectSlug }: { projectSlug: string }) {
 
   return (
     <Suspense fallback={<SelectorFallback />}>
-      <SelectorExperience projectSlug={projectSlug} />
+      <CaptureStage demo="selector">
+        <SelectorExperience projectSlug={projectSlug} />
+      </CaptureStage>
     </Suspense>
   );
 }

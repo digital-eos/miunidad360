@@ -21,6 +21,7 @@ type CameraRigProps = {
   /** Changes whenever `target` should trigger a new transition (an id, a floor number, …). */
   targetKey: string;
   autoRotateEnabled: boolean;
+  autoRotateSpeed?: number;
   minDistance: number;
   maxDistance: number;
   onInteractionChange?: (interacting: boolean) => void;
@@ -37,6 +38,7 @@ export function CameraRig({
   target,
   targetKey,
   autoRotateEnabled,
+  autoRotateSpeed = 0.55,
   minDistance,
   maxDistance,
   onInteractionChange,
@@ -107,7 +109,7 @@ export function CameraRig({
       ref={controlsRef}
       enableDamping
       dampingFactor={0.08}
-      autoRotateSpeed={0.55}
+      autoRotateSpeed={autoRotateSpeed}
       minDistance={minDistance}
       maxDistance={maxDistance}
       maxPolarAngle={Math.PI / 2 - 0.04}

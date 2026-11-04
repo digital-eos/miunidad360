@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { Suspense } from "react";
 import { SelectorCanvas } from "@/components/three/demos/selector/SelectorCanvas";
+import { BackToHomeLink } from "@/components/capture/BackToHomeLink";
+import { ScrollCue } from "@/components/ScrollCue";
+import { DemoCTA } from "@/components/DemoCTA";
+import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "Selector de unidades",
@@ -9,14 +13,16 @@ export const metadata: Metadata = {
 
 export default function SelectorDemoPage() {
   return (
-    <main className="relative min-h-screen bg-background">
-      <SelectorCanvas projectSlug="edificio-demo" />
-      <Link
-        href="/"
-        className="absolute left-4 top-20 z-10 inline-flex items-center gap-2 rounded-full border border-border-subtle bg-background/80 px-4 py-2 text-xs font-medium backdrop-blur-md transition-colors duration-200 hover:border-accent hover:text-accent sm:left-6 sm:top-24 sm:text-sm"
-      >
-        ← Volver al inicio
-      </Link>
+    <main className="relative bg-background">
+      <div className="relative">
+        <SelectorCanvas projectSlug="edificio-demo" />
+        <Suspense fallback={null}>
+          <BackToHomeLink className="top-20 sm:top-24" />
+          <ScrollCue targetId="demo-cta" />
+        </Suspense>
+      </div>
+      <DemoCTA demo="selector" />
+      <Footer />
     </main>
   );
 }

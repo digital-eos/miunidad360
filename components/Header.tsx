@@ -10,10 +10,10 @@ export function Header() {
           MiUnidad360
         </Link>
         <nav className="hidden items-center gap-8 text-sm text-foreground-muted sm:flex">
-          <Link href="#demos" className="hover:text-foreground">
+          <Link href="/#demos" className="hover:text-foreground">
             Demos
           </Link>
-          <Link href="#contacto" className="hover:text-foreground">
+          <Link href="/#contacto" className="hover:text-foreground">
             Contacto
           </Link>
         </nav>
