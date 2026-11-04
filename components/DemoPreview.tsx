@@ -2,10 +2,27 @@
 
 import { motion, useReducedMotion } from "motion/react";
 import { MaquetaPreviewCanvas } from "@/components/three/demos/maqueta/MaquetaPreviewCanvas";
+import { STATUS_COLORS } from "@/lib/units/status-colors";
 
 type DemoPreviewProps = {
   kind: "maqueta" | "selector" | "sol";
 };
+
+// Representative status mix for the homepage preview grid (disponible/reservada/vendida).
+const PREVIEW_UNIT_STATUSES = [
+  "disponible",
+  "disponible",
+  "reservada",
+  "disponible",
+  "vendida",
+  "disponible",
+  "disponible",
+  "reservada",
+  "disponible",
+  "vendida",
+  "disponible",
+  "disponible",
+] as const;
 
 export function DemoPreview({ kind }: DemoPreviewProps) {
   const shouldReduceMotion = useReducedMotion();
@@ -20,24 +37,22 @@ export function DemoPreview({ kind }: DemoPreviewProps) {
   if (kind === "selector") {
     return (
       <div className="relative grid h-40 grid-cols-4 grid-rows-3 gap-1.5 overflow-hidden rounded-xl bg-background p-4">
-        {Array.from({ length: 12 }).map((_, i) => (
-          <motion.div
-            key={i}
-            className="rounded-sm border border-border-subtle"
-            animate={
-              shouldReduceMotion
-                ? undefined
-                : {
-                    backgroundColor: [
-                      "rgba(240,166,59,0)",
-                      "rgba(240,166,59,0.45)",
-                      "rgba(240,166,59,0)",
-                    ],
-                  }
-            }
-            transition={loop ? { ...loop, delay: (i % 5) * 0.3 } : undefined}
-          />
-        ))}
+        {PREVIEW_UNIT_STATUSES.map((status, i) => {
+          const color = STATUS_COLORS[status];
+          return (
+            <motion.div
+              key={i}
+              className="rounded-sm border border-border-subtle"
+              style={{ backgroundColor: `${color}1a` }}
+              animate={
+                shouldReduceMotion
+                  ? undefined
+                  : { backgroundColor: [`${color}00`, `${color}55`, `${color}00`] }
+              }
+              transition={loop ? { ...loop, delay: (i % 5) * 0.3 } : undefined}
+            />
+          );
+        })}
       </div>
     );
   }

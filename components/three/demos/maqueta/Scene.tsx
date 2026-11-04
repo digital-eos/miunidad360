@@ -8,12 +8,12 @@ import { Context } from "./Context";
 import { Lighting } from "./Lighting";
 import { NightAnimator } from "./NightAnimator";
 import { NightBloom } from "./NightBloom";
-import { CameraRig, type ViewpointId, type Viewpoints } from "./CameraRig";
+import { CameraRig, type Viewpoint } from "./CameraRig";
 
 export type SceneProps = {
   config: BuildingConfig;
-  viewpoints: Viewpoints;
-  activeViewpoint: ViewpointId;
+  cameraTarget: Viewpoint;
+  cameraTargetKey: string;
   autoRotateEnabled: boolean;
   isMobile: boolean;
   minDistance: number;
@@ -28,8 +28,8 @@ export type SceneProps = {
 
 export function Scene({
   config,
-  viewpoints,
-  activeViewpoint,
+  cameraTarget,
+  cameraTargetKey,
   autoRotateEnabled,
   isMobile,
   minDistance,
@@ -70,8 +70,8 @@ export function Scene({
       />
 
       <CameraRig
-        viewpoints={viewpoints}
-        activeViewpoint={activeViewpoint}
+        target={cameraTarget}
+        targetKey={cameraTargetKey}
         autoRotateEnabled={autoRotateEnabled}
         minDistance={minDistance}
         maxDistance={maxDistance}

@@ -2,7 +2,7 @@
 
 import { useMemo, useRef } from "react";
 import * as THREE from "three";
-import { useFrame } from "@react-three/fiber";
+import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import { Instance, Instances } from "@react-three/drei";
 import {
   type BuildingConfig,
@@ -23,12 +23,19 @@ export type BuildingProps = {
   config?: BuildingConfig;
   /** Apartment id -> override color (used by the unit selector demo). */
   apartmentColors?: Record<string, string>;
+  /** Apartment id -> opacity override, e.g. to fade out units excluded by a filter. */
+  apartmentOpacities?: Record<string, number>;
   /** Floor number (1-based) to visually highlight, or null for none. */
   highlightFloor?: number | null;
+  /**
+   * When set, floors above this one are rendered as faint, non-interactive
+   * "ghosts" so the focused floor reads clearly (used by the unit selector).
+   */
+  focusFloor?: number | null;
   hoveredId?: string | null;
-  onApartmentClick?: (id: string) => void;
-  onApartmentPointerOver?: (id: string) => void;
-  onApartmentPointerOut?: (id: string) => void;
+  onApartmentClick?: (id: string, event: ThreeEvent<MouseEvent>) => void;
+  onApartmentPointerOver?: (id: string, event: ThreeEvent<PointerEvent>) => void;
+  onApartmentPointerOut?: (id: string, event: ThreeEvent<PointerEvent>) => void;
   castShadow?: boolean;
 };
 
@@ -39,16 +46,20 @@ const SIDE_ROTATION: Record<ExteriorSide, number> = {
   west: Math.PI / 2,
 };
 
+const GHOST_OPACITY = 0.07;
+
 type WindowSlot = {
   position: [number, number, number];
   rotationY: number;
   lit: boolean;
+  floor: number;
 };
 
 type BalconySlot = {
   position: [number, number, number];
   rotationY: number;
   width: number;
+  floor: number;
 };
 
 function facadeWidthFor(apt: ApartmentLayout, side: ExteriorSide): number {
@@ -92,6 +103,7 @@ function buildWindowsAndBalconies(
           position: [x, apt.position[1] + windowY, z],
           rotationY: SIDE_ROTATION[side],
           lit,
+          floor: apt.floor,
         });
       }
 
@@ -106,6 +118,7 @@ function buildWindowsAndBalconies(
           position: [bx, apt.position[1] - config.floorHeight * 0.42, bz],
           rotationY: SIDE_ROTATION[side],
           width: balconyWidth,
+          floor: apt.floor,
         });
       }
     }
@@ -114,10 +127,22 @@ function buildWindowsAndBalconies(
   return { windows, balconies };
 }
 
+function partition<T extends { floor: number }>(items: T[], focusFloor: number | null | undefined) {
+  if (focusFloor == null) return { visible: items, ghost: [] as T[] };
+  const visible: T[] = [];
+  const ghost: T[] = [];
+  for (const item of items) {
+    (item.floor > focusFloor ? ghost : visible).push(item);
+  }
+  return { visible, ghost };
+}
+
 export function Building({
   config = defaultBuildingConfig,
   apartmentColors,
+  apartmentOpacities,
   highlightFloor,
+  focusFloor = null,
   hoveredId,
   onApartmentClick,
   onApartmentPointerOver,
@@ -132,11 +157,18 @@ export function Building({
     () => buildWindowsAndBalconies(layouts, config),
     [layouts, config],
   );
-  const litWindows = useMemo(() => windows.filter((w) => w.lit), [windows]);
+
+  const windowParts = useMemo(() => partition(windows, focusFloor), [windows, focusFloor]);
+  const balconyParts = useMemo(() => partition(balconies, focusFloor), [balconies, focusFloor]);
+  const litWindows = useMemo(
+    () => windowParts.visible.filter((w) => w.lit),
+    [windowParts.visible],
+  );
 
   const height = totalBuildingHeight(config);
   const roofY = height - config.roofParapetHeight / 2;
   const parapetThickness = 0.25;
+  const roofGhost = focusFloor != null && focusFloor < config.floors;
 
   useFrame(() => {
     const night = factorRef.current;
@@ -168,34 +200,58 @@ export function Building({
       {layouts.map((apt) => {
         const isHighlighted = highlightFloor != null && apt.floor === highlightFloor;
         const isHovered = hoveredId === apt.id;
+        const isGhost = focusFloor != null && apt.floor > focusFloor;
+        const opacity = isGhost ? GHOST_OPACITY : (apartmentOpacities?.[apt.id] ?? 1);
+        const transparent = opacity < 0.999;
         const color = apartmentColors?.[apt.id] ?? MATERIAL_COLORS.concreteLight;
         return (
           <mesh
             key={apt.id}
             position={apt.position}
             userData={{ apartmentId: apt.id, floor: apt.floor, letter: apt.letter }}
-            receiveShadow
-            castShadow={castShadow}
-            onClick={(e) => {
-              e.stopPropagation();
-              onApartmentClick?.(apt.id);
-            }}
-            onPointerOver={(e) => {
-              e.stopPropagation();
-              onApartmentPointerOver?.(apt.id);
-            }}
-            onPointerOut={(e) => {
-              e.stopPropagation();
-              onApartmentPointerOut?.(apt.id);
-            }}
+            receiveShadow={!isGhost}
+            castShadow={castShadow && !isGhost}
+            onClick={
+              isGhost
+                ? undefined
+                : (e) => {
+                    e.stopPropagation();
+                    onApartmentClick?.(apt.id, e);
+                  }
+            }
+            onPointerOver={
+              isGhost
+                ? undefined
+                : (e) => {
+                    e.stopPropagation();
+                    onApartmentPointerOver?.(apt.id, e);
+                  }
+            }
+            onPointerOut={
+              isGhost
+                ? undefined
+                : (e) => {
+                    e.stopPropagation();
+                    onApartmentPointerOut?.(apt.id, e);
+                  }
+            }
           >
             <boxGeometry args={apt.size} />
             <meshStandardMaterial
-              color={isHovered ? MATERIAL_COLORS.glassGround : color}
+              color={color}
               roughness={0.82}
               metalness={0.05}
-              emissive={isHighlighted ? MATERIAL_COLORS.windowLitNight : "#000000"}
-              emissiveIntensity={isHighlighted ? 0.35 : 0}
+              emissive={
+                isHovered
+                  ? MATERIAL_COLORS.hoverGlow
+                  : isHighlighted
+                    ? MATERIAL_COLORS.windowLitNight
+                    : "#000000"
+              }
+              emissiveIntensity={isHovered ? 0.55 : isHighlighted ? 0.35 : 0}
+              transparent={transparent}
+              opacity={opacity}
+              depthWrite={!transparent}
             />
           </mesh>
         );
@@ -204,31 +260,51 @@ export function Building({
       {/* Floor slabs */}
       {Array.from({ length: config.floors + 1 }, (_, i) => i).map((i) => {
         const y = config.groundFloorHeight + i * config.floorHeight - config.slabThickness / 2;
+        const isGhost = focusFloor != null && i > focusFloor;
         return (
-          <mesh key={`slab-${i}`} position={[0, y, 0]} receiveShadow>
+          <mesh key={`slab-${i}`} position={[0, y, 0]} receiveShadow={!isGhost}>
             <boxGeometry
               args={[config.buildingWidth + 0.16, config.slabThickness, config.buildingDepth + 0.16]}
             />
-            <meshStandardMaterial color={MATERIAL_COLORS.slab} roughness={0.9} />
+            <meshStandardMaterial
+              color={MATERIAL_COLORS.slab}
+              roughness={0.9}
+              transparent={isGhost}
+              opacity={isGhost ? GHOST_OPACITY : 1}
+              depthWrite={!isGhost}
+            />
           </mesh>
         );
       })}
 
       {/* Windows: base glass pane, always visible */}
-      <Instances limit={windows.length} range={windows.length} castShadow={false}>
-        <planeGeometry args={[1.4, 1]} />
-        <meshStandardMaterial
-          color={MATERIAL_COLORS.glass}
-          roughness={0.15}
-          metalness={0.4}
-          side={THREE.DoubleSide}
-        />
-        {windows.map((w, i) => (
-          <Instance key={i} position={w.position} rotation={[0, w.rotationY, 0]} />
-        ))}
-      </Instances>
+      {([
+        [windowParts.visible, MATERIAL_COLORS.glass, 1] as const,
+        [windowParts.ghost, MATERIAL_COLORS.glass, GHOST_OPACITY] as const,
+      ] as const).map(([list, color, opacity], idx) => (
+        <Instances
+          key={`windows-${idx}`}
+          limit={Math.max(1, list.length)}
+          range={list.length}
+          castShadow={false}
+        >
+          <planeGeometry args={[1.4, 1]} />
+          <meshStandardMaterial
+            color={color}
+            roughness={0.15}
+            metalness={0.4}
+            side={THREE.DoubleSide}
+            transparent={opacity < 0.999}
+            opacity={opacity}
+            depthWrite={opacity >= 0.999}
+          />
+          {list.map((w, i) => (
+            <Instance key={i} position={w.position} rotation={[0, w.rotationY, 0]} />
+          ))}
+        </Instances>
+      ))}
 
-      {/* Lit-window overlay, fades/glows in at night */}
+      {/* Lit-window overlay, fades/glows in at night (focused-floor set only) */}
       <Instances limit={Math.max(1, litWindows.length)} range={litWindows.length} castShadow={false}>
         <planeGeometry args={[1.2, 1.35]} />
         <meshStandardMaterial
@@ -254,50 +330,73 @@ export function Building({
       </Instances>
 
       {/* Balcony slabs */}
-      <Instances limit={Math.max(1, balconies.length)} range={balconies.length}>
-        <boxGeometry args={[1, 0.12, 1]} />
-        <meshStandardMaterial color={MATERIAL_COLORS.slab} roughness={0.85} />
-        {balconies.map((b, i) => (
-          <Instance
-            key={i}
-            position={b.position}
-            rotation={[0, b.rotationY, 0]}
-            scale={[b.width, 1, config.balconyDepth]}
+      {([
+        [balconyParts.visible, 1] as const,
+        [balconyParts.ghost, GHOST_OPACITY] as const,
+      ] as const).map(([list, opacity], idx) => (
+        <Instances key={`balcony-slabs-${idx}`} limit={Math.max(1, list.length)} range={list.length}>
+          <boxGeometry args={[1, 0.12, 1]} />
+          <meshStandardMaterial
+            color={MATERIAL_COLORS.slab}
+            roughness={0.85}
+            transparent={opacity < 0.999}
+            opacity={opacity}
+            depthWrite={opacity >= 0.999}
           />
-        ))}
-      </Instances>
-
-      {/* Balcony railings */}
-      <Instances limit={Math.max(1, balconies.length)} range={balconies.length}>
-        <boxGeometry args={[1, 1, 0.06]} />
-        <meshStandardMaterial
-          color={MATERIAL_COLORS.metalDark}
-          roughness={0.4}
-          metalness={0.6}
-          transparent
-          opacity={0.85}
-        />
-        {balconies.map((b, i) => {
-          const [nx, nz] = [Math.sin(b.rotationY), Math.cos(b.rotationY)];
-          return (
+          {list.map((b, i) => (
             <Instance
               key={i}
-              position={[
-                b.position[0] + nx * (config.balconyDepth / 2),
-                b.position[1] + 0.55,
-                b.position[2] + nz * (config.balconyDepth / 2),
-              ]}
+              position={b.position}
               rotation={[0, b.rotationY, 0]}
-              scale={[b.width, 1, 1]}
+              scale={[b.width, 1, config.balconyDepth]}
             />
-          );
-        })}
-      </Instances>
+          ))}
+        </Instances>
+      ))}
+
+      {/* Balcony railings */}
+      {([
+        [balconyParts.visible, 0.85] as const,
+        [balconyParts.ghost, GHOST_OPACITY] as const,
+      ] as const).map(([list, opacity], idx) => (
+        <Instances key={`balcony-railings-${idx}`} limit={Math.max(1, list.length)} range={list.length}>
+          <boxGeometry args={[1, 1, 0.06]} />
+          <meshStandardMaterial
+            color={MATERIAL_COLORS.metalDark}
+            roughness={0.4}
+            metalness={0.6}
+            transparent
+            opacity={opacity}
+            depthWrite={opacity >= 0.8}
+          />
+          {list.map((b, i) => {
+            const [nx, nz] = [Math.sin(b.rotationY), Math.cos(b.rotationY)];
+            return (
+              <Instance
+                key={i}
+                position={[
+                  b.position[0] + nx * (config.balconyDepth / 2),
+                  b.position[1] + 0.55,
+                  b.position[2] + nz * (config.balconyDepth / 2),
+                ]}
+                rotation={[0, b.rotationY, 0]}
+                scale={[b.width, 1, 1]}
+              />
+            );
+          })}
+        </Instances>
+      ))}
 
       {/* Roof slab + parapet */}
-      <mesh position={[0, roofY, 0]} receiveShadow castShadow={castShadow}>
+      <mesh position={[0, roofY, 0]} receiveShadow={!roofGhost} castShadow={castShadow && !roofGhost}>
         <boxGeometry args={[config.buildingWidth, config.roofParapetHeight, config.buildingDepth]} />
-        <meshStandardMaterial color={MATERIAL_COLORS.concreteShadow} roughness={0.9} />
+        <meshStandardMaterial
+          color={MATERIAL_COLORS.concreteShadow}
+          roughness={0.9}
+          transparent={roofGhost}
+          opacity={roofGhost ? GHOST_OPACITY : 1}
+          depthWrite={!roofGhost}
+        />
       </mesh>
       {[
         [0, config.buildingDepth / 2, config.buildingWidth, parapetThickness] as const,
@@ -305,7 +404,14 @@ export function Building({
       ].map(([x, z, w, d], i) => (
         <mesh key={`parapet-ns-${i}`} position={[x, height + 0.3, z]}>
           <boxGeometry args={[w, 0.6, d]} />
-          <meshStandardMaterial color={MATERIAL_COLORS.metalDark} roughness={0.6} metalness={0.4} />
+          <meshStandardMaterial
+            color={MATERIAL_COLORS.metalDark}
+            roughness={0.6}
+            metalness={0.4}
+            transparent={roofGhost}
+            opacity={roofGhost ? GHOST_OPACITY : 1}
+            depthWrite={!roofGhost}
+          />
         </mesh>
       ))}
       {[
@@ -314,12 +420,25 @@ export function Building({
       ].map(([x, z, w, d], i) => (
         <mesh key={`parapet-ew-${i}`} position={[x, height + 0.3, z]}>
           <boxGeometry args={[w, 0.6, d]} />
-          <meshStandardMaterial color={MATERIAL_COLORS.metalDark} roughness={0.6} metalness={0.4} />
+          <meshStandardMaterial
+            color={MATERIAL_COLORS.metalDark}
+            roughness={0.6}
+            metalness={0.4}
+            transparent={roofGhost}
+            opacity={roofGhost ? GHOST_OPACITY : 1}
+            depthWrite={!roofGhost}
+          />
         </mesh>
       ))}
       <mesh position={[config.buildingWidth * 0.18, height + 0.9, config.buildingDepth * 0.15]}>
         <boxGeometry args={[1.8, 1.2, 1.4]} />
-        <meshStandardMaterial color={MATERIAL_COLORS.concreteShadow} roughness={0.8} />
+        <meshStandardMaterial
+          color={MATERIAL_COLORS.concreteShadow}
+          roughness={0.8}
+          transparent={roofGhost}
+          opacity={roofGhost ? GHOST_OPACITY : 1}
+          depthWrite={!roofGhost}
+        />
       </mesh>
     </group>
   );

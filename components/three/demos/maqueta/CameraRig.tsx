@@ -16,8 +16,10 @@ export type Viewpoint = {
 export type Viewpoints = Record<ViewpointId, Viewpoint>;
 
 type CameraRigProps = {
-  viewpoints: Viewpoints;
-  activeViewpoint: ViewpointId;
+  /** The viewpoint to fly to. */
+  target: Viewpoint;
+  /** Changes whenever `target` should trigger a new transition (an id, a floor number, …). */
+  targetKey: string;
   autoRotateEnabled: boolean;
   minDistance: number;
   maxDistance: number;
@@ -32,8 +34,8 @@ function easeInOutCubic(t: number): number {
 }
 
 export function CameraRig({
-  viewpoints,
-  activeViewpoint,
+  target,
+  targetKey,
   autoRotateEnabled,
   minDistance,
   maxDistance,
@@ -42,7 +44,7 @@ export function CameraRig({
   const { camera, invalidate } = useThree();
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
 
-  const lastViewpointRef = useRef<ViewpointId>(activeViewpoint);
+  const lastKeyRef = useRef<string | null>(null);
   const transitionRef = useRef<{
     active: boolean;
     start: number;
@@ -56,17 +58,16 @@ export function CameraRig({
   const isDraggingRef = useRef(false);
 
   useEffect(() => {
-    const vp = viewpoints[activeViewpoint];
-    camera.position.set(...vp.position);
-    controlsRef.current?.target.set(...vp.target);
+    camera.position.set(...target.position);
+    controlsRef.current?.target.set(...target.target);
     controlsRef.current?.update();
+    lastKeyRef.current = targetKey;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    if (lastViewpointRef.current === activeViewpoint) return;
-    lastViewpointRef.current = activeViewpoint;
-    const target = viewpoints[activeViewpoint];
+    if (lastKeyRef.current === targetKey) return;
+    lastKeyRef.current = targetKey;
     const controls = controlsRef.current;
     transitionRef.current = {
       active: true,
@@ -78,7 +79,7 @@ export function CameraRig({
     };
     lastInteractionRef.current = performance.now();
     invalidate();
-  }, [activeViewpoint, viewpoints, camera, invalidate]);
+  }, [targetKey, target, camera, invalidate]);
 
   useFrame(() => {
     const controls = controlsRef.current;

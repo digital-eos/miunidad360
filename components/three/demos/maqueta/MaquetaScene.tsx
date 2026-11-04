@@ -65,8 +65,8 @@ function MaquetaSceneInner() {
       >
         <Scene
           config={config}
-          viewpoints={viewpoints}
-          activeViewpoint={activeViewpoint}
+          cameraTarget={viewpoints[activeViewpoint]}
+          cameraTargetKey={activeViewpoint}
           autoRotateEnabled={!prefersReducedMotion}
           isMobile={isMobile}
           minDistance={Math.max(config.buildingWidth, config.buildingDepth) * 0.45}

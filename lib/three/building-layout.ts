@@ -64,6 +64,18 @@ export function generateApartmentLayout(
   return layouts;
 }
 
+const ORIENTATION_BY_LETTER: Record<ApartmentLetter, string> = {
+  A: "SO",
+  B: "SE",
+  C: "NO",
+  D: "NE",
+};
+
+/** Cardinal-pair orientation (Argentine convention) for a given apartment letter. */
+export function apartmentOrientation(letter: ApartmentLetter): string {
+  return ORIENTATION_BY_LETTER[letter];
+}
+
 /** Outward unit normal for a given facade side. */
 export function sideNormal(side: ExteriorSide): [number, number] {
   switch (side) {

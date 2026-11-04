@@ -18,4 +18,5 @@ export const MATERIAL_COLORS = {
   lampPole: "#3a3b3f",
   lampGlow: "#ffd98f",
   groundGrass: "#5e7a53",
+  hoverGlow: "#6fd1ff",
 } as const;
