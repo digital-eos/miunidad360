@@ -36,8 +36,10 @@ export function Lighting() {
     if (fogRef.current) {
       tmpFog.copy(DAY_FOG).lerp(NIGHT_FOG, night);
       fogRef.current.color.copy(tmpFog);
-      fogRef.current.near = THREE.MathUtils.lerp(30, 18, night);
-      fogRef.current.far = THREE.MathUtils.lerp(150, 95, night);
+      // Far distances are generous enough to cover the maqueta demo's
+      // furthest camera (the aerial viewpoint on narrow/mobile aspects).
+      fogRef.current.near = THREE.MathUtils.lerp(45, 22, night);
+      fogRef.current.far = THREE.MathUtils.lerp(300, 220, night);
     }
 
     if (sunRef.current) {
@@ -61,7 +63,7 @@ export function Lighting() {
   return (
     <>
       <color ref={bgRef} attach="background" args={[DAY_SKY]} />
-      <fog ref={fogRef} attach="fog" args={[DAY_FOG.getHex(), 30, 150]} />
+      <fog ref={fogRef} attach="fog" args={[DAY_FOG.getHex(), 45, 300]} />
       <ambientLight ref={ambientRef} intensity={0.55} />
       <hemisphereLight ref={hemiRef} args={["#dfeaf2", "#30261c", 0.5]} />
       <directionalLight

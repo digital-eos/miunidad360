@@ -33,7 +33,7 @@ export function ControlsPanel({
             className={cn(
               "rounded-full px-3.5 py-1.5 text-xs font-medium tracking-wide transition-colors duration-200 sm:text-sm",
               activeViewpoint === id
-                ? "bg-accent text-background"
+                ? "bg-accent text-accent-foreground"
                 : "text-foreground-muted hover:text-foreground",
             )}
           >
@@ -47,7 +47,7 @@ export function ControlsPanel({
           aria-pressed={isNight}
           className={cn(
             "rounded-full px-3.5 py-1.5 text-xs font-medium tracking-wide transition-colors duration-200 sm:text-sm",
-            isNight ? "bg-accent text-background" : "text-foreground-muted hover:text-foreground",
+            isNight ? "bg-accent text-accent-foreground" : "text-foreground-muted hover:text-foreground",
           )}
         >
           {isNight ? "Noche" : "Día"}

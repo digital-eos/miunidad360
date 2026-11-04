@@ -16,7 +16,7 @@ export function Hero() {
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(105deg, rgba(10,10,11,0.95) 32%, rgba(10,10,11,0.55) 55%, rgba(10,10,11,0.2) 75%), linear-gradient(to bottom, rgba(10,10,11,0.15), rgba(10,10,11,0.7) 60%, var(--background) 97%)",
+            "linear-gradient(105deg, rgba(247,245,240,0.95) 32%, rgba(247,245,240,0.55) 55%, rgba(247,245,240,0.2) 75%), linear-gradient(to bottom, rgba(247,245,240,0.15), rgba(247,245,240,0.7) 60%, var(--background) 97%)",
         }}
       />
       <Container className="relative z-10">
@@ -24,7 +24,7 @@ export function Hero() {
           initial={shouldReduceMotion ? undefined : { opacity: 0, y: 12 }}
           animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-5 font-mono text-xs uppercase tracking-[0.25em] text-accent"
+          className="mb-5 font-mono text-xs uppercase tracking-[0.25em] text-accent-strong"
         >
           Digital EOS · Experiencias 3D para real estate
         </motion.p>
@@ -55,7 +55,7 @@ export function Hero() {
           <a
             href="#demos"
             onClick={() => trackDemoClick("maqueta")}
-            className="inline-flex items-center justify-center rounded-full border border-border-subtle px-6 py-3 text-sm font-medium transition-colors duration-200 hover:border-accent hover:text-accent"
+            className="inline-flex items-center justify-center rounded-full border border-border-subtle px-6 py-3 text-sm font-medium transition-colors duration-200 hover:border-accent hover:text-accent-strong"
           >
             Ver demos
           </a>

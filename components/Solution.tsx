@@ -31,7 +31,7 @@ export function Solution() {
         <div className="mt-14 grid gap-8 sm:grid-cols-3">
           {BENEFITS.map((benefit, index) => (
             <Reveal key={benefit.title} delay={index * 0.08}>
-              <div className="h-full rounded-2xl border border-border-subtle bg-background p-6">
+              <div className="h-full rounded-2xl border border-border-subtle bg-background p-6 shadow-sm shadow-black/[0.04]">
                 <div className="h-1 w-10 rounded-full bg-accent" />
                 <h3 className="mt-5 font-display text-xl">{benefit.title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-foreground-muted">

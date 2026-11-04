@@ -85,7 +85,7 @@ function UnitRow({ unit }: { unit: Unit }) {
             className="w-28 rounded-md border border-border-subtle bg-background-elevated px-2 py-1 text-sm disabled:opacity-60"
           />
           <span className="text-xs text-foreground-muted">{formatUsdPrice(price)}</span>
-          {savedAt ? <span className="text-xs text-accent">✓</span> : null}
+          {savedAt ? <span className="text-xs text-accent-strong">✓</span> : null}
         </div>
       </td>
     </tr>

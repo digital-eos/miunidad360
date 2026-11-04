@@ -31,7 +31,7 @@ export function Problem() {
         <div className="mt-14 grid gap-8 sm:grid-cols-3">
           {POINTS.map((point, index) => (
             <Reveal key={point.title} delay={index * 0.08}>
-              <div className="h-full rounded-2xl border border-border-subtle bg-background-elevated p-6">
+              <div className="h-full rounded-2xl border border-border-subtle bg-background-elevated p-6 shadow-sm shadow-black/[0.04]">
                 <span className="font-mono text-xs text-foreground-muted">
                   0{index + 1}
                 </span>

@@ -25,7 +25,7 @@ export function DemoCTA({ demo }: { demo: "maqueta" | "selector" | "sol" }) {
   return (
     <section id="demo-cta" className="border-t border-border-subtle bg-background py-20">
       <Container className="max-w-2xl text-center">
-        <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">
+        <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent-strong">
           ¿Te gustó {demoLabel}?
         </p>
         <h2 className="mt-3 font-display text-3xl sm:text-4xl">
@@ -99,7 +99,7 @@ export function DemoCTA({ demo }: { demo: "maqueta" | "selector" | "sol" }) {
               <button
                 type="submit"
                 disabled={isPending}
-                className="w-full rounded-full bg-accent px-6 py-3 text-sm font-medium text-background transition-colors duration-200 hover:bg-[#ffb84f] disabled:opacity-60"
+                className="w-full rounded-full bg-accent px-6 py-3 text-sm font-medium text-accent-foreground transition-colors duration-200 hover:bg-[#ffb84f] disabled:opacity-60"
               >
                 {isPending ? "Enviando…" : "Quiero que me contacten"}
               </button>

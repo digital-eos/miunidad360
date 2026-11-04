@@ -117,7 +117,7 @@ export function Contact() {
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="w-full rounded-full bg-accent px-6 py-3 text-sm font-medium text-background transition-colors duration-200 hover:bg-[#ffb84f] disabled:opacity-60"
+                  className="w-full rounded-full bg-accent px-6 py-3 text-sm font-medium text-accent-foreground transition-colors duration-200 hover:bg-[#ffb84f] disabled:opacity-60"
                 >
                   {isPending ? "Enviando…" : "Enviar mensaje"}
                 </button>

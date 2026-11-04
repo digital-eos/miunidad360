@@ -74,7 +74,7 @@ export function RecordButton({
         type="button"
         onClick={handleRecord}
         disabled={state === "recording"}
-        className="flex items-center gap-2 whitespace-nowrap rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-background shadow-lg shadow-black/30 transition-opacity duration-200 disabled:opacity-80"
+        className="flex items-center gap-2 whitespace-nowrap rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-accent-foreground shadow-lg shadow-black/30 transition-opacity duration-200 disabled:opacity-80"
       >
         {state === "recording" ? (
           <>

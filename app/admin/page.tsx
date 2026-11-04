@@ -49,13 +49,13 @@ export default async function AdminPage() {
       <div className="mx-auto max-w-6xl space-y-12">
         <header className="flex items-center justify-between gap-4">
           <div>
-            <p className="font-mono text-xs uppercase tracking-[0.25em] text-accent">Admin</p>
+            <p className="font-mono text-xs uppercase tracking-[0.25em] text-accent-strong">Admin</p>
             <h1 className="font-display text-3xl">{project?.name ?? "Edificio Demo"}</h1>
           </div>
           <form action={adminLogout}>
             <button
               type="submit"
-              className="rounded-full border border-border-subtle px-4 py-2 text-sm font-medium transition-colors duration-200 hover:border-accent hover:text-accent"
+              className="rounded-full border border-border-subtle px-4 py-2 text-sm font-medium transition-colors duration-200 hover:border-accent hover:text-accent-strong"
             >
               Cerrar sesión
             </button>

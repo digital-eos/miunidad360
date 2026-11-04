@@ -300,7 +300,7 @@ export function SelectorExperience({ projectSlug }: { projectSlug: string }) {
 
       {state.status === "loading" ? (
         <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-background">
-          <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">Edificio Demo</p>
+          <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent-strong">Edificio Demo</p>
           <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-foreground-muted">
             Cargando unidades…
           </p>

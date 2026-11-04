@@ -11,7 +11,7 @@ export function AdminLoginForm() {
   return (
     <form action={formAction} className="w-full max-w-sm space-y-4">
       <div>
-        <p className="font-mono text-xs uppercase tracking-[0.25em] text-accent">Admin</p>
+        <p className="font-mono text-xs uppercase tracking-[0.25em] text-accent-strong">Admin</p>
         <h1 className="mt-2 font-display text-2xl">Acceso al back-office</h1>
       </div>
 
@@ -38,7 +38,7 @@ export function AdminLoginForm() {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full rounded-full bg-accent px-6 py-3 text-sm font-medium text-background transition-colors duration-200 hover:bg-[#ffb84f] disabled:opacity-60"
+        className="w-full rounded-full bg-accent px-6 py-3 text-sm font-medium text-accent-foreground transition-colors duration-200 hover:bg-[#ffb84f] disabled:opacity-60"
       >
         {isPending ? "Verificando…" : "Entrar"}
       </button>

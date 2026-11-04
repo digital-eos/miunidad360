@@ -13,7 +13,7 @@ const SelectorExperience = dynamic(
 function SelectorFallback() {
   return (
     <div className="flex h-[100svh] w-full items-center justify-center bg-background bg-grid">
-      <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">
+      <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent-strong">
         Cargando el selector…
       </p>
     </div>

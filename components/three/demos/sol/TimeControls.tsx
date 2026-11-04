@@ -75,7 +75,7 @@ export function TimeControls({
             className={cn(
               "rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors duration-200",
               mapaDeSol
-                ? "bg-accent text-background"
+                ? "bg-accent text-accent-foreground"
                 : "border border-border-subtle text-foreground-muted hover:text-foreground",
             )}
           >
@@ -88,7 +88,7 @@ export function TimeControls({
             type="button"
             onClick={onTogglePlay}
             aria-label={isPlaying ? "Pausar" : "Reproducir"}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-background transition-colors duration-200 hover:bg-[#ffb84f]"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground transition-colors duration-200 hover:bg-[#ffb84f]"
           >
             {isPlaying ? "❚❚" : "▶"}
           </button>

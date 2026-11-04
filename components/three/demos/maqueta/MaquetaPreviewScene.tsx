@@ -45,10 +45,10 @@ export default function MaquetaPreviewScene() {
       dpr={[1, 1.5]}
       gl={{ antialias: true, alpha: true }}
     >
-      <color attach="background" args={["#0a0a0b"]} />
-      <fog attach="fog" args={["#0a0a0b", 18, 50]} />
+      <color attach="background" args={["#bcd7e8"]} />
+      <fog attach="fog" args={["#cfe3ee", 18, 50]} />
       <ambientLight intensity={0.65} />
-      <directionalLight position={[14, 20, 10]} intensity={1.5} color="#f4f2ec" />
+      <directionalLight position={[14, 20, 10]} intensity={1.5} color="#fff3d8" />
       <directionalLight position={[-10, 6, -8]} intensity={0.3} color="#f0a63b" />
       <NightProvider>
         <group position={[0, -height / 2, 0]}>

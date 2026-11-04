@@ -18,7 +18,7 @@ export function SectionHeading({
       className={cn("max-w-2xl", align === "center" && "mx-auto text-center", className)}
     >
       {eyebrow ? (
-        <p className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-accent">
+        <p className="mb-3 font-mono text-xs uppercase tracking-[0.2em] text-accent-strong">
           {eyebrow}
         </p>
       ) : null}

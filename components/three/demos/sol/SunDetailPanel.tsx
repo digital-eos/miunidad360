@@ -30,7 +30,7 @@ export function SunDetailPanel({
           type="button"
           onClick={onClose}
           aria-label="Cerrar"
-          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-border-subtle text-sm transition-colors duration-200 hover:border-accent hover:text-accent"
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-border-subtle text-sm transition-colors duration-200 hover:border-accent hover:text-accent-strong"
         >
           ×
         </button>

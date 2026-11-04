@@ -1,14 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0a0b;
-  --background-elevated: #121214;
-  --foreground: #f4f2ec;
-  --foreground-muted: #9b9890;
-  --grid-line: rgba(244, 242, 236, 0.07);
+  --background: #f7f5f0;
+  --background-elevated: #efebe3;
+  --foreground: #1c1c1c;
+  --foreground-muted: #6e6a62;
+  --grid-line: rgba(28, 28, 28, 0.06);
   --accent: #f0a63b;
+  --accent-strong: #9c5f08;
   --accent-soft: rgba(240, 166, 59, 0.14);
-  --border-subtle: rgba(244, 242, 236, 0.12);
+  --accent-foreground: #1c1c1c;
+  --border-subtle: rgba(28, 28, 28, 0.12);
 }
 
 @theme inline {
@@ -18,7 +20,9 @@
   --color-foreground-muted: var(--foreground-muted);
   --color-grid-line: var(--grid-line);
   --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
   --color-accent-soft: var(--accent-soft);
+  --color-accent-foreground: var(--accent-foreground);
   --color-border-subtle: var(--border-subtle);
   --font-display: var(--font-fraunces);
   --font-sans: var(--font-manrope);
@@ -47,7 +51,7 @@ body {
 }
 
 .text-gradient-accent {
-  background: linear-gradient(135deg, var(--accent), #ffd98f);
+  background: linear-gradient(135deg, var(--accent-strong), var(--accent));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;

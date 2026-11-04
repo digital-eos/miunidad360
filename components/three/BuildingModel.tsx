@@ -101,10 +101,10 @@ export function BuildingModel({ spinning = true }: BuildingModelProps) {
         rotation={[-Math.PI / 2, 0, 0]}
       >
         <planeGeometry args={[6, 6]} />
-        <meshStandardMaterial color="#0a0a0b" roughness={1} />
+        <meshStandardMaterial color="#efebe3" roughness={1} />
       </mesh>
       <gridHelper
-        args={[6, 24, "#f4f2ec", "#1a1a1c"]}
+        args={[6, 24, "#8f8a7d", "#d8d4c9"]}
         position={[0, -FLOOR_COUNT * FLOOR_HEIGHT * 0.5, 0]}
       />
     </group>

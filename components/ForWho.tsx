@@ -31,7 +31,7 @@ export function ForWho() {
         <div className="mt-14 grid gap-6 sm:grid-cols-3">
           {AUDIENCES.map((audience, index) => (
             <Reveal key={audience.title} delay={index * 0.08}>
-              <div className="h-full rounded-2xl border border-border-subtle p-6">
+              <div className="h-full rounded-2xl border border-border-subtle bg-background p-6 shadow-sm shadow-black/[0.04]">
                 <h3 className="font-display text-xl">{audience.title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-foreground-muted">
                   {audience.description}

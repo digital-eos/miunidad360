@@ -4,17 +4,20 @@ import { useEffect, useMemo, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { PerformanceMonitor } from "@react-three/drei";
 import * as THREE from "three";
-import { defaultBuildingConfig, totalBuildingHeight } from "@/lib/three/building-config";
+import { defaultBuildingConfig } from "@/lib/three/building-config";
+import { computeMaquetaViewpoints, maquetaOrbitDistanceBounds } from "@/lib/three/camera-framing";
 import { usePrefersReducedMotion } from "@/lib/hooks/use-prefers-reduced-motion";
 import { useIsMobile } from "@/lib/hooks/use-is-mobile";
+import { useViewportAspect } from "@/lib/hooks/use-viewport-aspect";
 import { useCaptureMode } from "@/lib/hooks/use-capture-mode";
 import { Scene } from "./Scene";
 import { ControlsPanel } from "./ControlsPanel";
 import { LoadingOverlay } from "./LoadingOverlay";
 import { NightProvider, requestNightTransition, useNightContext } from "./night-context";
-import type { ViewpointId, Viewpoints } from "./CameraRig";
+import type { ViewpointId } from "./CameraRig";
 
 const config = defaultBuildingConfig;
+const CAMERA_FOV = 42;
 
 const CAPTURE_NIGHT_AT_MS = 7000;
 const CAPTURE_CYCLE_MS = 13000;
@@ -23,6 +26,7 @@ function MaquetaSceneInner() {
   const nightCtx = useNightContext();
   const prefersReducedMotion = usePrefersReducedMotion();
   const isMobile = useIsMobile();
+  const aspect = useViewportAspect();
   const capture = useCaptureMode();
 
   const [isNight, setIsNight] = useState(false);
@@ -61,24 +65,13 @@ function MaquetaSceneInner() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [capture.active]);
 
-  const height = useMemo(() => totalBuildingHeight(config), []);
-
-  const viewpoints: Viewpoints = useMemo(
-    () => ({
-      aerial: {
-        position: [config.buildingWidth * 0.95, height * 1.45, config.buildingDepth * 1.25],
-        target: [0, height * 0.32, 0],
-      },
-      street: {
-        position: [config.buildingWidth * 0.1, 3.4, config.buildingDepth * 0.92],
-        target: [0, height * 0.22, 0],
-      },
-      facade: {
-        position: [0, height * 0.5, height * 1.7],
-        target: [0, height * 0.46, 0],
-      },
-    }),
-    [height],
+  const viewpoints = useMemo(
+    () => computeMaquetaViewpoints(config, CAMERA_FOV, aspect),
+    [aspect],
+  );
+  const { minDistance, maxDistance } = useMemo(
+    () => maquetaOrbitDistanceBounds(config, viewpoints),
+    [viewpoints],
   );
 
   const handleToggleNight = () => {
@@ -90,7 +83,7 @@ function MaquetaSceneInner() {
   return (
     <div className={`relative h-full w-full ${hoveredId ? "cursor-pointer" : ""}`}>
       <Canvas
-        camera={{ position: viewpoints.aerial.position, fov: 42, near: 0.1, far: 400 }}
+        camera={{ position: viewpoints.aerial.position, fov: CAMERA_FOV, near: 0.1, far: 500 }}
         dpr={dpr}
         shadows={!isMobile}
         frameloop={!capture.active && prefersReducedMotion ? "demand" : "always"}
@@ -113,8 +106,8 @@ function MaquetaSceneInner() {
           autoRotateEnabled={capture.active || !prefersReducedMotion}
           autoRotateSpeed={capture.active ? 2.4 : 0.55}
           isMobile={isMobile}
-          minDistance={Math.max(config.buildingWidth, config.buildingDepth) * 0.45}
-          maxDistance={Math.max(config.buildingWidth, config.buildingDepth) * 3.4}
+          minDistance={minDistance}
+          maxDistance={maxDistance}
           hoveredId={hoveredId}
           onApartmentPointerOver={setHoveredId}
           onApartmentPointerOut={() => setHoveredId(null)}

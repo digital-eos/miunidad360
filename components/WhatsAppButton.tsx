@@ -32,8 +32,8 @@ export function WhatsAppButton({
       className={cn(
         "inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium transition-colors duration-200",
         variant === "solid"
-          ? "bg-accent text-background hover:bg-[#ffb84f]"
-          : "border border-border-subtle text-foreground hover:border-accent hover:text-accent",
+          ? "bg-accent text-accent-foreground hover:bg-[#ffb84f]"
+          : "border border-border-subtle text-foreground hover:border-accent hover:text-accent-strong",
         className
       )}
     >

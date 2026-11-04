@@ -22,7 +22,7 @@ export function FloorSelector({
           className={cn(
             "rounded-full px-2 py-1.5 text-[10px] font-medium uppercase tracking-wide transition-colors duration-200",
             activeFloor === null
-              ? "bg-accent text-background"
+              ? "bg-accent text-accent-foreground"
               : "text-foreground-muted hover:text-foreground",
           )}
         >
@@ -38,7 +38,7 @@ export function FloorSelector({
             className={cn(
               "flex h-7 w-7 items-center justify-center rounded-full text-xs font-medium transition-colors duration-200",
               activeFloor === floor
-                ? "bg-accent text-background"
+                ? "bg-accent text-accent-foreground"
                 : "text-foreground-muted hover:text-foreground",
             )}
           >

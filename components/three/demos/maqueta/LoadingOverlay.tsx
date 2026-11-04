@@ -13,7 +13,7 @@ export function LoadingOverlay() {
         active ? "opacity-100" : "opacity-0",
       )}
     >
-      <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">Edificio Demo</p>
+      <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent-strong">Edificio Demo</p>
       <div className="h-px w-40 overflow-hidden rounded-full bg-border-subtle">
         <div
           className="h-full bg-accent transition-[width] duration-200"

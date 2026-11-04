@@ -43,7 +43,7 @@ export function UnitPanel({
           type="button"
           onClick={onClose}
           aria-label="Cerrar"
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-border-subtle text-lg transition-colors duration-200 hover:border-accent hover:text-accent"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-border-subtle text-lg transition-colors duration-200 hover:border-accent hover:text-accent-strong"
         >
           ×
         </button>
@@ -160,7 +160,7 @@ export function UnitPanel({
               <button
                 type="submit"
                 disabled={isPending}
-                className="w-full rounded-full border border-border-subtle py-2.5 text-sm font-medium transition-colors duration-200 hover:border-accent hover:text-accent disabled:opacity-60"
+                className="w-full rounded-full border border-border-subtle py-2.5 text-sm font-medium transition-colors duration-200 hover:border-accent hover:text-accent-strong disabled:opacity-60"
               >
                 {isPending ? "Enviando…" : "Quiero que me contacten"}
               </button>

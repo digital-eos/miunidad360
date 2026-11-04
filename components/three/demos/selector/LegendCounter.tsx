@@ -5,7 +5,7 @@ export function LegendCounter({ availableCount }: { availableCount: number }) {
     <div className="pointer-events-none absolute left-4 top-4 flex flex-col gap-2 sm:left-6 sm:top-6">
       <div className="pointer-events-auto rounded-2xl border border-border-subtle bg-background/80 px-4 py-3 backdrop-blur-md">
         <p className="font-display text-sm sm:text-base">
-          Quedan <span className="text-accent">{availableCount}</span> unidades disponibles
+          Quedan <span className="text-accent-strong">{availableCount}</span> unidades disponibles
         </p>
         <div className="mt-2 flex flex-wrap gap-3">
           {STATUS_ORDER.map((status) => (

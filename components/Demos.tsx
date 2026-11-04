@@ -39,14 +39,14 @@ export function Demos() {
               <Link
                 href={demo.href}
                 onClick={() => trackDemoClick(demo.kind)}
-                className="group block h-full rounded-2xl border border-border-subtle p-5 transition-colors duration-200 hover:border-accent"
+                className="group block h-full rounded-2xl border border-border-subtle bg-background p-5 shadow-sm shadow-black/[0.04] transition-colors duration-200 hover:border-accent"
               >
                 <DemoPreview kind={demo.kind} />
                 <h3 className="mt-5 font-display text-xl">{demo.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-foreground-muted">
                   {demo.description}
                 </p>
-                <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-accent">
+                <span className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-accent-strong">
                   Ver demo
                   <span className="transition-transform duration-200 group-hover:translate-x-1">
                     →
