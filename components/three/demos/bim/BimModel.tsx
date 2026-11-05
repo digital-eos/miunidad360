@@ -13,8 +13,13 @@ import type { ThreeEvent } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import { groupsByName, bimUnitsByName } from "@/lib/bim/dataset";
-import { CATEGORY_COLORS, DEFAULT_CATEGORY_COLOR, GLASS_CATEGORIES } from "@/lib/bim/categories";
+import {
+  CATEGORY_COLORS,
+  DEFAULT_CATEGORY_COLOR,
+  GLASS_CATEGORIES,
+} from "@/lib/bim/categories";
 import { STATUS_COLORS } from "@/lib/units/status-colors";
+import type { FloorRange } from "@/lib/bim/floors";
 
 export type BimMode = "unidades" | "avance" | "corte";
 
@@ -31,7 +36,10 @@ function NOOP_RAYCAST() {
 type BimModelProps = {
   mode: BimMode;
   currentWeek: number;
-  cutHeight: number;
+  /** Slice of the model to keep visible (one isolated floor), or null for the whole building. */
+  floorRange: FloorRange | null;
+  /** Only this floor's apartments show in "unidades" mode; null shows all of them. */
+  isolatedFloor: number | null;
   hoveredUnit: string | null;
   selectedUnit: string | null;
   onUnitClick: (name: string) => void;
@@ -42,7 +50,8 @@ type BimModelProps = {
 export function BimModel({
   mode,
   currentWeek,
-  cutHeight,
+  floorRange,
+  isolatedFloor,
   hoveredUnit,
   selectedUnit,
   onUnitClick,
@@ -53,7 +62,9 @@ export function BimModel({
     loader.setMeshoptDecoder(MeshoptDecoder);
   });
 
-  const clipPlaneRef = useRef(new THREE.Plane(new THREE.Vector3(0, -1, 0), 1000));
+  // Keeps y <= constant (top) and y >= -constant (bottom); both open by default.
+  const topPlaneRef = useRef(new THREE.Plane(new THREE.Vector3(0, -1, 0), 1000));
+  const bottomPlaneRef = useRef(new THREE.Plane(new THREE.Vector3(0, 1, 0), 1000));
 
   // Clone the loaded scene and give every mesh its own material (so recoloring never bleeds
   // across instances sharing a glTF material slot), once per loaded model.
@@ -90,7 +101,7 @@ export function BimModel({
         metalness: isGlass ? 0.15 : 0,
         transparent: isGlass,
         opacity: isGlass ? GLASS_OPACITY : 1,
-        clippingPlanes: [clipPlaneRef.current],
+        clippingPlanes: [topPlaneRef.current, bottomPlaneRef.current],
       });
       material.userData.isGlass = isGlass;
       material.userData.baseOpacity = isGlass ? GLASS_OPACITY : 1;
@@ -101,14 +112,20 @@ export function BimModel({
       structures.push(obj);
     });
 
-    return { scene: clonedScene, structureMeshes: structures, apartmentMeshes: apartments };
+    return {
+      scene: clonedScene,
+      structureMeshes: structures,
+      apartmentMeshes: apartments,
+    };
   }, [gltf]);
 
-  // Mode/week/cut/hover-dependent updates run every frame (matching this codebase's convention
+  // Mode/week/floor/hover-dependent updates run every frame (matching this codebase's convention
   // elsewhere, e.g. Lighting.tsx) rather than in an effect, since they mutate three.js objects
   // gathered above.
   useFrame(() => {
-    clipPlaneRef.current.constant = mode === "corte" ? cutHeight : 1000;
+    const range = mode === "avance" ? null : floorRange;
+    topPlaneRef.current.constant = range ? range.max : 1000;
+    bottomPlaneRef.current.constant = range ? -range.min : 1000;
 
     for (const mesh of structureMeshes) {
       const material = mesh.material as THREE.MeshStandardMaterial;
@@ -135,9 +152,10 @@ export function BimModel({
     }
 
     apartmentMeshes.forEach((mesh, name) => {
-      mesh.visible = mode === "unidades";
       const material = mesh.material as THREE.MeshStandardMaterial;
       const unit = bimUnitsByName.get(name);
+      mesh.visible =
+        mode === "unidades" && (isolatedFloor === null || unit?.floor === isolatedFloor);
       const baseColor = unit ? STATUS_COLORS[unit.status] : DEFAULT_CATEGORY_COLOR;
       const isHovered = hoveredUnit === name;
       const isSelected = selectedUnit === name;

@@ -16,21 +16,17 @@ import { sphereFitDistance } from "@/lib/three/camera-framing";
 import { useElementAspect } from "@/lib/hooks/use-element-aspect";
 import { useIsMobile } from "@/lib/hooks/use-is-mobile";
 import { usePrefersReducedMotion } from "@/lib/hooks/use-prefers-reduced-motion";
-import { BIM_SIZE, bimUnitsByName, floorLevels } from "@/lib/bim/dataset";
-import { LAST_WEEK } from "@/lib/bim/calendar";
-import { trackUnitOpened } from "@/lib/analytics";
+import { BIM_SIZE } from "@/lib/bim/dataset";
+import { floorMidHeight, floorRange } from "@/lib/bim/floors";
 import { CameraRig, type Viewpoint } from "@/components/three/demos/maqueta/CameraRig";
 import { BimModel, type BimMode } from "./BimModel";
 import { BimLighting } from "./BimLighting";
 import { LoadingOverlay } from "./LoadingOverlay";
 import { ModeSwitcher } from "./ModeSwitcher";
-import { AvanceCalendar } from "./AvanceCalendar";
-import { CutControls } from "./CutControls";
-import { UnitPanel } from "./UnitPanel";
 import { DatasetCredit } from "./DatasetCredit";
+import type { BimViewer } from "./use-bim-viewer";
 
 const FOV = 38;
-const PLAY_INTERVAL_MS = 450;
 
 function useBimCamera(
   containerRef: RefObject<HTMLDivElement | null>
@@ -67,32 +63,24 @@ function useBimCamera(
 }
 
 type BimExperienceProps = {
-  /** Mode shown on first render. Defaults to the standalone demo's "unidades". */
-  initialMode?: BimMode;
-  /** Cut-plane height (meters) shown on first render, only relevant to "corte" mode. */
-  initialCutHeight?: number;
+  /** Shared mode / floor / unit state, also read by the info card beside the 3D view. */
+  viewer: BimViewer;
   modelUrl?: string;
   /** Pulses the "Unidades" tab once after a few seconds of no interaction. */
   enableIdleHint?: boolean;
   modeSwitcherTopClassName?: string;
   /** Static image shown instantly behind the loading state, before the 3D scene is ready. */
   posterSrc?: string;
-  /** Where the corte/avance bottom panel sits — "end" keeps it clear of a hero overlay on the left. */
-  bottomPanelAlign?: "center" | "end";
-  /** Keeps the unit panel inside this component's frame instead of the viewport. */
-  containedPanel?: boolean;
 };
 
 export function BimExperience({
-  initialMode = "unidades",
-  initialCutHeight,
+  viewer,
   modelUrl,
   enableIdleHint = false,
   modeSwitcherTopClassName,
   posterSrc,
-  bottomPanelAlign = "center",
-  containedPanel = false,
-}: BimExperienceProps = {}) {
+}: BimExperienceProps) {
+  const { mode, floor, selectedUnit, selectMode, openUnit, currentWeek } = viewer;
   const containerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -100,12 +88,7 @@ export function BimExperience({
   const maxDpr = isMobile ? 1.5 : 2;
   const [dpr, setDpr] = useState(maxDpr);
 
-  const [mode, setMode] = useState<BimMode>(initialMode);
-  const [currentWeek, setCurrentWeek] = useState(LAST_WEEK);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [cutHeight, setCutHeight] = useState(initialCutHeight ?? BIM_SIZE.height * 0.6);
   const [hoveredUnit, setHoveredUnit] = useState<string | null>(null);
-  const [selectedUnit, setSelectedUnit] = useState<string | null>(null);
   const [pulseMode, setPulseMode] = useState<BimMode | null>(null);
 
   const lastInteractionRef = useRef<number | null>(null);
@@ -117,20 +100,6 @@ export function BimExperience({
   useEffect(() => {
     markInteraction();
   }, [markInteraction]);
-
-  useEffect(() => {
-    if (!isPlaying) return;
-    const id = setInterval(() => {
-      setCurrentWeek((w) => {
-        if (w >= LAST_WEEK) {
-          setIsPlaying(false);
-          return w;
-        }
-        return w + 1;
-      });
-    }, PLAY_INTERVAL_MS);
-    return () => clearInterval(id);
-  }, [isPlaying]);
 
   useEffect(() => {
     if (!enableIdleHint || prefersReducedMotion) return;
@@ -148,54 +117,34 @@ export function BimExperience({
   const handleSelectMode = useCallback(
     (next: BimMode) => {
       markInteraction();
-      setMode(next);
-      setIsPlaying(false);
-      setSelectedUnit(null);
+      selectMode(next);
       setHoveredUnit(null);
     },
-    [markInteraction]
+    [markInteraction, selectMode]
   );
-
-  const selectedUnitData = selectedUnit
-    ? (bimUnitsByName.get(selectedUnit) ?? null)
-    : null;
 
   const handleUnitClick = useCallback(
     (name: string) => {
       markInteraction();
-      setSelectedUnit(name);
-      trackUnitOpened("bim", name);
+      openUnit(name);
     },
-    [markInteraction]
+    [markInteraction, openUnit]
   );
 
-  const handleChangeCutHeight = useCallback(
-    (height: number) => {
-      markInteraction();
-      setCutHeight(height);
-    },
-    [markInteraction]
-  );
+  const isolatedFloor = mode === "avance" ? null : floor;
+  const range =
+    isolatedFloor === null || mode === "avance" ? null : floorRange(isolatedFloor, mode);
 
-  const handleChangeWeek = useCallback(
-    (week: number) => {
-      markInteraction();
-      setIsPlaying(false);
-      setCurrentWeek(week);
-    },
-    [markInteraction]
-  );
-
-  const handleTogglePlay = useCallback(() => {
-    markInteraction();
-    setIsPlaying((p) => !p);
-  }, [markInteraction]);
-
-  const handleCompleteBuild = useCallback(() => {
-    markInteraction();
-    setIsPlaying(false);
-    setCurrentWeek(LAST_WEEK);
-  }, [markInteraction]);
+  // Point the camera at the isolated floor, keeping the overview's angle and distance.
+  const viewpoint: Viewpoint = useMemo(() => {
+    const mid = isolatedFloor === null ? null : floorMidHeight(isolatedFloor);
+    if (mid === null) return camera;
+    const dy = mid - camera.target[1];
+    return {
+      position: [camera.position[0], camera.position[1] + dy, camera.position[2]],
+      target: [camera.target[0], mid, camera.target[2]],
+    };
+  }, [camera, isolatedFloor]);
 
   return (
     <div
@@ -205,7 +154,7 @@ export function BimExperience({
       onWheel={markInteraction}
     >
       <Canvas
-        camera={{ position: camera.position, fov: FOV, near: 0.1, far: 250 }}
+        camera={{ position: viewpoint.position, fov: FOV, near: 0.1, far: 250 }}
         dpr={dpr}
         shadows={!isMobile}
         gl={{
@@ -226,7 +175,8 @@ export function BimExperience({
           <BimModel
             mode={mode}
             currentWeek={currentWeek}
-            cutHeight={cutHeight}
+            floorRange={range}
+            isolatedFloor={isolatedFloor}
             hoveredUnit={hoveredUnit}
             selectedUnit={selectedUnit}
             onUnitHover={setHoveredUnit}
@@ -243,8 +193,8 @@ export function BimExperience({
           resolution={isMobile ? 512 : 1024}
         />
         <CameraRig
-          target={camera}
-          targetKey="overview"
+          target={viewpoint}
+          targetKey={`floor-${isolatedFloor ?? "all"}`}
           autoRotateEnabled={!prefersReducedMotion && !isMobile}
           autoRotateSpeed={0.3}
           minDistance={camera.minDistance}
@@ -263,35 +213,6 @@ export function BimExperience({
         pulseMode={pulseMode}
         topClassName={modeSwitcherTopClassName}
       />
-
-      {mode === "avance" ? (
-        <AvanceCalendar
-          currentWeek={currentWeek}
-          isPlaying={isPlaying}
-          onChangeWeek={handleChangeWeek}
-          onTogglePlay={handleTogglePlay}
-          onCompleteBuild={handleCompleteBuild}
-          align={bottomPanelAlign}
-        />
-      ) : null}
-
-      {mode === "corte" ? (
-        <CutControls
-          cutHeight={cutHeight}
-          maxHeight={BIM_SIZE.height}
-          floorLevels={floorLevels}
-          onChangeCutHeight={handleChangeCutHeight}
-          align={bottomPanelAlign}
-        />
-      ) : null}
-
-      {mode === "unidades" && selectedUnitData ? (
-        <UnitPanel
-          unit={selectedUnitData}
-          onClose={() => setSelectedUnit(null)}
-          contained={containedPanel}
-        />
-      ) : null}
 
       <DatasetCredit />
     </div>

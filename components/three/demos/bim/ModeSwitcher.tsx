@@ -22,7 +22,12 @@ export function ModeSwitcher({
   topClassName?: string;
 }) {
   return (
-    <div className={cn("pointer-events-none absolute inset-x-0 z-30 flex justify-center px-3", topClassName)}>
+    <div
+      className={cn(
+        "pointer-events-none absolute inset-x-0 z-30 flex justify-center px-3",
+        topClassName
+      )}
+    >
       <div className="pointer-events-auto flex max-w-full flex-wrap justify-center gap-1 rounded-full border border-border-subtle bg-background/85 p-1.5 backdrop-blur-md">
         {MODES.map(({ id, label }) => (
           <button
@@ -34,7 +39,7 @@ export function ModeSwitcher({
               mode === id
                 ? "bg-accent text-accent-foreground"
                 : "text-foreground-muted hover:text-foreground",
-              pulseMode === id && "animate-pulse-once",
+              pulseMode === id && "animate-pulse-once"
             )}
           >
             {label}

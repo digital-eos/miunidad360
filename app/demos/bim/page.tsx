@@ -15,13 +15,12 @@ export const metadata: Metadata = {
 export default function BimDemoPage() {
   return (
     <main className="relative bg-background">
-      <div className="relative">
-        <BimCanvas />
-        <Suspense fallback={null}>
+      <Suspense fallback={null}>
+        <BimCanvas>
           <BackToHomeLink />
           <ScrollCue targetId="demo-cta" />
-        </Suspense>
-      </div>
+        </BimCanvas>
+      </Suspense>
       <DemoCTA demo="bim" />
       <Footer />
     </main>

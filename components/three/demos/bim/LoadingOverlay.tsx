@@ -11,7 +11,7 @@ export function LoadingOverlay({ posterSrc }: { posterSrc?: string }) {
       <div
         className={cn(
           "pointer-events-none absolute inset-0 z-10 overflow-hidden transition-opacity duration-500",
-          active ? "opacity-100" : "opacity-0",
+          active ? "opacity-100" : "opacity-0"
         )}
       >
         {/* eslint-disable-next-line @next/next/no-img-element -- static poster, no next/image config needed for this one image */}
@@ -37,10 +37,12 @@ export function LoadingOverlay({ posterSrc }: { posterSrc?: string }) {
     <div
       className={cn(
         "pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-background transition-opacity duration-500",
-        active ? "opacity-100" : "opacity-0",
+        active ? "opacity-100" : "opacity-0"
       )}
     >
-      <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent-strong">Modelo BIM</p>
+      <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent-strong">
+        Modelo BIM
+      </p>
       <div className="h-px w-40 overflow-hidden rounded-full bg-border-subtle">
         <div
           className="h-full bg-accent transition-[width] duration-200"

@@ -6,49 +6,38 @@ import { formatArea, formatUsdPrice } from "@/lib/units/format";
 import { STATUS_COLORS, STATUS_LABELS } from "@/lib/units/status-colors";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { submitUnitLead, type UnitLeadActionResult } from "@/app/actions/unit-lead";
-import { cn } from "@/lib/utils";
 
 const initialState: UnitLeadActionResult = { success: false };
 
 const fieldClasses =
   "w-full rounded-lg border border-border-subtle bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-foreground-muted/60 focus:border-accent focus:outline-none";
 
-export function UnitPanel({
+/** One unit's data and enquiry form, shown inside the info card beside the 3D view. */
+export function UnitDetails({
   unit,
-  onClose,
-  contained = false,
+  onBack,
+  backLabel,
 }: {
   unit: BimUnit;
-  onClose: () => void;
-  /** Positions the panel inside its parent frame instead of the viewport (homepage embed). */
-  contained?: boolean;
+  onBack: () => void;
+  backLabel: string;
 }) {
   const [state, formAction, isPending] = useActionState(submitUnitLead, initialState);
 
   const whatsappMessage = `¡Hola! Me interesa la unidad ${unit.name} (${unit.storey}, ${unit.bedrooms} dorm, ${formatArea(unit.area_m2)}). ¿Me pueden dar más información?`;
 
   return (
-    <div
-      className={cn(
-        "inset-x-0 bottom-0 z-40 overflow-y-auto rounded-t-2xl border-t border-border-subtle bg-background sm:inset-y-0 sm:right-0 sm:left-auto sm:top-0 sm:h-full sm:max-h-none sm:w-full sm:max-w-md sm:rounded-none sm:border-l sm:border-t-0",
-        contained
-          ? "absolute max-h-[80%] shadow-[0_-8px_30px_rgba(0,0,0,0.08)] sm:max-w-sm"
-          : "fixed max-h-[85vh]"
-      )}
-    >
-      <div className="sticky top-0 flex items-center justify-between border-b border-border-subtle bg-background px-5 py-4">
-        <div>
-          <p className="font-mono text-xs text-foreground-muted">{unit.name}</p>
-          <h2 className="font-display text-xl">{unit.storey}</h2>
-        </div>
+    <div>
+      <div className="border-b border-border-subtle px-5 py-4">
         <button
           type="button"
-          onClick={onClose}
-          aria-label="Cerrar"
-          className="flex h-9 w-9 items-center justify-center rounded-full border border-border-subtle text-lg transition-colors duration-200 hover:border-accent hover:text-accent-strong"
+          onClick={onBack}
+          className="text-xs font-medium text-foreground-muted transition-colors duration-200 hover:text-accent-strong"
         >
-          ×
+          ← {backLabel}
         </button>
+        <p className="mt-3 font-mono text-xs text-foreground-muted">{unit.name}</p>
+        <h3 className="font-display text-xl">{unit.storey}</h3>
       </div>
 
       <div className="space-y-6 px-5 py-5">

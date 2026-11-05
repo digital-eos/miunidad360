@@ -33,7 +33,7 @@ function startOfMonth(date: Date): Date {
 
 function toIsoDate(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
-    date.getDate(),
+    date.getDate()
   ).padStart(2, "0")}`;
 }
 
@@ -48,6 +48,8 @@ type AvanceCalendarProps = {
   onTogglePlay: () => void;
   onCompleteBuild: () => void;
   align?: "center" | "end";
+  /** Renders as plain card content (inside the info card) instead of an overlay on the 3D. */
+  embedded?: boolean;
 };
 
 export function AvanceCalendar({
@@ -57,6 +59,7 @@ export function AvanceCalendar({
   onTogglePlay,
   onCompleteBuild,
   align = "center",
+  embedded = false,
 }: AvanceCalendarProps) {
   const currentDate = dateForWeek(currentWeek);
   const [viewMonth, setViewMonth] = useState(() => startOfMonth(currentDate));
@@ -72,8 +75,13 @@ export function AvanceCalendar({
 
   const cells = useMemo(() => {
     const leading = (startOfMonth(viewMonth).getDay() + 6) % 7;
-    const daysInMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 0).getDate();
-    const list: { day: number; date: Date; iso: string; milestoneWeek: number | null }[] = [];
+    const daysInMonth = new Date(
+      viewMonth.getFullYear(),
+      viewMonth.getMonth() + 1,
+      0
+    ).getDate();
+    const list: { day: number; date: Date; iso: string; milestoneWeek: number | null }[] =
+      [];
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(viewMonth.getFullYear(), viewMonth.getMonth(), day);
       const iso = toIsoDate(date);
@@ -83,12 +91,14 @@ export function AvanceCalendar({
   }, [viewMonth]);
 
   const activeMilestone = milestoneAtOrBefore(currentWeek);
-  const activeEntry = activeMilestone !== null ? bimDataset.weeks[String(activeMilestone)] : null;
+  const activeEntry =
+    activeMilestone !== null ? bimDataset.weeks[String(activeMilestone)] : null;
   const isExactMilestoneDay = activeMilestone === currentWeek;
   const progress = progressPercentForWeek(currentWeek);
-  const monthLabel = new Intl.DateTimeFormat("es-AR", { month: "long", year: "numeric" }).format(
-    viewMonth,
-  );
+  const monthLabel = new Intl.DateTimeFormat("es-AR", {
+    month: "long",
+    year: "numeric",
+  }).format(viewMonth);
 
   const canGoPrev = viewMonth.getTime() > minMonth.getTime();
   const canGoNext = viewMonth.getTime() < maxMonth.getTime();
@@ -96,11 +106,20 @@ export function AvanceCalendar({
   return (
     <div
       className={cn(
-        "pointer-events-none absolute inset-x-0 bottom-9 z-30 flex flex-col gap-2 p-3 sm:bottom-11 sm:p-6",
-        align === "end" ? "items-end" : "items-center",
+        embedded
+          ? "flex flex-col"
+          : "pointer-events-none absolute inset-x-0 bottom-9 z-30 flex flex-col gap-2 p-3 sm:bottom-11 sm:p-6",
+        !embedded && (align === "end" ? "items-end" : "items-center")
       )}
     >
-      <div className="pointer-events-auto max-h-[44vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-border-subtle bg-background/90 p-4 backdrop-blur-md sm:max-h-none">
+      <div
+        className={cn(
+          "w-full",
+          embedded
+            ? "px-5 py-5"
+            : "pointer-events-auto max-h-[44vh] max-w-xl overflow-y-auto rounded-2xl border border-border-subtle bg-background/90 p-4 backdrop-blur-md sm:max-h-none"
+        )}
+      >
         <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
           <div>
             <p className="font-display text-base">
@@ -139,7 +158,10 @@ export function AvanceCalendar({
         <div className="mt-4 flex items-center justify-between">
           <button
             type="button"
-            onClick={() => canGoPrev && setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1))}
+            onClick={() =>
+              canGoPrev &&
+              setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() - 1, 1))
+            }
             disabled={!canGoPrev}
             aria-label="Mes anterior"
             className="flex h-7 w-7 items-center justify-center rounded-full border border-border-subtle text-xs transition-colors duration-200 hover:border-accent hover:text-accent-strong disabled:opacity-30"
@@ -149,7 +171,10 @@ export function AvanceCalendar({
           <p className="font-display text-sm capitalize">{monthLabel}</p>
           <button
             type="button"
-            onClick={() => canGoNext && setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1))}
+            onClick={() =>
+              canGoNext &&
+              setViewMonth(new Date(viewMonth.getFullYear(), viewMonth.getMonth() + 1, 1))
+            }
             disabled={!canGoNext}
             aria-label="Mes siguiente"
             className="flex h-7 w-7 items-center justify-center rounded-full border border-border-subtle text-xs transition-colors duration-200 hover:border-accent hover:text-accent-strong disabled:opacity-30"
@@ -169,8 +194,10 @@ export function AvanceCalendar({
             <span key={`blank-${i}`} />
           ))}
           {cells.list.map(({ day, date, milestoneWeek }) => {
-            const isCurrent = sameMonth(date, currentDate) && date.getDate() === currentDate.getDate();
-            const categories = milestoneWeek !== null ? categoriesForWeek(milestoneWeek) : [];
+            const isCurrent =
+              sameMonth(date, currentDate) && date.getDate() === currentDate.getDate();
+            const categories =
+              milestoneWeek !== null ? categoriesForWeek(milestoneWeek) : [];
             return (
               <button
                 key={day}
@@ -180,7 +207,7 @@ export function AvanceCalendar({
                   "flex flex-col items-center gap-0.5 rounded-lg py-1 text-[11px] transition-colors duration-200 hover:bg-background-elevated",
                   isCurrent
                     ? "bg-accent-soft font-medium text-accent-strong ring-1 ring-accent"
-                    : "text-foreground",
+                    : "text-foreground"
                 )}
               >
                 <span>{day}</span>
@@ -200,7 +227,10 @@ export function AvanceCalendar({
 
         <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-border-subtle pt-3">
           {CATEGORY_ORDER.map((cat) => (
-            <span key={cat} className="flex items-center gap-1.5 text-[10px] text-foreground-muted">
+            <span
+              key={cat}
+              className="flex items-center gap-1.5 text-[10px] text-foreground-muted"
+            >
               <span
                 className="h-2 w-2 rounded-full"
                 style={{ backgroundColor: CALENDAR_CATEGORY_COLORS[cat] }}

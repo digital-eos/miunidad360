@@ -1,18 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { BIM_SIZE, floorLevels } from "@/lib/bim/dataset";
+import { featuredProject } from "@/config/featured";
 import { useInView } from "@/lib/hooks/use-in-view";
 import { trackDemoClick } from "@/lib/analytics";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { FeaturedVisualizer } from "@/components/home/FeaturedVisualizer";
+import { BimInfoPanel } from "@/components/three/demos/bim/BimInfoPanel";
+import { useBimViewer } from "@/components/three/demos/bim/use-bim-viewer";
 
 const POSTER_SRC = "/images/hero-bim-poster.svg";
-const FIRST_FLOOR_CUT_HEIGHT =
-  floorLevels.find((f) => f.floor === 1)?.top ?? BIM_SIZE.height * 0.5;
 
 export function ResultSection() {
+  const viewer = useBimViewer({ initialMode: "corte", initialFloor: 1 });
   // The poster shows right away; the 3D bundle and model only load once the frame is
   // close to the viewport (useInView uses a 200px root margin).
   const { ref, inView } = useInView<HTMLDivElement>();
@@ -29,10 +30,10 @@ export function ResultSection() {
         />
       </Container>
 
-      <div className="mx-auto mt-10 w-full max-w-[1200px] px-4 sm:px-8">
+      <div className="mx-auto mt-10 grid w-full max-w-[1200px] gap-4 px-4 sm:px-8 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div
           ref={ref}
-          className="relative h-[65vh] w-full overflow-hidden rounded-2xl border border-border-subtle bg-background-elevated sm:h-[70vh]"
+          className="relative h-[65vh] w-full overflow-hidden rounded-2xl border border-border-subtle bg-background-elevated lg:h-[70vh]"
         >
           {/* eslint-disable-next-line @next/next/no-img-element -- static poster behind the 3D scene, shown instantly */}
           <img
@@ -42,17 +43,21 @@ export function ResultSection() {
           />
           {inView ? (
             <FeaturedVisualizer
-              initialMode="corte"
-              initialCutHeight={FIRST_FLOOR_CUT_HEIGHT}
+              viewer={viewer}
               enableIdleHint
               modeSwitcherTopClassName="top-4"
               posterSrc={POSTER_SRC}
-              containedPanel
             />
           ) : null}
         </div>
 
-        <div className="mt-4 flex justify-end">
+        <BimInfoPanel
+          viewer={viewer}
+          projectName={`${featuredProject.nombre} · ${featuredProject.ubicacion}`}
+          className="rounded-2xl border border-border-subtle lg:h-[70vh]"
+        />
+
+        <div className="flex justify-end lg:col-span-2">
           <Link
             href="/demos/bim"
             onClick={() => trackDemoClick("bim")}

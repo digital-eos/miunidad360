@@ -11,9 +11,12 @@ const FRAME_MARGIN = 28;
 export function CaptureStage({
   demo,
   children,
+  className = "h-[100svh]",
 }: {
   demo: "maqueta" | "selector" | "sol" | "bim";
   children: ReactNode;
+  /** Size of the stage outside capture mode. */
+  className?: string;
 }) {
   const { active, format, width, height } = useCaptureMode();
   const pathname = usePathname();
@@ -53,7 +56,7 @@ export function CaptureStage({
   }, [active, width, height]);
 
   if (!active) {
-    return <div className="relative h-[100svh] w-full">{children}</div>;
+    return <div className={`relative w-full ${className}`}>{children}</div>;
   }
 
   const otherFormat = format === "9x16" ? "4x5" : "9x16";
@@ -90,7 +93,13 @@ export function CaptureStage({
       </div>
 
       <div className="pointer-events-none absolute inset-x-0 bottom-6 flex justify-center">
-        <RecordButton demo={demo} format={format} width={width} height={height} stageRef={stageRef} />
+        <RecordButton
+          demo={demo}
+          format={format}
+          width={width}
+          height={height}
+          stageRef={stageRef}
+        />
       </div>
     </div>
   );

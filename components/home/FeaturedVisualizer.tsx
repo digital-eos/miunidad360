@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useWebGLSupport } from "@/lib/hooks/use-webgl-support";
-import type { BimMode } from "@/components/three/demos/bim/BimModel";
+import type { BimViewer } from "@/components/three/demos/bim/use-bim-viewer";
 
 const BimExperience = dynamic(
   () =>
@@ -11,13 +11,10 @@ const BimExperience = dynamic(
 );
 
 export type FeaturedVisualizerProps = {
-  initialMode?: BimMode;
-  initialCutHeight?: number;
+  viewer: BimViewer;
   enableIdleHint?: boolean;
   modeSwitcherTopClassName?: string;
   posterSrc?: string;
-  bottomPanelAlign?: "center" | "end";
-  containedPanel?: boolean;
 };
 
 /**
