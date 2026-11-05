@@ -30,16 +30,17 @@ export function Hero() {
             {...fadeUp(0.05)}
             className="mt-5 font-display text-4xl leading-[1.08] sm:text-5xl"
           >
-            Tu proyecto en 3D, para que tus clientes lo recorran y{" "}
-            <span className="text-gradient-accent italic">elijan su unidad.</span>
+            Cada unidad de tu proyecto, en 3D y{" "}
+            <span className="text-gradient-accent italic">con toda su información.</span>
           </motion.h1>
           <motion.p
             {...fadeUp(0.1)}
             className="mt-6 max-w-xl text-base leading-relaxed text-foreground-muted sm:text-lg"
           >
-            Partimos de lo que ya tenés: renders, fotos y planos de tu proyecto. Te
-            devolvemos un link con una experiencia 3D para tus clientes, con
-            disponibilidad, precios, asoleamiento y avance de obra.
+            Departamentos, casas, lotes, locales o naves: tus clientes tocan una unidad en
+            el 3D y ven su superficie, precio, disponibilidad, asoleamiento y avance de
+            obra. Partimos de tus renders, planos o modelo BIM y te devolvemos un link
+            para compartir.
           </motion.p>
           <motion.div
             {...fadeUp(0.15)}

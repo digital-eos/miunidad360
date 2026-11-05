@@ -80,7 +80,8 @@ export function BimExperience({
   modeSwitcherTopClassName,
   posterSrc,
 }: BimExperienceProps) {
-  const { mode, floor, selectedUnit, selectMode, openUnit, currentWeek } = viewer;
+  const { mode, floor, selectedUnit, selectMode, openUnit, currentWeek, unidadesByObjeto } =
+    viewer;
   const containerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -179,6 +180,7 @@ export function BimExperience({
             isolatedFloor={isolatedFloor}
             hoveredUnit={hoveredUnit}
             selectedUnit={selectedUnit}
+            unidadesByObjeto={unidadesByObjeto}
             onUnitHover={setHoveredUnit}
             onUnitClick={handleUnitClick}
             modelUrl={modelUrl}

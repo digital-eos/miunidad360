@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { cookies } from "next/headers";
 import { connection } from "next/server";
 import { asc, desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { leads, projects, units } from "@/db/schema";
+import { leads, projects, unidades } from "@/db/schema";
+import { toUnidad } from "@/lib/unidades/types";
 import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/admin/auth";
+import { cn } from "@/lib/utils";
 import { AdminLoginForm } from "./AdminLoginForm";
 import { UnitsTable } from "./UnitsTable";
 import { LeadsTable } from "./LeadsTable";
@@ -18,9 +21,9 @@ export const metadata: Metadata = {
 // Always a fresh, request-time render: session cookie and unit/lead data must never be stale.
 export const instant = false;
 
-const PROJECT_SLUG = "edificio-demo";
+const DEFAULT_PROJECT_SLUG = "edificio-demo";
 
-export default async function AdminPage() {
+export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
   await connection();
   const cookieStore = await cookies();
   const token = cookieStore.get(ADMIN_COOKIE_NAME)?.value;
@@ -34,13 +37,23 @@ export default async function AdminPage() {
     );
   }
 
-  const [project] = await db.select().from(projects).where(eq(projects.slug, PROJECT_SLUG)).limit(1);
-  const unitList = project
-    ? await db
-        .select()
-        .from(units)
-        .where(eq(units.projectId, project.id))
-        .orderBy(asc(units.floor), asc(units.letter))
+  const params = await searchParams;
+  const requestedSlug = typeof params.proyecto === "string" ? params.proyecto : null;
+
+  const projectList = await db.select().from(projects).orderBy(asc(projects.id));
+  const project =
+    projectList.find((p) => p.slug === requestedSlug) ??
+    projectList.find((p) => p.slug === DEFAULT_PROJECT_SLUG) ??
+    projectList[0];
+
+  const unidadList = project
+    ? (
+        await db
+          .select()
+          .from(unidades)
+          .where(eq(unidades.proyectoId, project.id))
+          .orderBy(asc(unidades.id))
+      ).map(toUnidad)
     : [];
   const leadList = await db.select().from(leads).orderBy(desc(leads.createdAt)).limit(100);
 
@@ -50,7 +63,7 @@ export default async function AdminPage() {
         <header className="flex items-center justify-between gap-4">
           <div>
             <p className="font-mono text-xs uppercase tracking-[0.25em] text-accent-strong">Admin</p>
-            <h1 className="font-display text-3xl">{project?.name ?? "Edificio Demo"}</h1>
+            <h1 className="font-display text-3xl">{project?.name ?? "Sin proyectos"}</h1>
           </div>
           <form action={adminLogout}>
             <button
@@ -62,9 +75,29 @@ export default async function AdminPage() {
           </form>
         </header>
 
+        {projectList.length > 1 ? (
+          <nav aria-label="Proyectos" className="flex flex-wrap gap-2">
+            {projectList.map((p) => (
+              <Link
+                key={p.id}
+                href={`/admin?proyecto=${p.slug}`}
+                aria-current={p.id === project?.id ? "page" : undefined}
+                className={cn(
+                  "rounded-full border px-4 py-1.5 text-sm transition-colors duration-200",
+                  p.id === project?.id
+                    ? "border-accent bg-accent text-accent-foreground"
+                    : "border-border-subtle hover:border-accent hover:text-accent-strong",
+                )}
+              >
+                {p.name}
+              </Link>
+            ))}
+          </nav>
+        ) : null}
+
         <section>
-          <h2 className="mb-4 font-display text-xl">Unidades ({unitList.length})</h2>
-          <UnitsTable units={unitList} />
+          <h2 className="mb-4 font-display text-xl">Unidades ({unidadList.length})</h2>
+          <UnitsTable key={project?.id} unidades={unidadList} />
         </section>
 
         <section>

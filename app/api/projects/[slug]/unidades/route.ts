@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { asc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { projects, units } from "@/db/schema";
+import { projects, unidades } from "@/db/schema";
+import { toUnidad } from "@/lib/unidades/types";
 
 export async function GET(
   _request: Request,
@@ -15,14 +16,14 @@ export async function GET(
     return NextResponse.json({ error: "Proyecto no encontrado." }, { status: 404 });
   }
 
-  const unitList = await db
+  const rows = await db
     .select()
-    .from(units)
-    .where(eq(units.projectId, project.id))
-    .orderBy(asc(units.floor), asc(units.letter));
+    .from(unidades)
+    .where(eq(unidades.proyectoId, project.id))
+    .orderBy(asc(unidades.id));
 
   return NextResponse.json(
-    { project, units: unitList },
+    { project, unidades: rows.map(toUnidad) },
     { headers: { "Cache-Control": "public, s-maxage=20, stale-while-revalidate=40" } },
   );
 }

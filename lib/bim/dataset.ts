@@ -1,6 +1,7 @@
 import rawDataset from "@/data/schependomlaan.json";
 import { seededRandom } from "@/lib/three/building-config";
 import type { UnitStatus } from "@/lib/units/demo-data";
+import { attrNumber, type Unidad } from "@/lib/unidades/types";
 
 export type BimGroup = {
   name: string;
@@ -58,10 +59,8 @@ export const floorLevels: FloorLevel[] = (() => {
   return [...seen.values()].sort((a, b) => a.floor - b.floor);
 })();
 
-export type BimUnit = BimApartment & {
-  status: UnitStatus;
-  priceUsd: number;
-};
+/** Project slug of the Schependomlaan apartments in the `unidades` table. */
+export const BIM_PROJECT_SLUG = "schependomlaan";
 
 /** Fictitious baseline — this is a demo dataset, prices are illustrative only. */
 const BASE_PRICE_PER_M2 = 2200;
@@ -73,11 +72,33 @@ function deriveStatus(seed: number): UnitStatus {
   return "vendida";
 }
 
-export const bimUnits: BimUnit[] = bimDataset.apartments.map((apt) => {
-  const status = deriveStatus(apt.number * 7.13);
+/**
+ * The apartments as `unidades`, with the demo's illustrative price and status. This is what
+ * db/seed.ts stores, and what the viewer shows until (or if) the API answers.
+ */
+export const bimFallbackUnidades: Unidad[] = bimDataset.apartments.map((apt, index) => {
   const floorPremium = 1 + apt.floor * 0.015;
-  const priceUsd = Math.round((BASE_PRICE_PER_M2 * floorPremium * apt.area_m2) / 500) * 500;
-  return { ...apt, status, priceUsd };
+  return {
+    id: -(index + 1),
+    proyectoId: 0,
+    tipo: "departamento",
+    codigo: `UF ${apt.number}`,
+    sector: apt.storey,
+    superficieM2: apt.area_m2,
+    superficieTerrenoM2: null,
+    orientacion: null,
+    precio: Math.round((BASE_PRICE_PER_M2 * floorPremium * apt.area_m2) / 500) * 500,
+    moneda: "USD",
+    estado: deriveStatus(apt.number * 7.13),
+    objeto3d: apt.name,
+    atributos: { piso: apt.floor, ambientes: apt.rooms, dormitorios: apt.bedrooms },
+  };
 });
 
-export const bimUnitsByName = new Map(bimUnits.map((u) => [u.name, u]));
+export const apartmentsByName = new Map(bimDataset.apartments.map((a) => [a.name, a]));
+
+/** The BIM floor index of a unit (0 = planta baja), from its 3D object. */
+export function unidadFloor(unidad: Unidad): number | null {
+  const apt = unidad.objeto3d ? apartmentsByName.get(unidad.objeto3d) : undefined;
+  return apt ? apt.floor : attrNumber(unidad, "piso");
+}

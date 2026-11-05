@@ -20,7 +20,7 @@ export function productJsonLd() {
     "@type": "Product",
     name: "MiUnidad360",
     description:
-      "Experiencias 3D interactivas para que tus compradores exploren el edificio, elijan su unidad y vean disponibilidad, precio y sol en tiempo real.",
+      "Departamentos, casas, lotes, locales o naves: tus clientes tocan una unidad en el 3D y ven su superficie, precio, disponibilidad, asoleamiento y avance de obra. Partimos de tus renders, planos o modelo BIM y te devolvemos un link para compartir.",
     brand: {
       "@type": "Brand",
       name: "MiUnidad360",

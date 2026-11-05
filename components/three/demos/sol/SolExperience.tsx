@@ -59,7 +59,7 @@ export function SolExperience({ projectSlug }: { projectSlug: string }) {
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`/api/projects/${projectSlug}/units`)
+    fetch(`/api/projects/${projectSlug}/unidades`)
       .then((res) => {
         if (!res.ok) throw new Error("fetch_failed");
         return res.json();

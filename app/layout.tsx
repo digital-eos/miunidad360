@@ -26,19 +26,23 @@ const plexMono = IBM_Plex_Mono({
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://miunidad360.com.ar";
 
+const HERO_DESCRIPTION =
+  "Departamentos, casas, lotes, locales o naves: tus clientes tocan una unidad en el 3D y ven su superficie, precio, disponibilidad, asoleamiento y avance de obra. Partimos de tus renders, planos o modelo BIM y te devolvemos un link para compartir.";
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "MiUnidad360 — Vendé tus unidades antes de construirlas",
+    default: "MiUnidad360 · Cada unidad de tu proyecto, en 3D",
     template: "%s · MiUnidad360",
   },
-  description:
-    "MiUnidad360 crea experiencias 3D interactivas para que tus compradores exploren el edificio, elijan su unidad y vean disponibilidad, precio y sol en tiempo real. Un producto de Digital EOS.",
+  description: HERO_DESCRIPTION,
   keywords: [
     "maqueta 3D",
     "venta en pozo",
     "real estate 3D",
     "selector de unidades",
+    "loteo 3D",
+    "masterplan interactivo",
     "desarrollos inmobiliarios Argentina",
     "Digital EOS",
   ],
@@ -48,15 +52,13 @@ export const metadata: Metadata = {
     locale: "es_AR",
     url: siteUrl,
     siteName: "MiUnidad360",
-    title: "MiUnidad360 — Vendé tus unidades antes de construirlas",
-    description:
-      "Experiencias 3D interactivas para promotores, inmobiliarias y estudios de arquitectura en Argentina.",
+    title: "MiUnidad360 · Cada unidad de tu proyecto, en 3D",
+    description: HERO_DESCRIPTION,
   },
   twitter: {
     card: "summary_large_image",
-    title: "MiUnidad360 — Vendé tus unidades antes de construirlas",
-    description:
-      "Experiencias 3D interactivas para promotores, inmobiliarias y estudios de arquitectura en Argentina.",
+    title: "MiUnidad360 · Cada unidad de tu proyecto, en 3D",
+    description: HERO_DESCRIPTION,
   },
 };
 

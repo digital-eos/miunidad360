@@ -7,7 +7,9 @@ import { Canvas } from "@react-three/fiber";
 import { PerformanceMonitor } from "@react-three/drei";
 import * as THREE from "three";
 import type { ThreeEvent } from "@react-three/fiber";
-import type { Project, Unit } from "@/db/schema";
+import type { Project } from "@/db/schema";
+import { fetchUnidades } from "@/lib/unidades/fetch";
+import { attrNumber, findUnidad, type Unidad } from "@/lib/unidades/types";
 import { defaultBuildingConfig, totalBuildingHeight } from "@/lib/three/building-config";
 import type { Viewpoint } from "@/components/three/demos/maqueta/CameraRig";
 import { NightProvider } from "@/components/three/demos/maqueta/night-context";
@@ -59,7 +61,16 @@ function floorCloseupViewpoint(floor: number): Viewpoint {
 type FetchState =
   | { status: "loading" }
   | { status: "error" }
-  | { status: "ready"; project: Project; units: Unit[] };
+  | { status: "ready"; project: Project; units: Unidad[] };
+
+/** 3D id of an apartment in the procedural building ("P04-B"). */
+function meshId(unit: Unidad): string {
+  return unit.objeto3d ?? unit.codigo;
+}
+
+function unitFloor(unit: Unidad): number {
+  return attrNumber(unit, "piso") ?? 1;
+}
 
 export function SelectorExperience({ projectSlug }: { projectSlug: string }) {
   const router = useRouter();
@@ -76,25 +87,19 @@ export function SelectorExperience({ projectSlug }: { projectSlug: string }) {
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
   const [hovered, setHovered] = useState<{ code: string; x: number; y: number } | null>(null);
   const [captureCloseup, setCaptureCloseup] = useState(false);
+  const unitsRef = useRef<Unidad[]>([]);
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`/api/projects/${projectSlug}/units`)
-      .then((res) => {
-        if (!res.ok) throw new Error("fetch_failed");
-        return res.json();
-      })
-      .then((data: { project: Project; units: Unit[] }) => {
+    fetchUnidades(projectSlug)
+      .then((data) => {
         if (cancelled) return;
-        setState({ status: "ready", project: data.project, units: data.units });
+        setState({ status: "ready", project: data.project, units: data.unidades });
 
-        const code = searchParams.get("unidad");
-        if (code) {
-          const unit = data.units.find((u) => u.code === code);
-          if (unit) {
-            setSelectedCode(unit.code);
-            setFocusFloor(unit.floor);
-          }
+        const unit = findUnidad(data.unidades, searchParams.get("unidad"));
+        if (unit) {
+          setSelectedCode(unit.codigo);
+          setFocusFloor(unitFloor(unit));
         }
       })
       .catch(() => {
@@ -132,8 +137,9 @@ export function SelectorExperience({ projectSlug }: { projectSlug: string }) {
   }, []);
 
   const handleApartmentClick = useCallback(
-    (code: string) => {
-      handleSelectUnit(code);
+    (id: string) => {
+      const unit = unitsRef.current.find((u) => meshId(u) === id);
+      if (unit) handleSelectUnit(unit.codigo);
     },
     [handleSelectUnit],
   );
@@ -150,6 +156,9 @@ export function SelectorExperience({ projectSlug }: { projectSlug: string }) {
   }, []);
 
   const units = useMemo(() => (state.status === "ready" ? state.units : []), [state]);
+  useEffect(() => {
+    unitsRef.current = units;
+  }, [units]);
 
   // Scripted capture sequence: colored overview, isolate a floor, open a unit card.
   const captureCycleRef = useRef(0);
@@ -158,8 +167,8 @@ export function SelectorExperience({ projectSlug }: { projectSlug: string }) {
 
     const floor = Math.ceil(config.floors / 2);
     const targetUnit =
-      units.find((u) => u.floor === floor && u.status === "disponible") ??
-      units.find((u) => u.floor === floor) ??
+      units.find((u) => unitFloor(u) === floor && u.estado === "disponible") ??
+      units.find((u) => unitFloor(u) === floor) ??
       null;
 
     let cancelled = false;
@@ -180,7 +189,7 @@ export function SelectorExperience({ projectSlug }: { projectSlug: string }) {
         setTimeout(() => {
           if (cancelled) return;
           setCaptureCloseup(true);
-          if (targetUnit) handleSelectUnit(targetUnit.code);
+          if (targetUnit) handleSelectUnit(targetUnit.codigo);
         }, 8000),
       );
       timers.push(setTimeout(runCycle, 13000));
@@ -209,35 +218,38 @@ export function SelectorExperience({ projectSlug }: { projectSlug: string }) {
 
   const apartmentColors = useMemo(() => {
     const colors: Record<string, string> = {};
-    for (const unit of units) colors[unit.code] = STATUS_COLORS[unit.status];
+    for (const unit of units) colors[meshId(unit)] = STATUS_COLORS[unit.estado];
     return colors;
   }, [units]);
 
   const apartmentOpacities = useMemo(() => {
     const opacities: Record<string, number> = {};
     for (const unit of units) {
-      opacities[unit.code] = unitMatchesFilters(unit, filters) ? 1 : FILTERED_OUT_OPACITY;
+      opacities[meshId(unit)] = unitMatchesFilters(unit, filters) ? 1 : FILTERED_OUT_OPACITY;
     }
     return opacities;
   }, [units, filters]);
 
   const availableCount = useMemo(
-    () => units.filter((u) => u.status === "disponible").length,
+    () => units.filter((u) => u.estado === "disponible").length,
     [units],
   );
 
   const orientations = useMemo(
-    () => Array.from(new Set(units.map((u) => u.orientation))).sort(),
+    () =>
+      Array.from(
+        new Set(units.map((u) => u.orientacion).filter((o): o is string => Boolean(o))),
+      ).sort(),
     [units],
   );
 
   const selectedUnit = useMemo(
-    () => units.find((u) => u.code === selectedCode) ?? null,
+    () => units.find((u) => u.codigo === selectedCode) ?? null,
     [units, selectedCode],
   );
 
   const hoveredUnit = useMemo(
-    () => (hovered ? (units.find((u) => u.code === hovered.code) ?? null) : null),
+    () => (hovered ? (units.find((u) => meshId(u) === hovered.code) ?? null) : null),
     [units, hovered],
   );
 
@@ -331,9 +343,10 @@ export function SelectorExperience({ projectSlug }: { projectSlug: string }) {
             <UnitPanel
               unit={selectedUnit}
               projectSlug={projectSlug}
+              projectName={state.status === "ready" ? state.project.name : "Edificio Demo"}
               onClose={() => handleSelectUnit(null)}
-              sunHoursVerano={sunHoursCache[civilDateKey(verano)]?.[selectedUnit.code] ?? null}
-              sunHoursInvierno={sunHoursCache[civilDateKey(invierno)]?.[selectedUnit.code] ?? null}
+              sunHoursVerano={sunHoursCache[civilDateKey(verano)]?.[meshId(selectedUnit)] ?? null}
+              sunHoursInvierno={sunHoursCache[civilDateKey(invierno)]?.[meshId(selectedUnit)] ?? null}
             />
           ) : null}
         </>

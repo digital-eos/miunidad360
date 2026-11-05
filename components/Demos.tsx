@@ -5,35 +5,66 @@ import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
-import { trackDemoClick } from "@/lib/analytics";
+import { trackDemoClick, type DemoKind } from "@/lib/analytics";
 
-const DEMOS = [
+type DemoCard = {
+  kind: DemoKind;
+  href: string;
+  title: string;
+  description: string;
+};
+
+type Bloque = {
+  titulo: string;
+  cards: DemoCard[];
+  secundarios?: { kind: DemoKind; href: string; label: string }[];
+  proximamente?: string;
+};
+
+const BLOQUES: Bloque[] = [
   {
-    kind: "bim" as const,
-    href: "/demos/bim",
-    title: "Proyecto BIM real",
-    description:
-      "Un modelo de arquitectura real, con unidades, cortes y cronograma de obra.",
+    titulo: "Departamentos",
+    cards: [
+      {
+        kind: "bim",
+        href: "/demos/bim",
+        title: "Proyecto BIM real",
+        description:
+          "Un modelo de arquitectura real: tocá una unidad, cortalo por piso o mirá el avance de obra.",
+      },
+      {
+        kind: "selector",
+        href: "/demos/selector",
+        title: "Edificio demo",
+        description: "Filtrá por ambientes, precio y piso, y abrí la ficha de cada departamento.",
+      },
+    ],
+    secundarios: [
+      { kind: "maqueta", href: "/demos/maqueta", label: "Maqueta 3D" },
+      { kind: "sol", href: "/demos/sol", label: "Asoleamiento" },
+    ],
   },
   {
-    kind: "maqueta" as const,
-    href: "/demos/maqueta",
-    title: "Maqueta 3D",
-    description: "Recorré el edificio de día y de noche, desde el aire o desde la calle.",
+    titulo: "Lotes",
+    cards: [
+      {
+        kind: "lotes",
+        href: "/demos/lotes",
+        title: "Barrio demo",
+        description:
+          "Un barrio cerrado con laguna y amenities: filtrá lotes por superficie y precio, y consultá por uno.",
+      },
+    ],
   },
   {
-    kind: "selector" as const,
-    href: "/demos/selector",
-    title: "Selector de unidades",
-    description: "Filtrá por ambientes, precio y piso, y consultá por una unidad.",
-  },
-  {
-    kind: "sol" as const,
-    href: "/demos/sol",
-    title: "Estudio de asoleamiento",
-    description: "Mirá cuántas horas de sol recibe cada unidad según la época del año.",
+    titulo: "Locales, oficinas y naves",
+    cards: [],
+    proximamente: "Una demo para unidades comerciales e industriales.",
   },
 ];
+
+const cardClasses =
+  "group block h-full overflow-hidden rounded-2xl border border-border-subtle bg-background-elevated transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-accent hover:shadow-[0_16px_36px_-20px_rgba(28,28,28,0.35)] focus-visible:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
 
 export function Demos() {
   return (
@@ -42,41 +73,82 @@ export function Demos() {
       className="scroll-mt-6 border-t border-border-subtle py-20 sm:py-24"
     >
       <Container>
-        <SectionHeading title="Explorá otras experiencias" />
-        <div className="mt-10 grid gap-6 sm:grid-cols-2">
-          {DEMOS.map((demo, index) => (
-            <Reveal key={demo.kind} delay={index * 0.06}>
-              <Link
-                href={demo.href}
-                onClick={() => trackDemoClick(demo.kind)}
-                className="group block h-full overflow-hidden rounded-2xl border border-border-subtle bg-background-elevated transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-accent hover:shadow-[0_16px_36px_-20px_rgba(28,28,28,0.35)] focus-visible:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-              >
-                <div className="relative aspect-[16/10] overflow-hidden bg-background">
-                  <Image
-                    src={`/images/demos/${demo.kind}.webp`}
-                    alt={`Captura de la demo «${demo.title}»`}
-                    fill
-                    sizes="(max-width: 640px) 100vw, 560px"
-                    className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-                  />
-                </div>
-                <div className="p-5 sm:p-6">
-                  <h3 className="font-display text-xl">{demo.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-foreground-muted">
-                    {demo.description}
-                  </p>
-                  <p className="mt-4 text-sm font-medium text-accent-strong">
-                    Abrir demo{" "}
-                    <span
-                      aria-hidden="true"
-                      className="inline-block transition-transform duration-200 group-hover:translate-x-1"
+        <SectionHeading title="Demos por tipo de unidad" />
+
+        <div className="mt-10 space-y-14">
+          {BLOQUES.map((bloque) => (
+            <div key={bloque.titulo}>
+              <h3 className="font-mono text-xs uppercase tracking-[0.2em] text-accent-strong">
+                {bloque.titulo}
+              </h3>
+
+              <div className="mt-5 grid gap-6 sm:grid-cols-2">
+                {bloque.cards.map((demo, index) => (
+                  <Reveal key={demo.kind} delay={index * 0.06}>
+                    <Link
+                      href={demo.href}
+                      onClick={() => trackDemoClick(demo.kind)}
+                      className={cardClasses}
                     >
-                      →
-                    </span>
-                  </p>
-                </div>
-              </Link>
-            </Reveal>
+                      <div className="relative aspect-[16/10] overflow-hidden bg-background">
+                        <Image
+                          src={`/images/demos/${demo.kind}.webp`}
+                          alt={`Captura de la demo «${demo.title}»`}
+                          fill
+                          sizes="(max-width: 640px) 100vw, 560px"
+                          className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                        />
+                      </div>
+                      <div className="p-5 sm:p-6">
+                        <p className="font-display text-xl">{demo.title}</p>
+                        <p className="mt-2 text-sm leading-relaxed text-foreground-muted">
+                          {demo.description}
+                        </p>
+                        <p className="mt-4 text-sm font-medium text-accent-strong">
+                          Abrir demo{" "}
+                          <span
+                            aria-hidden="true"
+                            className="inline-block transition-transform duration-200 group-hover:translate-x-1"
+                          >
+                            →
+                          </span>
+                        </p>
+                      </div>
+                    </Link>
+                  </Reveal>
+                ))}
+
+                {bloque.proximamente ? (
+                  <div
+                    aria-disabled="true"
+                    className="flex h-full min-h-40 flex-col justify-between rounded-2xl border border-dashed border-border-subtle p-5 sm:p-6"
+                  >
+                    <p className="w-fit rounded-full border border-border-subtle px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-foreground-muted">
+                      Próximamente
+                    </p>
+                    <p className="mt-6 text-sm leading-relaxed text-foreground-muted">
+                      {bloque.proximamente}
+                    </p>
+                  </div>
+                ) : null}
+              </div>
+
+              {bloque.secundarios ? (
+                <p className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-foreground-muted">
+                  <span>También:</span>
+                  {bloque.secundarios.map((s) => (
+                    <Link
+                      key={s.kind}
+                      href={s.href}
+                      onClick={() => trackDemoClick(s.kind)}
+                      className="font-medium text-foreground underline decoration-border-subtle underline-offset-4 transition-colors duration-200 hover:text-accent-strong hover:decoration-accent"
+                    >
+                      {s.label} →
+                    </Link>
+                  ))}
+                </p>
+              ) : null}
+            </div>
           ))}
         </div>
       </Container>

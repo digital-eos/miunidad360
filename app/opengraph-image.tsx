@@ -32,7 +32,7 @@ export default async function OpengraphImage() {
       </div>
       <div style={{ fontSize: 88, marginTop: 24, lineHeight: 1.1 }}>MiUnidad360</div>
       <div style={{ fontSize: 34, marginTop: 24, color: "#9b9890", maxWidth: 900 }}>
-        Vendé tus unidades antes de construirlas
+        Cada unidad de tu proyecto, en 3D y con toda su información.
       </div>
     </div>,
     { ...size }

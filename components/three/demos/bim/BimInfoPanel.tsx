@@ -2,18 +2,21 @@
 
 import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
-import { bimUnits, bimUnitsByName, floorLevels } from "@/lib/bim/dataset";
-import { formatArea, formatUsdPrice } from "@/lib/units/format";
+import { BIM_PROJECT_SLUG, floorLevels, unidadFloor } from "@/lib/bim/dataset";
+import { featuredProject } from "@/config/featured";
+import { formatArea } from "@/lib/units/format";
+import { formatPrecio } from "@/lib/unidades/format";
+import { attrNumber, type Unidad } from "@/lib/unidades/types";
 import { STATUS_COLORS, STATUS_LABELS, STATUS_ORDER } from "@/lib/units/status-colors";
-import { UnitDetails } from "./UnitDetails";
+import { FichaUnidad } from "@/components/unidades/FichaUnidad";
 import { AvanceCalendar } from "./AvanceCalendar";
 import type { BimViewer } from "./use-bim-viewer";
 
 const ALL_FLOORS = "all";
 
-function availableLabel(floor: number | null) {
-  const count = bimUnits.filter(
-    (u) => u.status === "disponible" && (floor === null || u.floor === floor)
+function availableLabel(unidades: Unidad[], floor: number | null) {
+  const count = unidades.filter(
+    (u) => u.estado === "disponible" && (floor === null || unidadFloor(u) === floor)
   ).length;
   return pluralAvailable(count);
 }
@@ -47,22 +50,24 @@ export function BimInfoPanel({
     changeWeek,
     togglePlay,
     completeBuild,
+    unidades,
+    unidadesByObjeto,
   } = viewer;
   const rootRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const unit = selectedUnit ? (bimUnitsByName.get(selectedUnit) ?? null) : null;
+  const unit = selectedUnit ? (unidadesByObjeto.get(selectedUnit) ?? null) : null;
   const scopeFloor = mode === "avance" ? null : floor;
   const scopeLabel =
     scopeFloor === null
       ? "Todo el edificio"
       : (floorLevels.find((f) => f.floor === scopeFloor)?.label ?? "");
-  const units = bimUnits
-    .filter((u) => scopeFloor === null || u.floor === scopeFloor)
-    .sort((a, b) => a.floor - b.floor || a.number - b.number);
-  const available = units.filter((u) => u.status === "disponible");
+  const units = unidades
+    .filter((u) => scopeFloor === null || unidadFloor(u) === scopeFloor)
+    .sort((a, b) => (unidadFloor(a) ?? 0) - (unidadFloor(b) ?? 0) || a.id - b.id);
+  const available = units.filter((u) => u.estado === "disponible" && u.precio != null);
   const minPrice = available.length
-    ? Math.min(...available.map((u) => u.priceUsd))
+    ? Math.min(...available.map((u) => u.precio as number))
     : null;
 
   // When a unit opens, show its card from the top; on mobile the card sits below the 3D
@@ -101,11 +106,11 @@ export function BimInfoPanel({
               className="mt-1.5 w-full rounded-lg border border-border-subtle bg-background px-3 py-2.5 text-sm font-medium text-foreground focus:border-accent focus:outline-none"
             >
               <option value={ALL_FLOORS}>
-                Edificio completo · {availableLabel(null)}
+                Edificio completo · {availableLabel(unidades, null)}
               </option>
               {floorLevels.map((f) => (
                 <option key={f.floor} value={String(f.floor)}>
-                  {f.label} · {availableLabel(f.floor)}
+                  {f.label} · {availableLabel(unidades, f.floor)}
                 </option>
               ))}
             </select>
@@ -124,10 +129,13 @@ export function BimInfoPanel({
             onCompleteBuild={completeBuild}
           />
         ) : unit ? (
-          <UnitDetails
-            key={unit.name}
-            unit={unit}
-            onBack={closeUnit}
+          <FichaUnidad
+            key={unit.codigo}
+            unidad={unit}
+            proyectoSlug={BIM_PROJECT_SLUG}
+            proyectoNombre={featuredProject.nombre}
+            source="bim-unidad"
+            onClose={closeUnit}
             backLabel={
               scopeFloor === null
                 ? "Todas las unidades"
@@ -147,7 +155,7 @@ export function BimInfoPanel({
             </p>
             {minPrice !== null ? (
               <p className="mt-1 text-sm text-foreground-muted">
-                Desde {formatUsdPrice(minPrice)}
+                Desde {formatPrecio(minPrice, "USD")}
               </p>
             ) : null}
 
@@ -158,7 +166,7 @@ export function BimInfoPanel({
                     className="h-2 w-2 rounded-full"
                     style={{ backgroundColor: STATUS_COLORS[status] }}
                   />
-                  {units.filter((u) => u.status === status).length}{" "}
+                  {units.filter((u) => u.estado === status).length}{" "}
                   {STATUS_LABELS[status]}
                 </span>
               ))}
@@ -166,36 +174,39 @@ export function BimInfoPanel({
 
             <ul className="mt-5 divide-y divide-border-subtle border-y border-border-subtle">
               {units.map((u) => (
-                <li key={u.name}>
+                <li key={u.codigo}>
                   <button
                     type="button"
-                    onClick={() => openUnit(u.name)}
+                    onClick={() => u.objeto3d && openUnit(u.objeto3d)}
                     className="flex w-full items-center gap-3 py-3 text-left transition-colors duration-200 hover:bg-background-elevated focus-visible:bg-background-elevated focus-visible:outline-none"
                   >
                     <span
                       className="h-2.5 w-2.5 shrink-0 rounded-full"
-                      style={{ backgroundColor: STATUS_COLORS[u.status] }}
-                      aria-label={STATUS_LABELS[u.status]}
+                      style={{ backgroundColor: STATUS_COLORS[u.estado] }}
+                      aria-label={STATUS_LABELS[u.estado]}
                     />
                     <span className="min-w-0 flex-1">
                       <span className="block text-sm font-medium">
-                        {u.name}
-                        {scopeFloor === null ? (
+                        {u.codigo}
+                        {scopeFloor === null && u.sector ? (
                           <span className="font-normal text-foreground-muted">
                             {" "}
-                            · {u.storey}
+                            · {u.sector}
                           </span>
                         ) : null}
                       </span>
                       <span className="block text-xs text-foreground-muted">
-                        {u.rooms} amb · {formatArea(u.area_m2)}
+                        {attrNumber(u, "dormitorios") != null
+                          ? `${attrNumber(u, "dormitorios")} dorm · `
+                          : ""}
+                        {formatArea(u.superficieM2)}
                       </span>
                     </span>
                     <span className="shrink-0 text-right text-sm">
-                      {u.status === "vendida" ? (
+                      {u.estado === "vendida" ? (
                         <span className="text-foreground-muted">Vendida</span>
                       ) : (
-                        formatUsdPrice(u.priceUsd)
+                        formatPrecio(u.precio, u.moneda)
                       )}
                     </span>
                     <span aria-hidden="true" className="text-foreground-muted">
@@ -207,10 +218,7 @@ export function BimInfoPanel({
             </ul>
 
             <p className="mt-4 text-xs text-foreground-muted">
-              {mode === "unidades"
-                ? "Tocá una unidad en el 3D o en la lista para ver sus datos."
-                : "Elegí una unidad de la lista para ver sus datos."}{" "}
-              Precios y estados ficticios, solo para esta demo.
+              Tocá una unidad en el 3D o en la lista para ver sus datos. Precios y estados ficticios, solo para esta demo.
             </p>
           </div>
         )}

@@ -33,7 +33,7 @@ function BimFallback() {
  */
 export function BimCanvas({ children }: { children?: ReactNode }) {
   const supportsWebGL = useWebGLSupport();
-  const viewer = useBimViewer();
+  const viewer = useBimViewer({ syncUrl: true });
   const { active: isCapturing } = useCaptureMode();
 
   let stage: ReactNode;

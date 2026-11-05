@@ -1,4 +1,4 @@
-import type { Unit } from "@/db/schema";
+import { attrNumber, type Unidad } from "@/lib/unidades/types";
 
 export type UnitFilters = {
   minRooms: number | null;
@@ -16,12 +16,16 @@ export const EMPTY_FILTERS: UnitFilters = {
   onlyAvailable: false,
 };
 
-export function unitMatchesFilters(unit: Unit, filters: UnitFilters): boolean {
-  if (filters.minRooms != null && unit.rooms < filters.minRooms) return false;
-  if (filters.maxPriceUsd != null && unit.priceUsd > filters.maxPriceUsd) return false;
-  if (filters.minFloor != null && unit.floor < filters.minFloor) return false;
-  if (filters.orientation != null && unit.orientation !== filters.orientation) return false;
-  if (filters.onlyAvailable && unit.status !== "disponible") return false;
+export function unitMatchesFilters(unit: Unidad, filters: UnitFilters): boolean {
+  const rooms = attrNumber(unit, "ambientes") ?? 0;
+  const floor = attrNumber(unit, "piso") ?? 0;
+  if (filters.minRooms != null && rooms < filters.minRooms) return false;
+  if (filters.maxPriceUsd != null && (unit.precio == null || unit.precio > filters.maxPriceUsd)) {
+    return false;
+  }
+  if (filters.minFloor != null && floor < filters.minFloor) return false;
+  if (filters.orientation != null && unit.orientacion !== filters.orientation) return false;
+  if (filters.onlyAvailable && unit.estado !== "disponible") return false;
   return true;
 }
 

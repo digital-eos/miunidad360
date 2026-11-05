@@ -12,7 +12,8 @@ import { useFrame, useLoader } from "@react-three/fiber";
 import type { ThreeEvent } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
-import { groupsByName, bimUnitsByName } from "@/lib/bim/dataset";
+import { groupsByName, unidadFloor } from "@/lib/bim/dataset";
+import type { Unidad } from "@/lib/unidades/types";
 import {
   CATEGORY_COLORS,
   DEFAULT_CATEGORY_COLOR,
@@ -28,6 +29,10 @@ const GLASS_OPACITY = 0.6;
 const APARTMENT_IDLE_OPACITY = 0.6;
 const APARTMENT_HOVER_OPACITY = 0.82;
 const APARTMENT_SELECTED_OPACITY = 0.95;
+// In "corte" the apartments are cut at plan height like the walls and tint the floor plan.
+const CORTE_IDLE_OPACITY = 0.3;
+const CORTE_HOVER_OPACITY = 0.55;
+const CORTE_SELECTED_OPACITY = 0.75;
 
 function NOOP_RAYCAST() {
   // Intentionally disables raycasting for this mesh.
@@ -42,6 +47,8 @@ type BimModelProps = {
   isolatedFloor: number | null;
   hoveredUnit: string | null;
   selectedUnit: string | null;
+  /** Units keyed by 3D object name, for their status color. */
+  unidadesByObjeto: Map<string, Unidad>;
   onUnitClick: (name: string) => void;
   onUnitHover: (name: string | null) => void;
   modelUrl?: string;
@@ -54,6 +61,7 @@ export function BimModel({
   isolatedFloor,
   hoveredUnit,
   selectedUnit,
+  unidadesByObjeto,
   onUnitClick,
   onUnitHover,
   modelUrl = "/models/schependomlaan.glb",
@@ -82,6 +90,7 @@ export function BimModel({
           transparent: true,
           roughness: 0.8,
           depthWrite: false,
+          clippingPlanes: [topPlaneRef.current, bottomPlaneRef.current],
         });
         obj.material = material;
         obj.castShadow = false;
@@ -132,40 +141,57 @@ export function BimModel({
       const baseOpacity = material.userData.baseOpacity as number;
       const isGlass = material.userData.isGlass as boolean;
 
+      if (mode === "unidades" || mode === "corte") {
+        // Walls must not swallow clicks meant for the apartment volumes inside them.
+        mesh.raycast = NOOP_RAYCAST;
+      } else {
+        mesh.raycast = THREE.Mesh.prototype.raycast;
+      }
+
       if (mode === "unidades") {
         material.transparent = true;
         material.opacity = STRUCTURE_OPACITY_UNIDADES;
         material.depthWrite = false;
         mesh.castShadow = false;
         mesh.visible = true;
-        // Structure is near-invisible in this mode; don't let it intercept clicks meant for
-        // the apartment volumes behind it.
-        mesh.raycast = NOOP_RAYCAST;
       } else {
         material.transparent = isGlass;
         material.opacity = baseOpacity;
         material.depthWrite = true;
         mesh.castShadow = true;
         mesh.visible = mode === "corte" || (mesh.userData.week as number) <= currentWeek;
-        mesh.raycast = THREE.Mesh.prototype.raycast;
       }
     }
 
     apartmentMeshes.forEach((mesh, name) => {
       const material = mesh.material as THREE.MeshStandardMaterial;
-      const unit = bimUnitsByName.get(name);
+      const unit = unidadesByObjeto.get(name);
+      const unitFloor = unit ? unidadFloor(unit) : null;
       mesh.visible =
-        mode === "unidades" && (isolatedFloor === null || unit?.floor === isolatedFloor);
-      const baseColor = unit ? STATUS_COLORS[unit.status] : DEFAULT_CATEGORY_COLOR;
+        mode !== "avance" && (isolatedFloor === null || unitFloor === isolatedFloor);
+      // three.js raycasts hidden meshes too: only the shown floor may catch clicks.
+      mesh.raycast = mesh.visible ? THREE.Mesh.prototype.raycast : NOOP_RAYCAST;
+      const baseColor = unit ? STATUS_COLORS[unit.estado] : DEFAULT_CATEGORY_COLOR;
       const isHovered = hoveredUnit === name;
       const isSelected = selectedUnit === name;
 
       material.color.set(baseColor);
-      material.opacity = isSelected
-        ? APARTMENT_SELECTED_OPACITY
-        : isHovered
-          ? APARTMENT_HOVER_OPACITY
-          : APARTMENT_IDLE_OPACITY;
+      if (mode === "corte") {
+        // With the whole building shown, apartments stay invisible inside the walls but
+        // still catch clicks; with one floor cut open they tint the plan.
+        const idle = isolatedFloor === null ? 0 : CORTE_IDLE_OPACITY;
+        material.opacity = isSelected
+          ? CORTE_SELECTED_OPACITY
+          : isHovered
+            ? CORTE_HOVER_OPACITY
+            : idle;
+      } else {
+        material.opacity = isSelected
+          ? APARTMENT_SELECTED_OPACITY
+          : isHovered
+            ? APARTMENT_HOVER_OPACITY
+            : APARTMENT_IDLE_OPACITY;
+      }
       material.emissive.set(isHovered || isSelected ? baseColor : "#000000");
       material.emissiveIntensity = isSelected ? 0.35 : isHovered ? 0.2 : 0;
     });

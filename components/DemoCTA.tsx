@@ -13,12 +13,13 @@ const DEMO_LABELS: Record<string, string> = {
   selector: "el selector de unidades",
   sol: "el estudio de asoleamiento",
   bim: "el modelo BIM",
+  lotes: "el barrio demo",
 };
 
 const fieldClasses =
   "w-full rounded-lg border border-border-subtle bg-background px-4 py-3 text-sm text-foreground placeholder:text-foreground-muted/60 focus:border-accent focus:outline-none";
 
-export function DemoCTA({ demo }: { demo: "maqueta" | "selector" | "sol" | "bim" }) {
+export function DemoCTA({ demo }: { demo: "maqueta" | "selector" | "sol" | "bim" | "lotes" }) {
   const [state, formAction, isPending] = useActionState(submitContactForm, initialState);
   const source = `demo-${demo}-end`;
   const demoLabel = DEMO_LABELS[demo];

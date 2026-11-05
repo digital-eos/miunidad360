@@ -1,6 +1,6 @@
 import { track } from "@vercel/analytics";
 
-type DemoKind = "maqueta" | "selector" | "sol" | "bim";
+export type DemoKind = "maqueta" | "selector" | "sol" | "bim" | "lotes";
 
 export function trackDemoClick(demo: DemoKind) {
   track("demo_click", { demo });
@@ -14,11 +14,11 @@ export function trackFormSubmit(source: string) {
   track("form_submit", { source });
 }
 
-export function trackFilterUsed(demo: "selector") {
+export function trackFilterUsed(demo: "selector" | "lotes") {
   track("filter_used", { demo });
 }
 
-export function trackUnitOpened(demo: "selector" | "sol" | "bim", unitCode: string) {
+export function trackUnitOpened(demo: "selector" | "sol" | "bim" | "lotes", unitCode: string) {
   track("unit_opened", { demo, unitCode });
 }
 

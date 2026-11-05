@@ -59,11 +59,17 @@ cp .env.example .env.local
    npm run db:migrate    # aplica las migraciones contra tu base
    ```
 
-4. (Opcional) Insertá un lead de prueba para verificar la conexión:
+4. Cargá los proyectos de demo (Edificio Demo, Schependomlaan y Barrio Demo):
 
    ```bash
-   npm run db:seed
+   npm run db:seed            # no pisa precios ni estados editados en /admin
+   npm run db:seed -- --reset # reescribe todas las unidades
    ```
+
+   Cada unidad vendible (departamento, lote, nave…) es una fila de la tabla `unidades`:
+   columnas comunes (código, sector, superficie, precio, estado, objeto 3D) y los datos
+   propios de cada tipo en `atributos` (JSONB). Las etiquetas de la ficha de unidad para
+   cada tipo se definen en `lib/unidades/tipos.ts`.
 
 5. Para explorar la base con una interfaz visual:
 
@@ -90,7 +96,7 @@ Abrí [http://localhost:3000](http://localhost:3000).
 | `npm run db:generate` | Genera migraciones Drizzle a partir del schema  |
 | `npm run db:migrate`  | Aplica las migraciones a la base de datos       |
 | `npm run db:studio`   | Abre Drizzle Studio                            |
-| `npm run db:seed`     | Inserta un lead de prueba (uso local)          |
+| `npm run db:seed`     | Carga los proyectos y unidades de demo         |
 
 ## Deploy en Vercel
 

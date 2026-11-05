@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { units } from "@/db/schema";
+import { unidades } from "@/db/schema";
 import {
   ADMIN_COOKIE_NAME,
   ADMIN_SESSION_TTL_SECONDS,
@@ -63,20 +63,26 @@ export async function adminLogout(): Promise<void> {
   redirect("/admin");
 }
 
-export async function updateUnitStatus(unitId: number, status: "disponible" | "reservada" | "vendida") {
+export async function updateUnidadEstado(
+  unidadId: number,
+  estado: "disponible" | "reservada" | "vendida",
+) {
   await requireAdminSession();
-  await db.update(units).set({ status, updatedAt: new Date() }).where(eq(units.id, unitId));
+  if (!["disponible", "reservada", "vendida"].includes(estado)) {
+    throw new Error("Estado inválido.");
+  }
+  await db.update(unidades).set({ estado, updatedAt: new Date() }).where(eq(unidades.id, unidadId));
   revalidatePath("/admin");
 }
 
-export async function updateUnitPrice(unitId: number, priceUsd: number) {
+export async function updateUnidadPrecio(unidadId: number, precio: number) {
   await requireAdminSession();
-  if (!Number.isFinite(priceUsd) || priceUsd <= 0) {
+  if (!Number.isFinite(precio) || precio <= 0) {
     throw new Error("Precio inválido.");
   }
   await db
-    .update(units)
-    .set({ priceUsd: Math.round(priceUsd), updatedAt: new Date() })
-    .where(eq(units.id, unitId));
+    .update(unidades)
+    .set({ precio: Math.round(precio), updatedAt: new Date() })
+    .where(eq(unidades.id, unidadId));
   revalidatePath("/admin");
 }

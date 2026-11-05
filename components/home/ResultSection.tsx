@@ -26,7 +26,7 @@ export function ResultSection() {
       <Container>
         <SectionHeading
           title="El resultado: lo que recorren tus clientes"
-          description="El mismo proyecto, convertido en una experiencia 3D. Cortalo piso por piso, elegí una unidad o mirá cómo avanzó la obra."
+          description="Tocá una unidad para ver sus datos. Cortalo piso por piso o mirá cómo avanzó la obra."
         />
       </Container>
 

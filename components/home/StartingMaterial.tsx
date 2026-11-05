@@ -44,10 +44,23 @@ export function StartingMaterial() {
                 onError={() => setRenderFailed(true)}
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center bg-grid">
-                <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-foreground-muted">
-                  Render del proyecto
-                </p>
+              <div
+                role="img"
+                aria-label="Render del proyecto no disponible"
+                className="flex h-full w-full items-center justify-center bg-grid"
+              >
+                <svg
+                  viewBox="0 0 48 48"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.25}
+                  className="h-12 w-12 text-foreground-muted/60"
+                  aria-hidden="true"
+                >
+                  <rect x="6" y="9" width="36" height="30" rx="2" />
+                  <path d="M6 33l10-10 8 8 6-6 12 12" strokeLinejoin="round" />
+                  <circle cx="33" cy="18" r="3" />
+                </svg>
               </div>
             )}
           </div>

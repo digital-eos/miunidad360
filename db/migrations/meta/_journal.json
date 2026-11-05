@@ -15,6 +15,13 @@
       "when": 1793773333406,
       "tag": "0001_oval_sunspot",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1793890847537,
+      "tag": "0002_unidades",
+      "breakpoints": true
     }
   ]
 }
