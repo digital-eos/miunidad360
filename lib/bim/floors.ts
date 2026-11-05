@@ -23,6 +23,25 @@ export function floorRange(floor: number, mode: "corte" | "unidades"): FloorRang
   return { min, max };
 }
 
+/** The floor at a given height (clicks on the roof pick the top floor, below ground the lowest). */
+export function floorAtHeight(y: number): number | null {
+  if (floorLevels.length === 0) return null;
+  let found = floorLevels[0].floor;
+  for (const level of floorLevels) {
+    if (y >= level.top - STOREY_HEIGHT) found = level.floor;
+  }
+  return found;
+}
+
+// In "unidades", walls of the picked floor are kept as low stubs, like a cut-away maquette.
+const REVEAL_CUT_ABOVE_FLOOR = 1.2;
+
+/** Height above which the building lifts away when one floor is picked in "unidades". */
+export function floorRevealCut(floor: number): number | null {
+  const level = floorLevels.find((f) => f.floor === floor);
+  return level ? level.top - STOREY_HEIGHT + REVEAL_CUT_ABOVE_FLOOR : null;
+}
+
 /** Vertical middle of a floor, for pointing the camera at it. */
 export function floorMidHeight(floor: number): number | null {
   const level = floorLevels.find((f) => f.floor === floor);

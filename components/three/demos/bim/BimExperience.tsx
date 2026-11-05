@@ -21,6 +21,7 @@ import { floorMidHeight, floorRange } from "@/lib/bim/floors";
 import { CameraRig, type Viewpoint } from "@/components/three/demos/maqueta/CameraRig";
 import { BimModel, type BimMode } from "./BimModel";
 import { BimLighting } from "./BimLighting";
+import { BimNeighborhood, GROUND_Y } from "./BimNeighborhood";
 import { LoadingOverlay } from "./LoadingOverlay";
 import { ModeSwitcher } from "./ModeSwitcher";
 import { DatasetCredit } from "./DatasetCredit";
@@ -30,7 +31,7 @@ const FOV = 38;
 
 function useBimCamera(
   containerRef: RefObject<HTMLDivElement | null>
-): Viewpoint & { minDistance: number; maxDistance: number } {
+): Viewpoint & { distance: number; minDistance: number; maxDistance: number } {
   const aspect = useElementAspect(containerRef);
 
   return useMemo(() => {
@@ -56,6 +57,7 @@ function useBimCamera(
     return {
       position,
       target,
+      distance,
       minDistance: Math.max(halfW, halfD) + 3,
       maxDistance: distance * 1.6,
     };
@@ -80,8 +82,16 @@ export function BimExperience({
   modeSwitcherTopClassName,
   posterSrc,
 }: BimExperienceProps) {
-  const { mode, floor, selectedUnit, selectMode, openUnit, currentWeek, unidadesByObjeto } =
-    viewer;
+  const {
+    mode,
+    floor,
+    selectedUnit,
+    selectMode,
+    selectFloor,
+    openUnit,
+    currentWeek,
+    unidadesByObjeto,
+  } = viewer;
   const containerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const prefersReducedMotion = usePrefersReducedMotion();
@@ -132,6 +142,14 @@ export function BimExperience({
     [markInteraction, openUnit]
   );
 
+  const handleFloorClick = useCallback(
+    (next: number) => {
+      markInteraction();
+      selectFloor(next);
+    },
+    [markInteraction, selectFloor]
+  );
+
   const isolatedFloor = mode === "avance" ? null : floor;
   const range =
     isolatedFloor === null || mode === "avance" ? null : floorRange(isolatedFloor, mode);
@@ -140,10 +158,13 @@ export function BimExperience({
   const viewpoint: Viewpoint = useMemo(() => {
     const mid = isolatedFloor === null ? null : floorMidHeight(isolatedFloor);
     if (mid === null) return camera;
-    const dy = mid - camera.target[1];
+    // Same angle, a little closer, so the picked floor fills the frame.
+    const zoom = 0.85;
+    const [tx, , tz] = camera.target;
+    const offset = camera.position.map((p, i) => (p - camera.target[i]) * zoom);
     return {
-      position: [camera.position[0], camera.position[1] + dy, camera.position[2]],
-      target: [camera.target[0], mid, camera.target[2]],
+      position: [tx + offset[0], mid + offset[1], tz + offset[2]],
+      target: [tx, mid, tz],
     };
   }, [camera, isolatedFloor]);
 
@@ -183,11 +204,15 @@ export function BimExperience({
             unidadesByObjeto={unidadesByObjeto}
             onUnitHover={setHoveredUnit}
             onUnitClick={handleUnitClick}
+            onFloorClick={handleFloorClick}
+            tagFade={{ start: camera.distance * 1.1, end: camera.maxDistance }}
+            reducedMotion={prefersReducedMotion}
             modelUrl={modelUrl}
           />
         </Suspense>
+        <BimNeighborhood excavated={mode === "avance"} />
         <ContactShadows
-          position={[0, 0.02, 0]}
+          position={[0, mode === "avance" ? 0.02 : GROUND_Y + 0.02, 0]}
           opacity={0.35}
           scale={Math.max(BIM_SIZE.width, BIM_SIZE.depth) * 1.7}
           blur={2.4}

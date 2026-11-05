@@ -13,7 +13,7 @@ import { useBimViewer } from "@/components/three/demos/bim/use-bim-viewer";
 const POSTER_SRC = "/images/hero-bim-poster.svg";
 
 export function ResultSection() {
-  const viewer = useBimViewer({ initialMode: "corte", initialFloor: 1 });
+  const viewer = useBimViewer();
   // The poster shows right away; the 3D bundle and model only load once the frame is
   // close to the viewport (useInView uses a 200px root margin).
   const { ref, inView } = useInView<HTMLDivElement>();
