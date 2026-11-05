@@ -1,11 +1,9 @@
 import { productJsonLd } from "@/lib/structured-data";
 import { Header } from "@/components/Header";
-import { FeaturedHero } from "@/components/home/FeaturedHero";
-import { Problem } from "@/components/Problem";
-import { Solution } from "@/components/Solution";
+import { Hero } from "@/components/home/Hero";
+import { ResultSection } from "@/components/home/ResultSection";
 import { Demos } from "@/components/Demos";
-import { HowItWorks } from "@/components/HowItWorks";
-import { ForWho } from "@/components/ForWho";
+import { HowYouReceiveIt } from "@/components/HowYouReceiveIt";
 import { Faq } from "@/components/Faq";
 import { Contact } from "@/components/Contact";
 import { Footer } from "@/components/Footer";
@@ -19,12 +17,10 @@ export default function Home() {
       />
       <Header />
       <main className="flex flex-1 flex-col">
-        <FeaturedHero />
+        <Hero />
+        <ResultSection />
         <Demos />
-        <Problem />
-        <Solution />
-        <HowItWorks />
-        <ForWho />
+        <HowYouReceiveIt />
         <Faq />
         <Contact />
       </main>

@@ -1,11 +1,19 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type RefObject,
+} from "react";
 import { Canvas } from "@react-three/fiber";
 import { ContactShadows, PerformanceMonitor } from "@react-three/drei";
 import * as THREE from "three";
 import { sphereFitDistance } from "@/lib/three/camera-framing";
-import { useViewportAspect } from "@/lib/hooks/use-viewport-aspect";
+import { useElementAspect } from "@/lib/hooks/use-element-aspect";
 import { useIsMobile } from "@/lib/hooks/use-is-mobile";
 import { usePrefersReducedMotion } from "@/lib/hooks/use-prefers-reduced-motion";
 import { BIM_SIZE, bimUnitsByName, floorLevels } from "@/lib/bim/dataset";
@@ -24,8 +32,10 @@ import { DatasetCredit } from "./DatasetCredit";
 const FOV = 38;
 const PLAY_INTERVAL_MS = 450;
 
-function useBimCamera(): Viewpoint & { minDistance: number; maxDistance: number } {
-  const aspect = useViewportAspect();
+function useBimCamera(
+  containerRef: RefObject<HTMLDivElement | null>
+): Viewpoint & { minDistance: number; maxDistance: number } {
+  const aspect = useElementAspect(containerRef);
 
   return useMemo(() => {
     const halfW = BIM_SIZE.width / 2;
@@ -35,7 +45,10 @@ function useBimCamera(): Viewpoint & { minDistance: number; maxDistance: number 
 
     const elevation = (52 * Math.PI) / 180;
     const azimuth = (38 * Math.PI) / 180;
-    const distance = Math.max(sphereFitDistance(sphereRadius, FOV, aspect), sphereRadius + 6);
+    const distance = Math.max(
+      sphereFitDistance(sphereRadius, FOV, aspect),
+      sphereRadius + 6
+    );
 
     const position: [number, number, number] = [
       Math.cos(elevation) * Math.sin(azimuth) * distance,
@@ -59,9 +72,6 @@ type BimExperienceProps = {
   /** Cut-plane height (meters) shown on first render, only relevant to "corte" mode. */
   initialCutHeight?: number;
   modelUrl?: string;
-  /** Overrides the computed overview camera (e.g. to line up with a reference photo). */
-  cameraOverride?: Viewpoint | null;
-  cameraOverrideKey?: string;
   /** Pulses the "Unidades" tab once after a few seconds of no interaction. */
   enableIdleHint?: boolean;
   modeSwitcherTopClassName?: string;
@@ -69,22 +79,24 @@ type BimExperienceProps = {
   posterSrc?: string;
   /** Where the corte/avance bottom panel sits — "end" keeps it clear of a hero overlay on the left. */
   bottomPanelAlign?: "center" | "end";
+  /** Keeps the unit panel inside this component's frame instead of the viewport. */
+  containedPanel?: boolean;
 };
 
 export function BimExperience({
   initialMode = "unidades",
   initialCutHeight,
   modelUrl,
-  cameraOverride = null,
-  cameraOverrideKey = "default",
   enableIdleHint = false,
   modeSwitcherTopClassName,
   posterSrc,
   bottomPanelAlign = "center",
+  containedPanel = false,
 }: BimExperienceProps = {}) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const prefersReducedMotion = usePrefersReducedMotion();
-  const camera = useBimCamera();
+  const camera = useBimCamera(containerRef);
   const maxDpr = isMobile ? 1.5 : 2;
   const [dpr, setDpr] = useState(maxDpr);
 
@@ -141,10 +153,12 @@ export function BimExperience({
       setSelectedUnit(null);
       setHoveredUnit(null);
     },
-    [markInteraction],
+    [markInteraction]
   );
 
-  const selectedUnitData = selectedUnit ? (bimUnitsByName.get(selectedUnit) ?? null) : null;
+  const selectedUnitData = selectedUnit
+    ? (bimUnitsByName.get(selectedUnit) ?? null)
+    : null;
 
   const handleUnitClick = useCallback(
     (name: string) => {
@@ -152,7 +166,7 @@ export function BimExperience({
       setSelectedUnit(name);
       trackUnitOpened("bim", name);
     },
-    [markInteraction],
+    [markInteraction]
   );
 
   const handleChangeCutHeight = useCallback(
@@ -160,7 +174,7 @@ export function BimExperience({
       markInteraction();
       setCutHeight(height);
     },
-    [markInteraction],
+    [markInteraction]
   );
 
   const handleChangeWeek = useCallback(
@@ -169,7 +183,7 @@ export function BimExperience({
       setIsPlaying(false);
       setCurrentWeek(week);
     },
-    [markInteraction],
+    [markInteraction]
   );
 
   const handleTogglePlay = useCallback(() => {
@@ -183,17 +197,15 @@ export function BimExperience({
     setCurrentWeek(LAST_WEEK);
   }, [markInteraction]);
 
-  const activeViewpoint: Viewpoint = cameraOverride ?? camera;
-  const activeTargetKey = cameraOverride ? `photo-${cameraOverrideKey}` : "overview";
-
   return (
     <div
+      ref={containerRef}
       className={`relative h-full w-full ${hoveredUnit ? "cursor-pointer" : ""}`}
       onPointerDown={markInteraction}
       onWheel={markInteraction}
     >
       <Canvas
-        camera={{ position: activeViewpoint.position, fov: FOV, near: 0.1, far: 250 }}
+        camera={{ position: camera.position, fov: FOV, near: 0.1, far: 250 }}
         dpr={dpr}
         shadows={!isMobile}
         gl={{
@@ -231,9 +243,9 @@ export function BimExperience({
           resolution={isMobile ? 512 : 1024}
         />
         <CameraRig
-          target={activeViewpoint}
-          targetKey={activeTargetKey}
-          autoRotateEnabled={!prefersReducedMotion && !isMobile && !cameraOverride}
+          target={camera}
+          targetKey="overview"
+          autoRotateEnabled={!prefersReducedMotion && !isMobile}
           autoRotateSpeed={0.3}
           minDistance={camera.minDistance}
           maxDistance={camera.maxDistance}
@@ -274,7 +286,11 @@ export function BimExperience({
       ) : null}
 
       {mode === "unidades" && selectedUnitData ? (
-        <UnitPanel unit={selectedUnitData} onClose={() => setSelectedUnit(null)} />
+        <UnitPanel
+          unit={selectedUnitData}
+          onClose={() => setSelectedUnit(null)}
+          contained={containedPanel}
+        />
       ) : null}
 
       <DatasetCredit />
