@@ -15,7 +15,7 @@ export function RecordButton({
   stageRef,
   durationMs = 13_000,
 }: {
-  demo: "maqueta" | "selector" | "sol";
+  demo: "maqueta" | "selector" | "sol" | "bim";
   format: CaptureFormat;
   width: number;
   height: number;

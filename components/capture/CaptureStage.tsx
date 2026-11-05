@@ -12,7 +12,7 @@ export function CaptureStage({
   demo,
   children,
 }: {
-  demo: "maqueta" | "selector" | "sol";
+  demo: "maqueta" | "selector" | "sol" | "bim";
   children: ReactNode;
 }) {
   const { active, format, width, height } = useCaptureMode();

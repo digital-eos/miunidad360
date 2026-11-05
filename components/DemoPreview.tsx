@@ -5,7 +5,7 @@ import { MaquetaPreviewCanvas } from "@/components/three/demos/maqueta/MaquetaPr
 import { STATUS_COLORS } from "@/lib/units/status-colors";
 
 type DemoPreviewProps = {
-  kind: "maqueta" | "selector" | "sol";
+  kind: "maqueta" | "selector" | "sol" | "bim";
 };
 
 // Representative status mix for the homepage preview grid (disponible/reservada/vendida).
@@ -53,6 +53,40 @@ export function DemoPreview({ kind }: DemoPreviewProps) {
             />
           );
         })}
+      </div>
+    );
+  }
+
+  if (kind === "bim") {
+    const floorColors = ["#90a4c0", "#e8d9b8", "#aed3e0", "#d98f6c"];
+    return (
+      <div className="relative h-40 overflow-hidden rounded-xl bg-background">
+        <svg viewBox="0 0 300 160" className="h-full w-full" aria-hidden>
+          {floorColors.map((color, i) => (
+            <motion.rect
+              key={i}
+              x={90}
+              y={130 - (i + 1) * 24}
+              width={120}
+              height={20}
+              rx={2}
+              fill={color}
+              opacity={0.85}
+              animate={shouldReduceMotion ? undefined : { opacity: [0.2, 0.85, 0.85] }}
+              transition={loop ? { ...loop, duration: 3.5, delay: i * 0.5 } : undefined}
+            />
+          ))}
+          <line
+            x1={70}
+            y1={34}
+            x2={70}
+            y2={130}
+            stroke="var(--border-subtle)"
+            strokeWidth={1}
+            strokeDasharray="2 4"
+          />
+          <line x1={20} y1={130} x2={280} y2={130} stroke="var(--border-subtle)" strokeWidth={1} />
+        </svg>
       </div>
     );
   }

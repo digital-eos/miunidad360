@@ -26,6 +26,12 @@ const DEMOS = [
     title: "Estudio de asoleamiento",
     description: "Mostrá cómo entra el sol en cada unidad según la hora y la época del año.",
   },
+  {
+    kind: "bim" as const,
+    href: "/demos/bim",
+    title: "Modelo BIM",
+    description: "Explorá el edificio por unidades, avance de obra y corte, sobre un modelo BIM real.",
+  },
 ];
 
 export function Demos() {
@@ -33,7 +39,7 @@ export function Demos() {
     <section id="demos" className="border-t border-border-subtle py-24">
       <Container>
         <SectionHeading eyebrow="Las demos" title="Mirá cómo lo vive tu comprador" />
-        <div className="mt-14 grid gap-6 sm:grid-cols-3">
+        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {DEMOS.map((demo, index) => (
             <Reveal key={demo.kind} delay={index * 0.08}>
               <Link

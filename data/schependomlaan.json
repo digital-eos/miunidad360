@@ -1,0 +1,1257 @@
+{
+ "origin_date": "2015-02-26",
+ "groups": [
+  {
+   "name": "G0000_w0_losas",
+   "week": 0,
+   "cat": "losas",
+   "transparent": false,
+   "tasks": [
+    "Stellen bruggetjes"
+   ]
+  },
+  {
+   "name": "G0001_w1_estructura",
+   "week": 1,
+   "cat": "estructura",
+   "transparent": false,
+   "tasks": [
+    "Bekisten liftwanden"
+   ]
+  },
+  {
+   "name": "G0002_w1_muros",
+   "week": 1,
+   "cat": "muros",
+   "transparent": false,
+   "tasks": [
+    "Bekisten liftwanden"
+   ]
+  },
+  {
+   "name": "G0003_w2_estructura",
+   "week": 2,
+   "cat": "estructura",
+   "transparent": false,
+   "tasks": [
+    "Stellen funderingkist incl. poeren"
+   ]
+  },
+  {
+   "name": "G0004_w4_estructura",
+   "week": 4,
+   "cat": "estructura",
+   "transparent": false,
+   "tasks": [
+    "Opstorten fundering"
+   ]
+  },
+  {
+   "name": "G0005_w5_muros",
+   "week": 5,
+   "cat": "muros",
+   "transparent": false,
+   "tasks": [
+    "Stelwerk metselwerk onder peil"
+   ]
+  },
+  {
+   "name": "G0006_w6_losas",
+   "week": 6,
+   "cat": "losas",
+   "transparent": false,
+   "tasks": [
+    "Kanaalplaatvloer leggen (lev. week 16)"
+   ]
+  },
+  {
+   "name": "G0007_w6_losas",
+   "week": 6,
+   "cat": "losas",
+   "transparent": false,
+   "tasks": [
+    "Kanaalplaatvloer leggen (lev. week 16)"
+   ]
+  },
+  {
+   "name": "G0008_w7_muros",
+   "week": 7,
+   "cat": "muros",
+   "transparent": false,
+   "tasks": [
+    "Stelwerk kalkzandsteen"
+   ]
+  },
+  {
+   "name": "G0009_w7_estructura",
+   "week": 7,
+   "cat": "estructura",
+   "transparent": false,
+   "tasks": [
+    "Plaatsen stalen kolommen"
+   ]
+  },
+  {
+   "name": "G0010_w7_losas",
+   "week": 7,
+   "cat": "losas",
+   "transparent": false,
+   "tasks": [
+    "Afstorten kanaalplaat"
+   ]
+  },
+  {
+   "name": "G0011_w9_losas",
+   "week": 9,
+   "cat": "losas",
+   "transparent": false,
+   "tasks": [
+    "Leggen breedplaat incl. Veiligheid"
+   ]
+  },
+  {
+   "name": "G0012_w10_estructura",
+   "week": 10,
+   "cat": "estructura",
+   "transparent": false,
+   "tasks": [
+    "Stalen balken"
+   ]
+  },
+  {
+   "name": "G0013_w12_muros",
+   "week": 12,
+   "cat": "muros",
+   "transparent": false,
+   "tasks": [
+    "Stelwerk kalkzandsteen",
+    "Lijmwerk kalkzandsteen elementen"
+   ]
+  },
+  {
+   "name": "G0014_w12_escaleras",
+   "week": 12,
+   "cat": "escaleras",
+   "transparent": false,
+   "tasks": [
+    "Prefab trappen en bordes "
+   ]
+  },
+  {
+   "name": "G0015_w12_estructura",
+   "week": 12,
+   "cat": "estructura",
+   "transparent": false,
+   "tasks": [
+    "Prefab trappen en bordes "
+   ]
+  },
+  {
+   "name": "G0016_w12_barandas",
+   "week": 12,
+   "cat": "barandas",
+   "transparent": false,
+   "tasks": [
+    "Prefab trappen en bordes "
+   ]
+  },
+  {
+   "name": "G0017_w13_losas",
+   "week": 13,
+   "cat": "losas",
+   "transparent": false,
+   "tasks": [
+    "Opstellen"
+   ]
+  },
+  {
+   "name": "G0018_w15_losas",
+   "week": 15,
+   "cat": "losas",
+   "transparent": false,
+   "tasks": [
+    "Stort"
+   ]
+  },
+  {
+   "name": "G0019_w15_losas",
+   "week": 15,
+   "cat": "losas",
+   "transparent": false,
+   "tasks": [
+    "Stort"
+   ]
+  },
+  {
+   "name": "G0020_w15_estructura",
+   "week": 15,
+   "cat": "estructura",
+   "transparent": false,
+   "tasks": [
+    "Prefab trappen en bordes "
+   ]
+  },
+  {
+   "name": "G0021_w15_escaleras",
+   "week": 15,
+   "cat": "escaleras",
+   "transparent": false,
+   "tasks": [
+    "Prefab trappen en bordes "
+   ]
+  },
+  {
+   "name": "G0022_w15_muros",
+   "week": 15,
+   "cat": "muros",
+   "transparent": false,
+   "tasks": [
+    "Stelwerk buitengevel"
+   ]
+  },
+  {
+   "name": "G0023_w16_muros",
+   "week": 16,
+   "cat": "muros",
+   "transparent": false,
+   "tasks": [
+    "Plaatsen kozijnen",
+    "Stelwerk kalkzandsteen"
+   ]
+  },
+  {
+   "name": "G0024_w16_losas",
+   "week": 16,
+   "cat": "losas",
+   "transparent": false,
+   "tasks": [
+    "Opstellen",
+    "Lijmwerk kalkzandsteen elementen"
+   ]
+  },
+  {
+   "name": "G0025_w16_revestimientos",
+   "week": 16,
+   "cat": "revestimientos",
+   "transparent": false,
+   "tasks": [
+    "Plaatsen kozijnen"
+   ]
+  },
+  {
+   "name": "G0026_w16_aberturas",
+   "week": 16,
+   "cat": "aberturas",
+   "transparent": false,
+   "tasks": [
+    "Plaatsen kozijnen"
+   ]
+  },
+  {
+   "name": "G0027_w16_aberturas",
+   "week": 16,
+   "cat": "aberturas",
+   "transparent": false,
+   "tasks": [
+    "Plaatsen kozijnen"
+   ]
+  },
+  {
+   "name": "G0028_w16_aberturas",
+   "week": 16,
+   "cat": "aberturas",
+   "transparent": false,
+   "tasks": [
+    "Plaatsen kozijnen"
+   ]
+  },
+  {
+   "name": "G0029_w17_revestimientos",
+   "week": 17,
+   "cat": "revestimientos",
+   "transparent": false,
+   "tasks": [
+    "Metselwerk"
+   ]
+  },
+  {
+   "name": "G0030_w18_aberturas",
+   "week": 18,
+   "cat": "aberturas",
+   "transparent": false,
+   "tasks": [
+    "Stelwerk buitengevel"
+   ]
+  },
+  {
+   "name": "G0031_w18_aberturas",
+   "week": 18,
+   "cat": "aberturas",
+   "transparent": false,
+   "tasks": [
+    "Stelwerk buitengevel"
+   ]
+  },
+  {
+   "name": "G0032_w18_aberturas",
+   "week": 18,
+   "cat": "aberturas",
+   "transparent": false,
+   "tasks": [
+    "Stelwerk buitengevel"
+   ]
+  },
+  {
+   "name": "G0033_w19_estructura",
+   "week": 19,
+   "cat": "estructura",
+   "transparent": false,
+   "tasks": [
+    "Staalconstuctie dak",
+    "Metselwerk"
+   ]
+  },
+  {
+   "name": "G0034_w19_estructura",
+   "week": 19,
+   "cat": "estructura",
+   "transparent": false,
+   "tasks": [
+    "Metselwerk",
+    "Staalconstuctie dak"
+   ]
+  },
+  {
+   "name": "G0035_w19_estructura",
+   "week": 19,
+   "cat": "estructura",
+   "transparent": false,
+   "tasks": [
+    "Prefab trappen en bordes 2e verd."
+   ]
+  },
+  {
+   "name": "G0036_w19_escaleras",
+   "week": 19,
+   "cat": "escaleras",
+   "transparent": false,
+   "tasks": [
+    "Prefab trappen en bordes 2e verd."
+   ]
+  },
+  {
+   "name": "G0037_w19_muros",
+   "week": 19,
+   "cat": "muros",
+   "transparent": false,
+   "tasks": [
+    "Metselwerk",
+    "Stelwerk /lijmwerk lift"
+   ]
+  },
+  {
+   "name": "G0038_w19_otros",
+   "week": 19,
+   "cat": "otros",
+   "transparent": false,
+   "tasks": [
+    "Metselwerk"
+   ]
+  },
+  {
+   "name": "G0039_w19_revestimientos",
+   "week": 19,
+   "cat": "revestimientos",
+   "transparent": false,
+   "tasks": [
+    "Metselwerk"
+   ]
+  },
+  {
+   "name": "G0040_w19_revestimientos",
+   "week": 19,
+   "cat": "revestimientos",
+   "transparent": false,
+   "tasks": [
+    "Metselwerk"
+   ]
+  },
+  {
+   "name": "G0041_w19_revestimientos",
+   "week": 19,
+   "cat": "revestimientos",
+   "transparent": false,
+   "tasks": [
+    "Metselwerk"
+   ]
+  },
+  {
+   "name": "G0042_w19_revestimientos",
+   "week": 19,
+   "cat": "revestimientos",
+   "transparent": false,
+   "tasks": [
+    "Metselwerk"
+   ]
+  },
+  {
+   "name": "G0043_w19_fachada",
+   "week": 19,
+   "cat": "fachada",
+   "transparent": false,
+   "tasks": [
+    "Metselwerk"
+   ]
+  },
+  {
+   "name": "G0044_w19_revestimientos",
+   "week": 19,
+   "cat": "revestimientos",
+   "transparent": false,
+   "tasks": [
+    "Metselwerk"
+   ]
+  },
+  {
+   "name": "G0045_w20_estructura",
+   "week": 20,
+   "cat": "estructura",
+   "transparent": false,
+   "tasks": [
+    "Plaatsen scharnierkap incl. goot en platte daken"
+   ]
+  },
+  {
+   "name": "G0046_w20_revestimientos",
+   "week": 20,
+   "cat": "revestimientos",
+   "transparent": false,
+   "tasks": [
+    "Plaatsen scharnierkap incl. goot en platte daken",
+    "Metselwerk"
+   ]
+  },
+  {
+   "name": "G0047_w20_fachada",
+   "week": 20,
+   "cat": "fachada",
+   "transparent": false,
+   "tasks": [
+    "Plaatsen scharnierkap incl. goot en platte daken"
+   ]
+  },
+  {
+   "name": "G0048_w20_muros",
+   "week": 20,
+   "cat": "muros",
+   "transparent": false,
+   "tasks": [
+    "Metselwerk",
+    "Plaatsen scharnierkap incl. goot en platte daken"
+   ]
+  },
+  {
+   "name": "G0049_w20_losas",
+   "week": 20,
+   "cat": "losas",
+   "transparent": false,
+   "tasks": [
+    "Opstellen",
+    "Plaatsen scharnierkap incl. goot en platte daken"
+   ]
+  },
+  {
+   "name": "G0050_w20_otros",
+   "week": 20,
+   "cat": "otros",
+   "transparent": false,
+   "tasks": [
+    "Plaatsen kozijnen"
+   ]
+  },
+  {
+   "name": "G0051_w20_muros",
+   "week": 20,
+   "cat": "muros",
+   "transparent": false,
+   "tasks": [
+    "Plaatsen kozijnen"
+   ]
+  },
+  {
+   "name": "G0052_w20_aberturas",
+   "week": 20,
+   "cat": "aberturas",
+   "transparent": false,
+   "tasks": [
+    "Plaatsen kozijnen"
+   ]
+  },
+  {
+   "name": "G0053_w20_revestimientos",
+   "week": 20,
+   "cat": "revestimientos",
+   "transparent": false,
+   "tasks": [
+    "Plaatsen scharnierkap incl. goot en platte daken"
+   ]
+  },
+  {
+   "name": "G0054_w20_revestimientos",
+   "week": 20,
+   "cat": "revestimientos",
+   "transparent": false,
+   "tasks": [
+    "Plaatsen scharnierkap incl. goot en platte daken"
+   ]
+  },
+  {
+   "name": "G0055_w20_losas",
+   "week": 20,
+   "cat": "losas",
+   "transparent": false,
+   "tasks": [
+    "Plaatsen scharnierkap incl. goot en platte daken"
+   ]
+  },
+  {
+   "name": "G0056_w20_losas",
+   "week": 20,
+   "cat": "losas",
+   "transparent": false,
+   "tasks": [
+    "Plaatsen scharnierkap incl. goot en platte daken"
+   ]
+  },
+  {
+   "name": "G0057_w26_aberturas",
+   "week": 26,
+   "cat": "aberturas",
+   "transparent": false,
+   "tasks": [
+    "Plaatsen scharnierkap incl. goot en platte daken"
+   ]
+  },
+  {
+   "name": "G0058_w26_aberturas",
+   "week": 26,
+   "cat": "aberturas",
+   "transparent": false,
+   "tasks": [
+    "Dakramen"
+   ]
+  },
+  {
+   "name": "G0059_w26_losas",
+   "week": 26,
+   "cat": "losas",
+   "transparent": false,
+   "tasks": [
+    "Plaatsen scharnierkap incl. goot en platte daken",
+    "Dakbedekking platte daken"
+   ]
+  },
+  {
+   "name": "G0060_w26_revestimientos",
+   "week": 26,
+   "cat": "revestimientos",
+   "transparent": false,
+   "tasks": [
+    "Dakbedekking platte daken",
+    "Plaatsen scharnierkap incl. goot en platte daken",
+    "Zinken bekleding dakkapelen"
+   ]
+  },
+  {
+   "name": "G0061_w26_fachada",
+   "week": 26,
+   "cat": "fachada",
+   "transparent": false,
+   "tasks": [
+    "Plaatsen scharnierkap incl. goot en platte daken"
+   ]
+  },
+  {
+   "name": "G0062_w26_muros",
+   "week": 26,
+   "cat": "muros",
+   "transparent": false,
+   "tasks": [
+    "Plaatsen scharnierkap incl. goot en platte daken"
+   ]
+  },
+  {
+   "name": "G0063_w26_revestimientos",
+   "week": 26,
+   "cat": "revestimientos",
+   "transparent": false,
+   "tasks": [
+    "Plaatsen scharnierkap incl. goot en platte daken"
+   ]
+  },
+  {
+   "name": "G0064_w26_revestimientos",
+   "week": 26,
+   "cat": "revestimientos",
+   "transparent": false,
+   "tasks": [
+    "Plaatsen scharnierkap incl. goot en platte daken",
+    "Dakramen"
+   ]
+  },
+  {
+   "name": "G0065_w26_revestimientos",
+   "week": 26,
+   "cat": "revestimientos",
+   "transparent": false,
+   "tasks": [
+    "Plaatsen scharnierkap incl. goot en platte daken"
+   ]
+  },
+  {
+   "name": "G0066_w26_revestimientos",
+   "week": 26,
+   "cat": "revestimientos",
+   "transparent": false,
+   "tasks": [
+    "Plaatsen scharnierkap incl. goot en platte daken",
+    "Zinken bekleding dakkapelen",
+    "Dakbedekking platte daken"
+   ]
+  },
+  {
+   "name": "G0067_w26_revestimientos",
+   "week": 26,
+   "cat": "revestimientos",
+   "transparent": false,
+   "tasks": [
+    "Plaatsen scharnierkap incl. goot en platte daken"
+   ]
+  },
+  {
+   "name": "G0068_w26_losas",
+   "week": 26,
+   "cat": "losas",
+   "transparent": false,
+   "tasks": [
+    "Plaatsen scharnierkap incl. goot en platte daken"
+   ]
+  },
+  {
+   "name": "G0069_w26_losas",
+   "week": 26,
+   "cat": "losas",
+   "transparent": false,
+   "tasks": [
+    "Zinken bekleding dakkapelen",
+    "Plaatsen scharnierkap incl. goot en platte daken"
+   ]
+  },
+  {
+   "name": "G0070_w26_estructura",
+   "week": 26,
+   "cat": "estructura",
+   "transparent": false,
+   "tasks": [
+    "Plaatsen scharnierkap incl. goot en platte daken"
+   ]
+  },
+  {
+   "name": "G0071_w26_revestimientos",
+   "week": 26,
+   "cat": "revestimientos",
+   "transparent": false,
+   "tasks": [
+    "Zinken bekleding dakkapelen"
+   ]
+  },
+  {
+   "name": "G0072_w26_muros",
+   "week": 26,
+   "cat": "muros",
+   "transparent": false,
+   "tasks": [
+    "Zinken bekleding dakkapelen"
+   ]
+  },
+  {
+   "name": "G0073_w26_muros",
+   "week": 26,
+   "cat": "muros",
+   "transparent": false,
+   "tasks": [
+    "Zinken bekleding dakkapelen"
+   ]
+  },
+  {
+   "name": "G0074_w27_otros",
+   "week": 27,
+   "cat": "otros",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0075_w27_estructura",
+   "week": 27,
+   "cat": "estructura",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0076_w27_estructura",
+   "week": 27,
+   "cat": "estructura",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0077_w27_barandas",
+   "week": 27,
+   "cat": "barandas",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0078_w27_barandas",
+   "week": 27,
+   "cat": "barandas",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0079_w27_barandas",
+   "week": 27,
+   "cat": "barandas",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0080_w27_aberturas",
+   "week": 27,
+   "cat": "aberturas",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0081_w27_aberturas",
+   "week": 27,
+   "cat": "aberturas",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0082_w27_aberturas",
+   "week": 27,
+   "cat": "aberturas",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0083_w27_muros",
+   "week": 27,
+   "cat": "muros",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0084_w27_losas",
+   "week": 27,
+   "cat": "losas",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0085_w27_losas",
+   "week": 27,
+   "cat": "losas",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0086_w27_otros",
+   "week": 27,
+   "cat": "otros",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0087_w27_revestimientos",
+   "week": 27,
+   "cat": "revestimientos",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0088_w27_revestimientos",
+   "week": 27,
+   "cat": "revestimientos",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0089_w27_estructura",
+   "week": 27,
+   "cat": "estructura",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0090_w27_revestimientos",
+   "week": 27,
+   "cat": "revestimientos",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0091_w27_revestimientos",
+   "week": 27,
+   "cat": "revestimientos",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0092_w27_aberturas",
+   "week": 27,
+   "cat": "aberturas",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0093_w27_revestimientos",
+   "week": 27,
+   "cat": "revestimientos",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0094_w27_fachada",
+   "week": 27,
+   "cat": "fachada",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0095_w27_muros",
+   "week": 27,
+   "cat": "muros",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0096_w27_muros",
+   "week": 27,
+   "cat": "muros",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0097_w27_muros",
+   "week": 27,
+   "cat": "muros",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0098_w27_muros",
+   "week": 27,
+   "cat": "muros",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0099_w27_losas",
+   "week": 27,
+   "cat": "losas",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0100_w27_muros",
+   "week": 27,
+   "cat": "muros",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0101_w27_aberturas",
+   "week": 27,
+   "cat": "aberturas",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0102_w27_aberturas",
+   "week": 27,
+   "cat": "aberturas",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0103_w27_aberturas",
+   "week": 27,
+   "cat": "aberturas",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  },
+  {
+   "name": "G0104_w27_otros",
+   "week": 27,
+   "cat": "otros",
+   "transparent": false,
+   "tasks": [
+    "Afbouw"
+   ]
+  }
+ ],
+ "apartments": [
+  {
+   "name": "APT-1",
+   "number": 1,
+   "storey": "Planta baja",
+   "floor": 0,
+   "area_m2": 82.0,
+   "bedrooms": 1,
+   "rooms": 9,
+   "centre": [
+    -2.25,
+    3.01,
+    5.2
+   ],
+   "top": 4.32
+  },
+  {
+   "name": "APT-2",
+   "number": 2,
+   "storey": "Planta baja",
+   "floor": 0,
+   "area_m2": 102.0,
+   "bedrooms": 2,
+   "rooms": 10,
+   "centre": [
+    7.2,
+    3.01,
+    3.42
+   ],
+   "top": 4.32
+  },
+  {
+   "name": "APT-3",
+   "number": 3,
+   "storey": "Planta baja",
+   "floor": 0,
+   "area_m2": 93.4,
+   "bedrooms": 2,
+   "rooms": 10,
+   "centre": [
+    -3.07,
+    3.01,
+    -5.82
+   ],
+   "top": 4.32
+  },
+  {
+   "name": "APT-4",
+   "number": 4,
+   "storey": "1.er piso",
+   "floor": 1,
+   "area_m2": 85.0,
+   "bedrooms": 2,
+   "rooms": 9,
+   "centre": [
+    -1.49,
+    6.01,
+    4.84
+   ],
+   "top": 7.32
+  },
+  {
+   "name": "APT-5",
+   "number": 5,
+   "storey": "1.er piso",
+   "floor": 1,
+   "area_m2": 103.9,
+   "bedrooms": 2,
+   "rooms": 10,
+   "centre": [
+    5.42,
+    6.01,
+    3.42
+   ],
+   "top": 7.32
+  },
+  {
+   "name": "APT-6",
+   "number": 6,
+   "storey": "1.er piso",
+   "floor": 1,
+   "area_m2": 94.8,
+   "bedrooms": 2,
+   "rooms": 9,
+   "centre": [
+    -3.07,
+    6.01,
+    -5.82
+   ],
+   "top": 7.32
+  },
+  {
+   "name": "APT-7",
+   "number": 7,
+   "storey": "2.º piso",
+   "floor": 2,
+   "area_m2": 85.0,
+   "bedrooms": 2,
+   "rooms": 9,
+   "centre": [
+    -1.49,
+    9.01,
+    4.84
+   ],
+   "top": 10.32
+  },
+  {
+   "name": "APT-8",
+   "number": 8,
+   "storey": "2.º piso",
+   "floor": 2,
+   "area_m2": 103.4,
+   "bedrooms": 2,
+   "rooms": 10,
+   "centre": [
+    5.66,
+    9.01,
+    3.42
+   ],
+   "top": 10.32
+  },
+  {
+   "name": "APT-9",
+   "number": 9,
+   "storey": "3.er piso",
+   "floor": 3,
+   "area_m2": 76.8,
+   "bedrooms": 2,
+   "rooms": 9,
+   "centre": [
+    -1.38,
+    12.01,
+    4.82
+   ],
+   "top": 13.32
+  },
+  {
+   "name": "APT-10",
+   "number": 10,
+   "storey": "3.er piso",
+   "floor": 3,
+   "area_m2": 93.8,
+   "bedrooms": 1,
+   "rooms": 9,
+   "centre": [
+    5.28,
+    12.01,
+    3.49
+   ],
+   "top": 13.32
+  }
+ ],
+ "weeks": {
+  "0": {
+   "date": "2015-02-26",
+   "tasks": [
+    "Stellen bruggetjes"
+   ]
+  },
+  "1": {
+   "date": "2015-03-05",
+   "tasks": [
+    "Bekisten liftwanden"
+   ]
+  },
+  "2": {
+   "date": "2015-03-12",
+   "tasks": [
+    "Stellen funderingkist incl. poeren"
+   ]
+  },
+  "4": {
+   "date": "2015-03-26",
+   "tasks": [
+    "Opstorten fundering"
+   ]
+  },
+  "5": {
+   "date": "2015-04-02",
+   "tasks": [
+    "Stelwerk metselwerk onder peil"
+   ]
+  },
+  "6": {
+   "date": "2015-04-09",
+   "tasks": [
+    "Kanaalplaatvloer leggen (lev. week 16)"
+   ]
+  },
+  "7": {
+   "date": "2015-04-16",
+   "tasks": [
+    "Afstorten kanaalplaat",
+    "Stelwerk kalkzandsteen",
+    "Plaatsen stalen kolommen"
+   ]
+  },
+  "9": {
+   "date": "2015-04-30",
+   "tasks": [
+    "Leggen breedplaat incl. Veiligheid"
+   ]
+  },
+  "10": {
+   "date": "2015-05-07",
+   "tasks": [
+    "Stalen balken"
+   ]
+  },
+  "12": {
+   "date": "2015-05-21",
+   "tasks": [
+    "Stelwerk kalkzandsteen",
+    "Prefab trappen en bordes ",
+    "Lijmwerk kalkzandsteen elementen"
+   ]
+  },
+  "13": {
+   "date": "2015-05-28",
+   "tasks": [
+    "Opstellen"
+   ]
+  },
+  "15": {
+   "date": "2015-06-11",
+   "tasks": [
+    "Stelwerk buitengevel",
+    "Stort",
+    "Prefab trappen en bordes "
+   ]
+  },
+  "16": {
+   "date": "2015-06-18",
+   "tasks": [
+    "Plaatsen kozijnen",
+    "Stelwerk kalkzandsteen",
+    "Opstellen",
+    "Lijmwerk kalkzandsteen elementen"
+   ]
+  },
+  "17": {
+   "date": "2015-06-25",
+   "tasks": [
+    "Metselwerk"
+   ]
+  },
+  "18": {
+   "date": "2015-07-02",
+   "tasks": [
+    "Stelwerk buitengevel"
+   ]
+  },
+  "19": {
+   "date": "2015-07-09",
+   "tasks": [
+    "Metselwerk",
+    "Staalconstuctie dak",
+    "Stelwerk /lijmwerk lift",
+    "Prefab trappen en bordes 2e verd."
+   ]
+  },
+  "20": {
+   "date": "2015-07-16",
+   "tasks": [
+    "Plaatsen scharnierkap incl. goot en platte daken",
+    "Metselwerk",
+    "Plaatsen kozijnen",
+    "Opstellen"
+   ]
+  },
+  "26": {
+   "date": "2015-08-27",
+   "tasks": [
+    "Plaatsen scharnierkap incl. goot en platte daken",
+    "Zinken bekleding dakkapelen",
+    "Dakbedekking platte daken",
+    "Dakramen"
+   ]
+  },
+  "27": {
+   "date": "2015-09-03",
+   "tasks": [
+    "Afbouw"
+   ]
+  }
+ },
+ "size_m": [
+  23.95,
+  15.06,
+  24.46
+ ]
+}
