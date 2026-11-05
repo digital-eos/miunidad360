@@ -8,13 +8,25 @@ type CutControlsProps = {
   maxHeight: number;
   floorLevels: FloorLevel[];
   onChangeCutHeight: (height: number) => void;
+  align?: "center" | "end";
 };
 
-export function CutControls({ cutHeight, maxHeight, floorLevels, onChangeCutHeight }: CutControlsProps) {
+export function CutControls({
+  cutHeight,
+  maxHeight,
+  floorLevels,
+  onChangeCutHeight,
+  align = "center",
+}: CutControlsProps) {
   const isFull = cutHeight >= maxHeight - 0.05;
 
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-9 flex flex-col items-center gap-2 p-3 sm:bottom-11 sm:p-6">
+    <div
+      className={cn(
+        "pointer-events-none absolute inset-x-0 bottom-9 z-30 flex flex-col gap-2 p-3 sm:bottom-11 sm:p-6",
+        align === "end" ? "items-end" : "items-center",
+      )}
+    >
       <div className="pointer-events-auto w-full max-w-xl space-y-3 rounded-2xl border border-border-subtle bg-background/90 p-4 backdrop-blur-md">
         <div className="flex items-center justify-between text-sm">
           <p className="font-display text-base">

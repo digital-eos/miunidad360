@@ -4,7 +4,7 @@ import { WhatsAppButton } from "@/components/WhatsAppButton";
 
 export function Header() {
   return (
-    <header className="absolute inset-x-0 top-0 z-20">
+    <header className="absolute inset-x-0 top-0 z-40">
       <Container className="flex items-center justify-between py-6">
         <Link href="/" className="font-display text-lg tracking-tight">
           MiUnidad360

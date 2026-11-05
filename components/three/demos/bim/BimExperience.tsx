@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { ContactShadows, PerformanceMonitor } from "@react-three/drei";
 import * as THREE from "three";
@@ -8,20 +8,21 @@ import { sphereFitDistance } from "@/lib/three/camera-framing";
 import { useViewportAspect } from "@/lib/hooks/use-viewport-aspect";
 import { useIsMobile } from "@/lib/hooks/use-is-mobile";
 import { usePrefersReducedMotion } from "@/lib/hooks/use-prefers-reduced-motion";
-import { BIM_SIZE, bimUnitsByName, floorLevels, weekNumbers } from "@/lib/bim/dataset";
+import { BIM_SIZE, bimUnitsByName, floorLevels } from "@/lib/bim/dataset";
+import { LAST_WEEK } from "@/lib/bim/calendar";
 import { trackUnitOpened } from "@/lib/analytics";
 import { CameraRig, type Viewpoint } from "@/components/three/demos/maqueta/CameraRig";
 import { BimModel, type BimMode } from "./BimModel";
 import { BimLighting } from "./BimLighting";
 import { LoadingOverlay } from "./LoadingOverlay";
 import { ModeSwitcher } from "./ModeSwitcher";
-import { WeekControls } from "./WeekControls";
+import { AvanceCalendar } from "./AvanceCalendar";
 import { CutControls } from "./CutControls";
 import { UnitPanel } from "./UnitPanel";
 import { DatasetCredit } from "./DatasetCredit";
 
 const FOV = 38;
-const PLAY_INTERVAL_MS = 650;
+const PLAY_INTERVAL_MS = 450;
 
 function useBimCamera(): Viewpoint & { minDistance: number; maxDistance: number } {
   const aspect = useViewportAspect();
@@ -52,54 +53,147 @@ function useBimCamera(): Viewpoint & { minDistance: number; maxDistance: number 
   }, [aspect]);
 }
 
-export function BimExperience() {
+type BimExperienceProps = {
+  /** Mode shown on first render. Defaults to the standalone demo's "unidades". */
+  initialMode?: BimMode;
+  /** Cut-plane height (meters) shown on first render, only relevant to "corte" mode. */
+  initialCutHeight?: number;
+  modelUrl?: string;
+  /** Overrides the computed overview camera (e.g. to line up with a reference photo). */
+  cameraOverride?: Viewpoint | null;
+  cameraOverrideKey?: string;
+  /** Pulses the "Unidades" tab once after a few seconds of no interaction. */
+  enableIdleHint?: boolean;
+  modeSwitcherTopClassName?: string;
+  /** Static image shown instantly behind the loading state, before the 3D scene is ready. */
+  posterSrc?: string;
+  /** Where the corte/avance bottom panel sits — "end" keeps it clear of a hero overlay on the left. */
+  bottomPanelAlign?: "center" | "end";
+};
+
+export function BimExperience({
+  initialMode = "unidades",
+  initialCutHeight,
+  modelUrl,
+  cameraOverride = null,
+  cameraOverrideKey = "default",
+  enableIdleHint = false,
+  modeSwitcherTopClassName,
+  posterSrc,
+  bottomPanelAlign = "center",
+}: BimExperienceProps = {}) {
   const isMobile = useIsMobile();
   const prefersReducedMotion = usePrefersReducedMotion();
   const camera = useBimCamera();
   const maxDpr = isMobile ? 1.5 : 2;
   const [dpr, setDpr] = useState(maxDpr);
 
-  const [mode, setMode] = useState<BimMode>("unidades");
-  const [weekIndex, setWeekIndex] = useState(weekNumbers.length - 1);
+  const [mode, setMode] = useState<BimMode>(initialMode);
+  const [currentWeek, setCurrentWeek] = useState(LAST_WEEK);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [cutHeight, setCutHeight] = useState(BIM_SIZE.height * 0.6);
+  const [cutHeight, setCutHeight] = useState(initialCutHeight ?? BIM_SIZE.height * 0.6);
   const [hoveredUnit, setHoveredUnit] = useState<string | null>(null);
   const [selectedUnit, setSelectedUnit] = useState<string | null>(null);
+  const [pulseMode, setPulseMode] = useState<BimMode | null>(null);
 
-  const currentWeek = weekNumbers[weekIndex] ?? 0;
+  const lastInteractionRef = useRef<number | null>(null);
+  const hasPulsedRef = useRef(false);
+  const markInteraction = useCallback(() => {
+    lastInteractionRef.current = Date.now();
+  }, []);
+
+  useEffect(() => {
+    markInteraction();
+  }, [markInteraction]);
 
   useEffect(() => {
     if (!isPlaying) return;
     const id = setInterval(() => {
-      setWeekIndex((i) => {
-        if (i >= weekNumbers.length - 1) {
+      setCurrentWeek((w) => {
+        if (w >= LAST_WEEK) {
           setIsPlaying(false);
-          return i;
+          return w;
         }
-        return i + 1;
+        return w + 1;
       });
     }, PLAY_INTERVAL_MS);
     return () => clearInterval(id);
   }, [isPlaying]);
 
-  const handleSelectMode = useCallback((next: BimMode) => {
-    setMode(next);
-    setIsPlaying(false);
-    setSelectedUnit(null);
-    setHoveredUnit(null);
-  }, []);
+  useEffect(() => {
+    if (!enableIdleHint || prefersReducedMotion) return;
+    const id = setInterval(() => {
+      if (hasPulsedRef.current || mode === "unidades") return;
+      const last = lastInteractionRef.current;
+      if (last === null || Date.now() - last < 4000) return;
+      hasPulsedRef.current = true;
+      setPulseMode("unidades");
+      setTimeout(() => setPulseMode(null), 900);
+    }, 500);
+    return () => clearInterval(id);
+  }, [enableIdleHint, prefersReducedMotion, mode]);
+
+  const handleSelectMode = useCallback(
+    (next: BimMode) => {
+      markInteraction();
+      setMode(next);
+      setIsPlaying(false);
+      setSelectedUnit(null);
+      setHoveredUnit(null);
+    },
+    [markInteraction],
+  );
 
   const selectedUnitData = selectedUnit ? (bimUnitsByName.get(selectedUnit) ?? null) : null;
 
-  const handleUnitClick = useCallback((name: string) => {
-    setSelectedUnit(name);
-    trackUnitOpened("bim", name);
-  }, []);
+  const handleUnitClick = useCallback(
+    (name: string) => {
+      markInteraction();
+      setSelectedUnit(name);
+      trackUnitOpened("bim", name);
+    },
+    [markInteraction],
+  );
+
+  const handleChangeCutHeight = useCallback(
+    (height: number) => {
+      markInteraction();
+      setCutHeight(height);
+    },
+    [markInteraction],
+  );
+
+  const handleChangeWeek = useCallback(
+    (week: number) => {
+      markInteraction();
+      setIsPlaying(false);
+      setCurrentWeek(week);
+    },
+    [markInteraction],
+  );
+
+  const handleTogglePlay = useCallback(() => {
+    markInteraction();
+    setIsPlaying((p) => !p);
+  }, [markInteraction]);
+
+  const handleCompleteBuild = useCallback(() => {
+    markInteraction();
+    setIsPlaying(false);
+    setCurrentWeek(LAST_WEEK);
+  }, [markInteraction]);
+
+  const activeViewpoint: Viewpoint = cameraOverride ?? camera;
+  const activeTargetKey = cameraOverride ? `photo-${cameraOverrideKey}` : "overview";
 
   return (
-    <div className={`relative h-full w-full ${hoveredUnit ? "cursor-pointer" : ""}`}>
+    <div
+      className={`relative h-full w-full ${hoveredUnit ? "cursor-pointer" : ""}`}
+      onPointerDown={markInteraction}
+      onWheel={markInteraction}
+    >
       <Canvas
-        camera={{ position: camera.position, fov: FOV, near: 0.1, far: 250 }}
+        camera={{ position: activeViewpoint.position, fov: FOV, near: 0.1, far: 250 }}
         dpr={dpr}
         shadows={!isMobile}
         gl={{
@@ -125,6 +219,7 @@ export function BimExperience() {
             selectedUnit={selectedUnit}
             onUnitHover={setHoveredUnit}
             onUnitClick={handleUnitClick}
+            modelUrl={modelUrl}
           />
         </Suspense>
         <ContactShadows
@@ -136,30 +231,35 @@ export function BimExperience() {
           resolution={isMobile ? 512 : 1024}
         />
         <CameraRig
-          target={{ position: camera.position, target: camera.target }}
-          targetKey="overview"
-          autoRotateEnabled={!prefersReducedMotion && !isMobile}
+          target={activeViewpoint}
+          targetKey={activeTargetKey}
+          autoRotateEnabled={!prefersReducedMotion && !isMobile && !cameraOverride}
           autoRotateSpeed={0.3}
           minDistance={camera.minDistance}
           maxDistance={camera.maxDistance}
+          onInteractionChange={(interacting) => {
+            if (interacting) markInteraction();
+          }}
         />
       </Canvas>
 
-      <LoadingOverlay />
+      <LoadingOverlay posterSrc={posterSrc} />
 
-      <ModeSwitcher mode={mode} onSelectMode={handleSelectMode} />
+      <ModeSwitcher
+        mode={mode}
+        onSelectMode={handleSelectMode}
+        pulseMode={pulseMode}
+        topClassName={modeSwitcherTopClassName}
+      />
 
       {mode === "avance" ? (
-        <WeekControls
-          weekIndex={weekIndex}
-          weekCount={weekNumbers.length}
+        <AvanceCalendar
           currentWeek={currentWeek}
           isPlaying={isPlaying}
-          onChangeIndex={(i) => {
-            setIsPlaying(false);
-            setWeekIndex(i);
-          }}
-          onTogglePlay={() => setIsPlaying((p) => !p)}
+          onChangeWeek={handleChangeWeek}
+          onTogglePlay={handleTogglePlay}
+          onCompleteBuild={handleCompleteBuild}
+          align={bottomPanelAlign}
         />
       ) : null}
 
@@ -168,7 +268,8 @@ export function BimExperience() {
           cutHeight={cutHeight}
           maxHeight={BIM_SIZE.height}
           floorLevels={floorLevels}
-          onChangeCutHeight={setCutHeight}
+          onChangeCutHeight={handleChangeCutHeight}
+          align={bottomPanelAlign}
         />
       ) : null}
 

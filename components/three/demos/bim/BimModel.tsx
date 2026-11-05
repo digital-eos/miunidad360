@@ -36,6 +36,7 @@ type BimModelProps = {
   selectedUnit: string | null;
   onUnitClick: (name: string) => void;
   onUnitHover: (name: string | null) => void;
+  modelUrl?: string;
 };
 
 export function BimModel({
@@ -46,8 +47,9 @@ export function BimModel({
   selectedUnit,
   onUnitClick,
   onUnitHover,
+  modelUrl = "/models/schependomlaan.glb",
 }: BimModelProps) {
-  const gltf = useLoader(GLTFLoader, "/models/schependomlaan.glb", (loader) => {
+  const gltf = useLoader(GLTFLoader, modelUrl, (loader) => {
     loader.setMeshoptDecoder(MeshoptDecoder);
   });
 

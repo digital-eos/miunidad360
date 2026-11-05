@@ -4,20 +4,25 @@ import { cn } from "@/lib/utils";
 import type { BimMode } from "./BimModel";
 
 const MODES: { id: BimMode; label: string }[] = [
+  { id: "corte", label: "Corte" },
   { id: "unidades", label: "Unidades" },
   { id: "avance", label: "Avance de obra" },
-  { id: "corte", label: "Corte" },
 ];
 
 export function ModeSwitcher({
   mode,
   onSelectMode,
+  pulseMode = null,
+  topClassName = "top-16 sm:top-6",
 }: {
   mode: BimMode;
   onSelectMode: (mode: BimMode) => void;
+  /** Mode whose tab should play a one-off attention pulse (e.g. an idle hint). */
+  pulseMode?: BimMode | null;
+  topClassName?: string;
 }) {
   return (
-    <div className="pointer-events-none absolute inset-x-0 top-16 z-10 flex justify-center px-3 sm:top-6">
+    <div className={cn("pointer-events-none absolute inset-x-0 z-30 flex justify-center px-3", topClassName)}>
       <div className="pointer-events-auto flex max-w-full flex-wrap justify-center gap-1 rounded-full border border-border-subtle bg-background/85 p-1.5 backdrop-blur-md">
         {MODES.map(({ id, label }) => (
           <button
@@ -29,6 +34,7 @@ export function ModeSwitcher({
               mode === id
                 ? "bg-accent text-accent-foreground"
                 : "text-foreground-muted hover:text-foreground",
+              pulseMode === id && "animate-pulse-once",
             )}
           >
             {label}

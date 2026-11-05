@@ -57,6 +57,20 @@ body {
   color: transparent;
 }
 
+@keyframes pulse-once {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+.animate-pulse-once {
+  animation: pulse-once 700ms ease-in-out 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

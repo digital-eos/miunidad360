@@ -1,6 +1,6 @@
 export function DatasetCredit() {
   return (
-    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex justify-center bg-gradient-to-t from-background/95 to-transparent px-3 pb-2 pt-6">
+    <div className="pointer-events-none absolute inset-x-0 bottom-0 z-30 flex justify-center bg-gradient-to-t from-background/95 to-transparent px-3 pb-2 pt-6">
       <p className="pointer-events-auto max-w-lg text-center font-mono text-[9px] uppercase tracking-[0.1em] text-foreground-muted/80 sm:text-[10px]">
         Modelo BIM: dataset «Schependomlaan» — ROOT bv, Hendriks Bouw en Ontwikkeling, TU Eindhoven ·{" "}
         <a

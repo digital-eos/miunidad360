@@ -150,13 +150,14 @@ a ningún servidor: todo pasa en el navegador de quien graba.
 
 ## Notas de implementación
 
-- La escena 3D es un placeholder geométrico (cajas + líneas + una grilla de
-  "ventanas" con emisión de color) generado íntegramente en Three.js — no usa
-  ningún modelo, imagen o fuente de terceros, para evitar cualquier problema de
-  licencia. La maqueta real del producto se integrará en un paso posterior.
+- El hero de la home es el propio visualizador BIM (`components/three/demos/bim`,
+  el mismo que `/demos/bim`) en vivo, con un curtido "antes/después" sobre una
+  foto de referencia del proyecto. El proyecto mostrado es configurable desde
+  `config/featured.ts` (modelo, dataset, fotos y su encuadre de cámara); cambiar
+  de proyecto solo implica editar ese archivo.
 - El Canvas 3D se carga de forma diferida (`next/dynamic`, `ssr: false`) después
-  del contenido principal, y cae a un fondo estático (`SceneFallback`) si el
-  navegador no soporta WebGL.
+  del contenido principal, muestra un póster estático mientras carga y cae a un
+  mensaje de texto si el navegador no soporta WebGL.
 - Se respeta `prefers-reduced-motion` tanto en las animaciones de `motion` como
   en la rotación de la escena 3D (se detiene si el usuario lo prefiere así).
 - El rate limiting del formulario de contacto es una implementación simple en
