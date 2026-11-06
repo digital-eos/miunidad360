@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import { floorMidHeight, floorRange } from "@/lib/bim/floors";
 import { CameraRig, type Viewpoint } from "@/components/three/demos/maqueta/CameraRig";
 import { BimModel, type BimMode } from "./BimModel";
+import { PostFX } from "@/components/three/visual/PostFX";
 import { BimLighting } from "./BimLighting";
 import { BimNeighborhood, GROUND_Y } from "./BimNeighborhood";
 import { LoadingOverlay } from "./LoadingOverlay";
@@ -271,7 +272,7 @@ export function BimExperience({
           onDecline={() => setDpr((d) => Math.max(0.75, d - 0.25))}
           onIncline={() => setDpr((d) => Math.min(maxDpr, d + 0.25))}
         />
-        <BimLighting />
+        <BimLighting highQuality={!isMobile} />
         <Suspense fallback={null}>
           <BimModel
             mode={mode}
@@ -300,6 +301,8 @@ export function BimExperience({
           far={6}
           resolution={isMobile ? 512 : 1024}
         />
+        {/* Desktop only: mobile keeps the plain renderer (ACES set on gl above). */}
+        {!isMobile ? <PostFX /> : null}
         {introActive ? (
           <RenderIntroCamera
             to={viewpoint}
