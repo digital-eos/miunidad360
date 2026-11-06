@@ -10,6 +10,8 @@ import {
 } from "react";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
+import { FidelityStages } from "@/components/home/FidelityStages";
+import { featuredProject } from "@/config/featured";
 
 const IMAGES = {
   miunidad: {
@@ -202,16 +204,29 @@ export function FidelitySection() {
       <Container>
         <SectionHeading
           eyebrow="Fidelidad"
+          title="Del render a la obra, y de la obra a tu 3D"
+          description="El mismo edificio en tres momentos: el render del estudio, el edificio construido y nuestro modelo 3D."
+        />
+
+        <FidelityStages />
+
+        <SectionHeading
+          className="mt-20"
           title="No es una interpretación: es el modelo de tu estudio."
           description="A la izquierda, el render del estudio. A la derecha, nuestro 3D desde el mismo punto de vista. Deslizá la línea: fachadas, pisos, ventanas y techos coinciden."
         />
 
         <div className="mt-10">
           <RenderComparison />
-          <p className="mt-3 text-xs leading-relaxed text-foreground-muted">
-            Render: tamar benashvili · Modelo: dataset «Schependomlaan» (ROOT bv, Hendriks
-            Bouw en Ontwikkeling, TU Eindhoven), CC BY 4.0. Las diferencias de color
-            vienen de las texturas del render; la geometría es la del modelo.
+          <p className="mt-3 max-w-2xl text-xs leading-relaxed text-foreground-muted">
+            En obra, el techo se terminó con tejas oscuras en lugar de zinc. El 3D muestra el
+            proyecto tal como lo diseñó el estudio: la forma, los pisos y las aberturas son los
+            mismos.
+          </p>
+          <p className="mt-2 text-xs leading-relaxed text-foreground-muted/80">
+            Render: {featuredProject.autores.render} · Foto: {featuredProject.autores.foto} ·
+            Modelo: dataset «Schependomlaan» (ROOT bv, Hendriks Bouw en Ontwikkeling, TU
+            Eindhoven), CC BY 4.0
           </p>
         </div>
 

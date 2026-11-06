@@ -12,6 +12,11 @@ export type FeaturedProject = {
   modelo: string;
   datos: string;
   fotos: FeaturedPhoto[];
+  /** Credits shown under the Fidelidad section (render, real photo). */
+  autores: {
+    render: string;
+    foto: string;
+  };
 };
 
 /**
@@ -36,6 +41,11 @@ const schependomlaan: FeaturedProject = {
       alt: "Render del proyecto Schependomlaan",
     },
   ],
+  autores: {
+    render: "tamar benashvili",
+    // TODO: poner el nombre de quien sacó la foto del edificio construido.
+    foto: "[autor de la foto]",
+  },
 };
 
 export const featuredProject: FeaturedProject = schependomlaan;
