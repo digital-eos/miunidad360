@@ -19,12 +19,38 @@ import type { Unidad } from "@/lib/unidades/types";
 import { DEFAULT_CATEGORY_COLOR } from "@/lib/bim/categories";
 import { STATUS_COLORS } from "@/lib/units/status-colors";
 import { floorAtHeight, floorRevealCut, type FloorRange } from "@/lib/bim/floors";
+import exteriorFaces from "@/lib/bim/exterior-faces.json";
 import {
   bimMaterialKind,
   createRevealDepthMaterial,
   createRevealUniforms,
   createStructureMaterial,
+  EXTERIOR_ATTRIBUTE,
 } from "./bim-materials";
+
+/** Per wall mesh, one bit per triangle: 1 when it faces outside (brick). */
+const EXTERIOR_FACES: Record<string, string | undefined> = exteriorFaces;
+
+/**
+ * Unindexed copy of a wall geometry with the per-vertex exterior flag the wall material
+ * reads. Unindexed so a brick face never shares a vertex with a plaster one.
+ */
+function withExteriorFaces(
+  geometry: THREE.BufferGeometry,
+  bitsBase64: string | undefined
+): THREE.BufferGeometry {
+  const bits = bitsBase64
+    ? Uint8Array.from(atob(bitsBase64), (ch) => ch.charCodeAt(0))
+    : new Uint8Array(0);
+  const flat = geometry.index ? geometry.toNonIndexed() : geometry.clone();
+  const vertexCount = flat.attributes.position.count;
+  const exterior = new Float32Array(vertexCount);
+  for (let v = 0; v < vertexCount; v++) {
+    const triangle = Math.floor(v / 3);
+    exterior[v] = (bits[triangle >> 3] >> (triangle & 7)) & 1;
+  }
+  flat.setAttribute(EXTERIOR_ATTRIBUTE, new THREE.BufferAttribute(exterior, 1));  return flat;
+}
 
 export type BimMode = "unidades" | "avance" | "corte";
 
@@ -165,6 +191,9 @@ export function BimModel({
         clipping
       );
       const material = obj.material as THREE.MeshStandardMaterial;
+      if (material.userData.kind === "wall") {
+        obj.geometry = withExteriorFaces(obj.geometry, EXTERIOR_FACES[obj.name]);
+      }
       if (!material.flatShading && !obj.geometry.attributes.normal) {
         // Smooth curved parts, keep sharp edges sharp.
         obj.geometry = toCreasedNormals(obj.geometry, Math.PI / 6);
