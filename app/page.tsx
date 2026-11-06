@@ -1,6 +1,7 @@
 import { productJsonLd } from "@/lib/structured-data";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/home/Hero";
+import { FidelitySection } from "@/components/home/FidelitySection";
 import { ResultSection } from "@/components/home/ResultSection";
 import { UnitTypes } from "@/components/home/UnitTypes";
 import { Demos } from "@/components/Demos";
@@ -19,6 +20,7 @@ export default function Home() {
       <Header />
       <main className="flex flex-1 flex-col">
         <Hero />
+        <FidelitySection />
         <ResultSection />
         <UnitTypes />
         <Demos />

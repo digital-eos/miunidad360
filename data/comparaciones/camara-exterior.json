@@ -1,0 +1,21 @@
+{
+  "nota": "Cámara que reproduce el render del estudio sobre el modelo schependomlaan.glb (coordenadas del GLB: Y arriba, origen = centro del edificio en planta, y = 0 en la base de la fundación).",
+  "posicion": [
+    -21.034,
+    3.556,
+    24.863
+  ],
+  "objetivo": [
+    -4.438,
+    3.556,
+    2.311
+  ],
+  "fov_vertical": 35.884,
+  "aspecto": 1.8935,
+  "desplazamiento_lente": {
+    "x": 0.1615,
+    "y": 0.5509
+  },
+  "estiramiento_horizontal": 1.0441,
+  "como_aplicar": "camera.position.set(...posicion); camera.lookAt(...objetivo); camera.updateProjectionMatrix(); const e = camera.projectionMatrix.elements; e[0] *= estiramiento_horizontal; e[8] = desplazamiento_lente.x; e[9] = desplazamiento_lente.y; camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert();"
+}

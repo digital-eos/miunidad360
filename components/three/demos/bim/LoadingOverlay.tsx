@@ -3,7 +3,14 @@
 import { useProgress } from "@react-three/drei";
 import { cn } from "@/lib/utils";
 
-export function LoadingOverlay({ posterSrc }: { posterSrc?: string }) {
+export function LoadingOverlay({
+  posterSrc,
+  posterMobileSrc,
+}: {
+  posterSrc?: string;
+  /** Lighter poster for phones (max-width: 767px). */
+  posterMobileSrc?: string;
+}) {
   const { progress, active } = useProgress();
 
   if (posterSrc) {
@@ -14,8 +21,12 @@ export function LoadingOverlay({ posterSrc }: { posterSrc?: string }) {
           active ? "opacity-100" : "opacity-0"
         )}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element -- static poster, no next/image config needed for this one image */}
-        <img src={posterSrc} alt="" className="h-full w-full object-cover" />
+        <picture className="block h-full w-full">
+          {posterMobileSrc ? (
+            <source media="(max-width: 767px)" srcSet={posterMobileSrc} />
+          ) : null}
+          <img src={posterSrc} alt="" className="h-full w-full object-cover" />
+        </picture>
         <div className="absolute inset-x-0 bottom-6 flex justify-center">
           <div className="flex items-center gap-3 rounded-full border border-border-subtle bg-background/90 px-4 py-2 backdrop-blur-md">
             <span className="h-px w-16 overflow-hidden rounded-full bg-border-subtle">

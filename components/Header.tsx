@@ -3,6 +3,7 @@ import { Container } from "@/components/ui/Container";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 
 const NAV_LINKS = [
+  { href: "/#fidelidad", label: "Fidelidad" },
   { href: "/#resultado", label: "El resultado" },
   { href: "/#demos", label: "Demos" },
   { href: "/#como-lo-recibis", label: "Cómo lo recibís" },

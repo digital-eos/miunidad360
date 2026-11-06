@@ -15,6 +15,8 @@ export type FeaturedVisualizerProps = {
   enableIdleHint?: boolean;
   modeSwitcherTopClassName?: string;
   posterSrc?: string;
+  posterMobileSrc?: string;
+  renderIntro?: boolean;
 };
 
 /**

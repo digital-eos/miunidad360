@@ -40,6 +40,8 @@ const CORTE_SELECTED_OPACITY = 0.75;
 // Floors above the picked one rise this much while they dissolve.
 const REVEAL_LIFT_M = 4;
 const REVEAL_DURATION_S = 0.6;
+// Façade tags fading in after the homepage intro.
+const TAGS_FADE_S = 0.6;
 // A drag that ends on the building is not a click on a floor.
 const CLICK_MAX_DRAG_PX = 6;
 
@@ -81,6 +83,8 @@ type BimModelProps = {
   /** Camera distances between which the façade tags fade out. */
   tagFade: { start: number; end: number };
   reducedMotion?: boolean;
+  /** Keeps the façade tags hidden (homepage intro); they fade in once it turns false. */
+  tagsHidden?: boolean;
   modelUrl?: string;
 };
 
@@ -97,6 +101,7 @@ export function BimModel({
   onFloorClick,
   tagFade,
   reducedMotion = false,
+  tagsHidden = false,
   modelUrl = "/models/schependomlaan.glb",
 }: BimModelProps) {
   const gltf = useLoader(GLTFLoader, modelUrl, (loader) => {
@@ -108,6 +113,7 @@ export function BimModel({
   const bottomPlaneRef = useRef(new THREE.Plane(new THREE.Vector3(0, 1, 0), 1000));
   const revealRef = useRef({ progress: 0, cut: 1000, shownFloor: null as number | null });
   const tagElementsRef = useRef(new Map<string, HTMLButtonElement>());
+  const tagsShownRef = useRef(tagsHidden ? 0 : 1);
 
   // Clone the loaded scene and give every mesh its own material (so recoloring never bleeds
   // across instances sharing a glTF material slot), once per loaded model.
@@ -291,7 +297,13 @@ export function BimModel({
     });
 
     // Façade tags: whole building only, fading with distance and when facing away.
-    const tagsShown = mode === "unidades" ? 1 - eased : 0;
+    const tagsTarget = tagsHidden ? 0 : 1;
+    const tagsStep = reducedMotion ? 1 : delta / TAGS_FADE_S;
+    tagsShownRef.current =
+      tagsTarget > tagsShownRef.current
+        ? Math.min(tagsTarget, tagsShownRef.current + tagsStep)
+        : Math.max(tagsTarget, tagsShownRef.current - tagsStep);
+    const tagsShown = (mode === "unidades" ? 1 - eased : 0) * tagsShownRef.current;
     for (const tag of tags) {
       const el = tagElementsRef.current.get(tag.name);
       if (!el) continue;

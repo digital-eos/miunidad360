@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
+import { isInRenderSightline } from "@/lib/bim/render-camera";
 
 /**
  * A low-rise residential block around the project, in a plain "maqueta" style so the real
@@ -66,6 +67,13 @@ function rectsOverlap(a: Rect, b: Rect, margin = 0) {
     a.minZ < b.maxZ + margin &&
     a.maxZ > b.minZ - margin
   );
+}
+
+/** True when part of the footprint stands between the render camera and the building. */
+function blocksRenderView(r: Rect) {
+  const xs = [r.minX, (r.minX + r.maxX) / 2, r.maxX];
+  const zs = [r.minZ, (r.minZ + r.maxZ) / 2, r.maxZ];
+  return xs.some((x) => zs.some((z) => isInRenderSightline(x, z, 1)));
 }
 
 function distanceToSite(r: Rect) {
@@ -194,6 +202,8 @@ function layoutHouses(): House[] {
 
       if (distanceToSite(rect) < MIN_CLEARANCE) continue;
       if (rectsOverlap(rect, LOT)) continue;
+      // Keep the studio render's viewpoint clear (homepage intro).
+      if (blocksRenderView(rect)) continue;
       if (STREET_RECTS.some((s) => rectsOverlap(rect, s, 0.5))) continue;
       if (placed.some((p) => rectsOverlap(rect, p, 0.6))) continue;
       placed.push(rect);

@@ -17,6 +17,8 @@ import { useElementAspect } from "@/lib/hooks/use-element-aspect";
 import { useIsMobile } from "@/lib/hooks/use-is-mobile";
 import { usePrefersReducedMotion } from "@/lib/hooks/use-prefers-reduced-motion";
 import { BIM_SIZE } from "@/lib/bim/dataset";
+import { RENDER_IMAGE } from "@/lib/bim/render-camera";
+import { cn } from "@/lib/utils";
 import { floorMidHeight, floorRange } from "@/lib/bim/floors";
 import { CameraRig, type Viewpoint } from "@/components/three/demos/maqueta/CameraRig";
 import { BimModel, type BimMode } from "./BimModel";
@@ -25,9 +27,47 @@ import { BimNeighborhood, GROUND_Y } from "./BimNeighborhood";
 import { LoadingOverlay } from "./LoadingOverlay";
 import { ModeSwitcher } from "./ModeSwitcher";
 import { DatasetCredit } from "./DatasetCredit";
+import { RenderIntroCamera } from "./RenderIntroCamera";
 import type { BimViewer } from "./use-bim-viewer";
 
 const FOV = 38;
+
+// Homepage intro: the studio render, shown over the canvas from its own viewpoint, fades
+// into the live 3D; only then does the camera move to the usual view.
+type IntroPhase = "hold" | "fade" | "glide" | "done";
+/** Still frame before the fade, once the model is drawn and the frame is on screen. */
+const INTRO_HOLD_MS = 600;
+const INTRO_FADE_MS = 1200;
+const INTRO_FADE_REDUCED_MS = 300;
+
+/** Calls onReady once the suspended model above it has mounted and drawn a frame. */
+function OnModelReady({ onReady }: { onReady: () => void }) {
+  useEffect(() => {
+    let id = requestAnimationFrame(() => {
+      id = requestAnimationFrame(onReady);
+    });
+    return () => cancelAnimationFrame(id);
+  }, [onReady]);
+  return null;
+}
+
+/** True once at least 40% of the element has been on screen. */
+function useSeenOnScreen(ref: RefObject<Element | null>, enabled: boolean) {
+  const [seen, setSeen] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!enabled || seen || !el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setSeen(true);
+      },
+      { threshold: 0.4 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [ref, enabled, seen]);
+  return seen;
+}
 
 function useBimCamera(
   containerRef: RefObject<HTMLDivElement | null>
@@ -73,6 +113,9 @@ type BimExperienceProps = {
   modeSwitcherTopClassName?: string;
   /** Static image shown instantly behind the loading state, before the 3D scene is ready. */
   posterSrc?: string;
+  posterMobileSrc?: string;
+  /** Homepage: open on the studio render, fade it into the 3D, then fly to the usual view. */
+  renderIntro?: boolean;
 };
 
 export function BimExperience({
@@ -81,6 +124,8 @@ export function BimExperience({
   enableIdleHint = false,
   modeSwitcherTopClassName,
   posterSrc,
+  posterMobileSrc,
+  renderIntro = false,
 }: BimExperienceProps) {
   const {
     mode,
@@ -98,6 +143,34 @@ export function BimExperience({
   const camera = useBimCamera(containerRef);
   const maxDpr = isMobile ? 1.5 : 2;
   const [dpr, setDpr] = useState(maxDpr);
+
+  const [introPhase, setIntroPhase] = useState<IntroPhase>(renderIntro ? "hold" : "done");
+  const [modelReady, setModelReady] = useState(false);
+  const handleModelReady = useCallback(() => setModelReady(true), []);
+  const frameSeen = useSeenOnScreen(containerRef, introPhase === "hold");
+  const introActive = introPhase !== "done";
+  const introFadeMs = prefersReducedMotion ? INTRO_FADE_REDUCED_MS : INTRO_FADE_MS;
+
+  useEffect(() => {
+    if (introPhase !== "hold" || !modelReady || !frameSeen) return;
+    const id = setTimeout(() => setIntroPhase("fade"), INTRO_HOLD_MS);
+    return () => clearTimeout(id);
+  }, [introPhase, modelReady, frameSeen]);
+
+  useEffect(() => {
+    if (introPhase !== "fade") return;
+    const id = setTimeout(
+      () => setIntroPhase(prefersReducedMotion ? "done" : "glide"),
+      introFadeMs
+    );
+    return () => clearTimeout(id);
+  }, [introPhase, introFadeMs, prefersReducedMotion]);
+
+  // Touching the scene while the camera flies in ends the intro on the spot.
+  const finishGlide = useCallback(() => {
+    setIntroPhase((p) => (p === "glide" ? "done" : p));
+  }, []);
+  const endIntro = useCallback(() => setIntroPhase("done"), []);
 
   const [hoveredUnit, setHoveredUnit] = useState<string | null>(null);
   const [pulseMode, setPulseMode] = useState<BimMode | null>(null);
@@ -172,8 +245,14 @@ export function BimExperience({
     <div
       ref={containerRef}
       className={`relative h-full w-full ${hoveredUnit ? "cursor-pointer" : ""}`}
-      onPointerDown={markInteraction}
-      onWheel={markInteraction}
+      onPointerDown={() => {
+        markInteraction();
+        finishGlide();
+      }}
+      onWheel={() => {
+        markInteraction();
+        finishGlide();
+      }}
     >
       <Canvas
         camera={{ position: viewpoint.position, fov: FOV, near: 0.1, far: 250 }}
@@ -207,8 +286,10 @@ export function BimExperience({
             onFloorClick={handleFloorClick}
             tagFade={{ start: camera.distance * 1.1, end: camera.maxDistance }}
             reducedMotion={prefersReducedMotion}
+            tagsHidden={introActive}
             modelUrl={modelUrl}
           />
+          {renderIntro ? <OnModelReady onReady={handleModelReady} /> : null}
         </Suspense>
         <BimNeighborhood excavated={mode === "avance"} />
         <ContactShadows
@@ -219,27 +300,63 @@ export function BimExperience({
           far={6}
           resolution={isMobile ? 512 : 1024}
         />
-        <CameraRig
-          target={viewpoint}
-          targetKey={`floor-${isolatedFloor ?? "all"}`}
-          autoRotateEnabled={!prefersReducedMotion && !isMobile}
-          autoRotateSpeed={0.3}
-          minDistance={camera.minDistance}
-          maxDistance={camera.maxDistance}
-          onInteractionChange={(interacting) => {
-            if (interacting) markInteraction();
-          }}
-        />
+        {introActive ? (
+          <RenderIntroCamera
+            to={viewpoint}
+            fov={FOV}
+            gliding={introPhase === "glide"}
+            onArrive={endIntro}
+          />
+        ) : (
+          <CameraRig
+            target={viewpoint}
+            targetKey={`floor-${isolatedFloor ?? "all"}`}
+            autoRotateEnabled={!prefersReducedMotion && !isMobile}
+            autoRotateSpeed={0.3}
+            minDistance={camera.minDistance}
+            maxDistance={camera.maxDistance}
+            onInteractionChange={(interacting) => {
+              if (interacting) markInteraction();
+            }}
+          />
+        )}
       </Canvas>
 
-      <LoadingOverlay posterSrc={posterSrc} />
+      {introPhase === "hold" || introPhase === "fade" ? (
+        // Same crop as the intro projection (cover, centered); blocks the scene until it fades.
+        <picture
+          className="absolute inset-0 z-[5] block"
+          style={{
+            opacity: introPhase === "fade" ? 0 : 1,
+            transition: `opacity ${introFadeMs}ms ease-out`,
+          }}
+        >
+          <source media="(max-width: 767px)" srcSet={RENDER_IMAGE.srcMobile} />
+          <img
+            src={RENDER_IMAGE.src}
+            alt="Render del estudio del proyecto Schependomlaan"
+            className="h-full w-full object-cover object-center"
+            draggable={false}
+          />
+        </picture>
+      ) : null}
 
-      <ModeSwitcher
-        mode={mode}
-        onSelectMode={handleSelectMode}
-        pulseMode={pulseMode}
-        topClassName={modeSwitcherTopClassName}
-      />
+      <LoadingOverlay posterSrc={posterSrc} posterMobileSrc={posterMobileSrc} />
+
+      <div
+        className={cn(
+          "transition-opacity duration-500",
+          introActive && "pointer-events-none opacity-0"
+        )}
+        aria-hidden={introActive || undefined}
+      >
+        <ModeSwitcher
+          mode={mode}
+          onSelectMode={handleSelectMode}
+          pulseMode={pulseMode}
+          topClassName={modeSwitcherTopClassName}
+        />
+      </div>
 
       <DatasetCredit />
     </div>
