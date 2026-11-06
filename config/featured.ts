@@ -15,7 +15,8 @@ export type FeaturedProject = {
   /** Credits shown under the Fidelidad section (render, real photo). */
   autores: {
     render: string;
-    foto: string;
+    /** Leave empty to hide the photo credit. */
+    foto?: string;
   };
 };
 
@@ -43,8 +44,6 @@ const schependomlaan: FeaturedProject = {
   ],
   autores: {
     render: "tamar benashvili",
-    // TODO: poner el nombre de quien sacó la foto del edificio construido.
-    foto: "[autor de la foto]",
   },
 };
 

@@ -224,7 +224,8 @@ export function FidelitySection() {
             mismos.
           </p>
           <p className="mt-2 text-xs leading-relaxed text-foreground-muted/80">
-            Render: {featuredProject.autores.render} · Foto: {featuredProject.autores.foto} ·
+            Render: {featuredProject.autores.render} ·{" "}
+            {featuredProject.autores.foto ? `Foto: ${featuredProject.autores.foto} · ` : null}
             Modelo: dataset «Schependomlaan» (ROOT bv, Hendriks Bouw en Ontwikkeling, TU
             Eindhoven), CC BY 4.0
           </p>
