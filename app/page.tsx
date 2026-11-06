@@ -3,7 +3,6 @@ import { Header } from "@/components/Header";
 import { Hero } from "@/components/home/Hero";
 import { FidelitySection } from "@/components/home/FidelitySection";
 import { ResultSection } from "@/components/home/ResultSection";
-import { UnitTypes } from "@/components/home/UnitTypes";
 import { Demos } from "@/components/Demos";
 import { HowYouReceiveIt } from "@/components/HowYouReceiveIt";
 import { Faq } from "@/components/Faq";
@@ -22,7 +21,6 @@ export default function Home() {
         <Hero />
         <FidelitySection />
         <ResultSection />
-        <UnitTypes />
         <Demos />
         <HowYouReceiveIt />
         <Faq />
