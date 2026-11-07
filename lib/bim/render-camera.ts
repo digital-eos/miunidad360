@@ -2,8 +2,8 @@ import camaraExterior from "@/data/comparaciones/camara-exterior.json";
 
 /**
  * Camera that reproduces the studio's exterior render on schependomlaan.glb (GLB
- * coordinates). Used by the "Fidelidad" comparison images and by the homepage intro, where
- * the render fades into the live 3D from this exact viewpoint.
+ * coordinates). Used for the "Fidelidad" comparison images; the neighborhood keeps its
+ * sightline clear so the façade stays visible from there.
  */
 export const RENDER_CAMERA = {
   position: camaraExterior.posicion as [number, number, number],
@@ -14,30 +14,6 @@ export const RENDER_CAMERA = {
   lensShift: camaraExterior.desplazamiento_lente,
   horizontalStretch: camaraExterior.estiramiento_horizontal,
 };
-
-export const RENDER_IMAGE = {
-  src: "/comparaciones/exterior-proyecto.webp",
-  srcMobile: "/comparaciones/exterior-proyecto-960.webp",
-};
-
-/**
- * Projection terms of the render camera, cropped to a frame of another aspect the way CSS
- * `object-fit: cover` (centered) crops the render image, so both stay aligned.
- * Returns the matrix elements that differ from a plain perspective projection.
- */
-export function renderProjection(frameAspect: number) {
-  const { aspect, fov, lensShift, horizontalStretch } = RENDER_CAMERA;
-  const f = 1 / Math.tan((fov * Math.PI) / 360);
-  // Frame narrower than the image: its sides are cut off. Wider: top and bottom are.
-  const sx = frameAspect < aspect ? aspect / frameAspect : 1;
-  const sy = frameAspect > aspect ? frameAspect / aspect : 1;
-  return {
-    e0: (f / aspect) * horizontalStretch * sx,
-    e5: f * sy,
-    e8: lensShift.x * sx,
-    e9: lensShift.y * sy,
-  };
-}
 
 /**
  * Whether a ground point sits between the render camera and the building, inside its view:

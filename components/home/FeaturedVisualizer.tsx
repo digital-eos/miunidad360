@@ -16,7 +16,6 @@ export type FeaturedVisualizerProps = {
   modeSwitcherTopClassName?: string;
   posterSrc?: string;
   posterMobileSrc?: string;
-  renderIntro?: boolean;
 };
 
 /**

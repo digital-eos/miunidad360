@@ -9,13 +9,11 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { FeaturedVisualizer } from "@/components/home/FeaturedVisualizer";
 import { BimInfoPanel } from "@/components/three/demos/bim/BimInfoPanel";
 import { useBimViewer } from "@/components/three/demos/bim/use-bim-viewer";
-import { RENDER_IMAGE } from "@/lib/bim/render-camera";
 
 export function ResultSection() {
   const viewer = useBimViewer();
-  // The studio render shows right away; the 3D bundle and model only load once the frame
-  // is close to the viewport (useInView uses a 200px root margin), then the render fades
-  // into the 3D from the same viewpoint.
+  // The 3D bundle and model only load once the frame is close to the viewport (useInView
+  // uses a 200px root margin).
   const { ref, inView } = useInView<HTMLDivElement>();
 
   return (
@@ -35,22 +33,11 @@ export function ResultSection() {
           ref={ref}
           className="relative h-[65vh] w-full overflow-hidden rounded-2xl border border-border-subtle bg-background-elevated lg:h-[70vh]"
         >
-          <picture className="absolute inset-0 block">
-            <source media="(max-width: 767px)" srcSet={RENDER_IMAGE.srcMobile} />
-            <img
-              src={RENDER_IMAGE.src}
-              alt=""
-              className="h-full w-full object-cover object-center"
-            />
-          </picture>
           {inView ? (
             <FeaturedVisualizer
               viewer={viewer}
               enableIdleHint
               modeSwitcherTopClassName="top-4"
-              posterSrc={RENDER_IMAGE.src}
-              posterMobileSrc={RENDER_IMAGE.srcMobile}
-              renderIntro
             />
           ) : null}
         </div>
