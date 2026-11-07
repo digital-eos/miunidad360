@@ -14,7 +14,7 @@ export function FloorSelector({
   const floorList = Array.from({ length: floors }, (_, i) => floors - i);
 
   return (
-    <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center sm:left-4">
+    <div className="pointer-events-none absolute inset-y-0 left-4 z-20 hidden items-center sm:flex">
       <div className="pointer-events-auto flex max-h-[70vh] flex-col items-center gap-1 overflow-y-auto rounded-2xl border border-border-subtle bg-background/80 p-2 backdrop-blur-md">
         <button
           type="button"

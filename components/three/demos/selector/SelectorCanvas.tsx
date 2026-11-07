@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Suspense } from "react";
+import { Suspense, type ReactNode } from "react";
 import { useWebGLSupport } from "@/lib/hooks/use-webgl-support";
 import { CaptureStage } from "@/components/capture/CaptureStage";
 
@@ -20,7 +20,14 @@ function SelectorFallback() {
   );
 }
 
-export function SelectorCanvas({ projectSlug }: { projectSlug: string }) {
+export function SelectorCanvas({
+  projectSlug,
+  children,
+}: {
+  projectSlug: string;
+  /** Overlays drawn on the 3D view (back link, scroll cue). */
+  children?: ReactNode;
+}) {
   const supportsWebGL = useWebGLSupport();
 
   if (supportsWebGL === false) {
@@ -40,8 +47,8 @@ export function SelectorCanvas({ projectSlug }: { projectSlug: string }) {
 
   return (
     <Suspense fallback={<SelectorFallback />}>
-      <CaptureStage demo="selector">
-        <SelectorExperience projectSlug={projectSlug} />
+      <CaptureStage demo="selector" className="">
+        <SelectorExperience projectSlug={projectSlug}>{children}</SelectorExperience>
       </CaptureStage>
     </Suspense>
   );

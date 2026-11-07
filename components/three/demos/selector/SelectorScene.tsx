@@ -1,81 +1,95 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useRef } from "react";
 import { ContactShadows } from "@react-three/drei";
-import type { ThreeEvent } from "@react-three/fiber";
+import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import type { BuildingConfig } from "@/lib/three/building-config";
-import { Building } from "@/components/three/demos/maqueta/Building";
-import { Context } from "@/components/three/demos/maqueta/Context";
-import { Lighting } from "@/components/three/demos/maqueta/Lighting";
-import { NightAnimator } from "@/components/three/demos/maqueta/NightAnimator";
 import { CameraRig, type Viewpoint } from "@/components/three/demos/maqueta/CameraRig";
+import { PostFX } from "@/components/three/visual/PostFX";
+import { EdificioModel } from "./EdificioModel";
+import { EdificioCity } from "./EdificioCity";
+import { EdificioLighting } from "./EdificioLighting";
 
 export type SelectorSceneProps = {
   config: BuildingConfig;
   cameraTarget: Viewpoint;
   cameraTargetKey: string;
   isMobile: boolean;
+  autoRotate: boolean;
   minDistance: number;
   maxDistance: number;
   apartmentColors: Record<string, string>;
-  apartmentOpacities: Record<string, number>;
+  dimmedIds: Set<string>;
+  showStatus: boolean;
   focusFloor: number | null;
   hoveredId: string | null;
+  selectedId: string | null;
   onApartmentClick: (id: string, event: ThreeEvent<MouseEvent>) => void;
   onApartmentPointerOver: (id: string, event: ThreeEvent<PointerEvent>) => void;
   onApartmentPointerOut: (id: string, event: ThreeEvent<PointerEvent>) => void;
+  onInteraction?: () => void;
+  /** Called once the lit scene has drawn its first frames. */
+  onReady?: () => void;
 };
+
+/** Fires `onReady` after a couple of rendered frames (shaders compiled, environment loaded). */
+function ReadySignal({ onReady }: { onReady?: () => void }) {
+  const frames = useRef(0);
+  const done = useRef(false);
+  useFrame(() => {
+    frames.current += 1;
+    if (!done.current && frames.current > 2) {
+      done.current = true;
+      onReady?.();
+    }
+  });
+  return null;
+}
 
 export function SelectorScene({
   config,
   cameraTarget,
   cameraTargetKey,
   isMobile,
+  autoRotate,
   minDistance,
   maxDistance,
-  apartmentColors,
-  apartmentOpacities,
-  focusFloor,
-  hoveredId,
-  onApartmentClick,
-  onApartmentPointerOver,
-  onApartmentPointerOut,
+  onInteraction,
+  onReady,
+  ...model
 }: SelectorSceneProps) {
   return (
     <>
-      <NightAnimator />
       <Suspense fallback={null}>
-        <Lighting />
+        <EdificioLighting highQuality={!isMobile} />
+        <ReadySignal onReady={onReady} />
       </Suspense>
 
-      <Building
-        config={config}
-        castShadow={!isMobile}
-        apartmentColors={apartmentColors}
-        apartmentOpacities={apartmentOpacities}
-        focusFloor={focusFloor}
-        hoveredId={hoveredId}
-        onApartmentClick={onApartmentClick}
-        onApartmentPointerOver={onApartmentPointerOver}
-        onApartmentPointerOut={onApartmentPointerOut}
-      />
-      <Context config={config} />
+      <EdificioModel config={config} castShadow={!isMobile} {...model} />
+      <EdificioCity castShadow={!isMobile} />
 
       <ContactShadows
-        position={[0, 0.04, 0]}
-        opacity={0.5}
-        scale={Math.max(config.buildingWidth, config.buildingDepth) * 1.8}
-        blur={2.2}
-        far={config.groundFloorHeight + 2}
+        position={[0, 0.17, 0]}
+        opacity={0.35}
+        scale={Math.max(config.buildingWidth, config.buildingDepth) * 1.6}
+        blur={2.4}
+        far={5}
         resolution={isMobile ? 512 : 1024}
       />
+
+      {/* Desktop only: mobile keeps the plain renderer (ACES set on gl). */}
+      {!isMobile ? <PostFX aoRadius={1.4} /> : null}
 
       <CameraRig
         target={cameraTarget}
         targetKey={cameraTargetKey}
-        autoRotateEnabled={false}
+        autoRotateEnabled={autoRotate}
+        autoRotateSpeed={0.35}
         minDistance={minDistance}
         maxDistance={maxDistance}
+        onInteractionChange={(interacting) => {
+          if (interacting) onInteraction?.();
+        }}
       />
     </>
   );

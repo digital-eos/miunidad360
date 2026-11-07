@@ -14,13 +14,12 @@ export const metadata: Metadata = {
 export default function SelectorDemoPage() {
   return (
     <main className="relative bg-background">
-      <div className="relative">
-        <SelectorCanvas projectSlug="edificio-demo" />
-        <Suspense fallback={null}>
-          <BackToHomeLink className="top-20 sm:top-24" />
+      <Suspense fallback={null}>
+        <SelectorCanvas projectSlug="edificio-demo">
+          <BackToHomeLink />
           <ScrollCue targetId="demo-cta" />
-        </Suspense>
-      </div>
+        </SelectorCanvas>
+      </Suspense>
       <DemoCTA demo="selector" />
       <Footer />
     </main>
