@@ -32,11 +32,13 @@ const HERO_DESCRIPTION =
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "MiUnidad360 · Cada unidad de tu proyecto, en 3D",
+    default: "MiUnidad360 · Visualización 3D interactiva de proyectos inmobiliarios",
     template: "%s · MiUnidad360",
   },
   description: HERO_DESCRIPTION,
   keywords: [
+    "visualización 3D interactiva de proyectos inmobiliarios",
+    "visualización 3D inmobiliaria",
     "maqueta 3D",
     "venta en pozo",
     "real estate 3D",

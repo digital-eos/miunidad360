@@ -24,7 +24,7 @@ export function Hero() {
             {...fadeUp(0)}
             className="font-mono text-xs uppercase tracking-[0.2em] text-accent-strong"
           >
-            Digital EOS · Experiencias 3D para proyectos inmobiliarios
+            Digital EOS · Visualización 3D interactiva de proyectos inmobiliarios
           </motion.p>
           <motion.h1
             {...fadeUp(0.05)}
