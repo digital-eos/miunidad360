@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, type RefObject } from "react";
 import * as THREE from "three";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import { Edges, Instance, Instances } from "@react-three/drei";
@@ -158,6 +158,40 @@ function buildFacade(layouts: ApartmentLayout[], config: BuildingConfig): Facade
   return { glass, mullions, fins, balconies };
 }
 
+const projected = new THREE.Vector3();
+
+/**
+ * Moves `pinRef` to the screen position of `point` every frame; hides it when there is no
+ * point or the point is behind the camera. Plain DOM instead of drei's Html, whose extra
+ * React root does not survive dev double-mounting here.
+ */
+function ScreenPin({
+  point,
+  pinRef,
+}: {
+  point: THREE.Vector3 | null;
+  pinRef: RefObject<HTMLDivElement | null>;
+}) {
+  useFrame(({ camera, size }) => {
+    const el = pinRef.current;
+    if (!el) return;
+    if (!point) {
+      el.style.visibility = "hidden";
+      return;
+    }
+    projected.copy(point).project(camera);
+    if (projected.z > 1) {
+      el.style.visibility = "hidden";
+      return;
+    }
+    const x = ((projected.x + 1) / 2) * size.width;
+    const y = ((1 - projected.y) / 2) * size.height;
+    el.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+    el.style.visibility = "visible";
+  });
+  return null;
+}
+
 function visibleUpTo<T extends { floor: number }>(items: T[], focusFloor: number | null) {
   return focusFloor == null ? items : items.filter((item) => item.floor <= focusFloor);
 }
@@ -175,6 +209,8 @@ export type EdificioModelProps = {
   focusFloor: number | null;
   hoveredId: string | null;
   selectedId: string | null;
+  /** DOM element over the canvas, moved each frame to sit on top of the selected unit. */
+  pinRef?: RefObject<HTMLDivElement | null>;
   onApartmentClick: (id: string, event: ThreeEvent<MouseEvent>) => void;
   onApartmentPointerOver: (id: string, event: ThreeEvent<PointerEvent>) => void;
   onApartmentPointerOut: (id: string, event: ThreeEvent<PointerEvent>) => void;
@@ -189,6 +225,7 @@ export function EdificioModel({
   focusFloor,
   hoveredId,
   selectedId,
+  pinRef,
   onApartmentClick,
   onApartmentPointerOver,
   onApartmentPointerOut,
@@ -207,9 +244,23 @@ export function EdificioModel({
   const roofY = G + floors * floorHeight;
   const roofVisible = focusFloor == null || focusFloor >= floors;
   const height = totalBuildingHeight(config);
+  const pinned = layouts.find((apt) => apt.id === selectedId) ?? null;
+  const pinPoint = useMemo(
+    () =>
+      pinned && pinned.floor <= lastSolidFloor
+        ? new THREE.Vector3(
+            pinned.position[0],
+            pinned.position[1] - floorHeight / 2 + clear,
+            pinned.position[2],
+          )
+        : null,
+    [pinned, lastSolidFloor, floorHeight, clear],
+  );
 
   return (
     <group>
+      {pinRef ? <ScreenPin point={pinPoint} pinRef={pinRef} /> : null}
+
       <Lobby config={config} castShadow={castShadow} />
 
       {/* Floor slabs: white bands that read the floors from afar. */}

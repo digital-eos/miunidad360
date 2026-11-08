@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useRef } from "react";
+import { Suspense, useRef, type RefObject } from "react";
 import { ContactShadows } from "@react-three/drei";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import type { BuildingConfig } from "@/lib/three/building-config";
@@ -24,6 +24,7 @@ export type SelectorSceneProps = {
   focusFloor: number | null;
   hoveredId: string | null;
   selectedId: string | null;
+  pinRef?: RefObject<HTMLDivElement | null>;
   onApartmentClick: (id: string, event: ThreeEvent<MouseEvent>) => void;
   onApartmentPointerOver: (id: string, event: ThreeEvent<PointerEvent>) => void;
   onApartmentPointerOut: (id: string, event: ThreeEvent<PointerEvent>) => void;

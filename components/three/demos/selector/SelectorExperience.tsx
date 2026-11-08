@@ -21,7 +21,7 @@ import { useSunHours } from "@/lib/sun/use-sun-hours";
 import { trackFilterUsed, trackUnitOpened } from "@/lib/analytics";
 import { SelectorScene } from "./SelectorScene";
 import { FloorSelector } from "./FloorSelector";
-import { UnitTooltip } from "./UnitTooltip";
+import { UnitPin, UnitTooltip } from "./UnitTooltip";
 import { EdificioInfoPanel } from "./EdificioInfoPanel";
 
 const config = defaultBuildingConfig;
@@ -110,6 +110,7 @@ export function SelectorExperience({
   const maxDpr = isMobile ? 1.5 : 2;
   const [dpr, setDpr] = useState(maxDpr);
   const stageRef = useRef<HTMLDivElement>(null);
+  const pinRef = useRef<HTMLDivElement>(null);
   const [aspect, setAspect] = useState(1.6);
 
   const [state, setState] = useState<FetchState>({ status: "loading" });
@@ -362,12 +363,21 @@ export function SelectorExperience({
           focusFloor={focusFloor}
           hoveredId={hovered?.code ?? listHoverMeshId}
           selectedId={selectedUnit ? meshId(selectedUnit) : null}
+          pinRef={pinRef}
           onApartmentClick={handleApartmentClick}
           onApartmentPointerOver={handleApartmentPointerOver}
           onApartmentPointerOut={handleApartmentPointerOut}
           onReady={() => setSceneReady(true)}
         />
       </Canvas>
+
+      {/* Moved over the selected unit every frame by the scene. */}
+      <div
+        ref={pinRef}
+        className="pointer-events-none invisible absolute top-0 left-0 z-[5]"
+      >
+        {selectedUnit ? <UnitPin unit={selectedUnit} /> : null}
+      </div>
 
       <div
         className={cn(
@@ -398,7 +408,7 @@ export function SelectorExperience({
         </>
       ) : null}
 
-      {hoveredUnit && !isMobile ? (
+      {hoveredUnit && hoveredUnit !== selectedUnit && !isMobile ? (
         <UnitTooltip unit={hoveredUnit} x={hovered!.x} y={hovered!.y} />
       ) : null}
 
