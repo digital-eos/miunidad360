@@ -24,7 +24,7 @@ type Bloque = {
 
 const BLOQUES: Bloque[] = [
   {
-    titulo: "Departamentos",
+    titulo: "Edificios",
     cards: [
       {
         kind: "bim",
@@ -46,6 +46,12 @@ const BLOQUES: Bloque[] = [
     ],
   },
   {
+    titulo: "Departamentos",
+    cards: [],
+    proximamente:
+      "Una demo centrada en un solo departamento: recorrido por sus ambientes, plano y vistas.",
+  },
+  {
     titulo: "Lotes",
     cards: [
       {
@@ -58,9 +64,10 @@ const BLOQUES: Bloque[] = [
     ],
   },
   {
-    titulo: "Locales, oficinas y naves",
+    titulo: "Hoteles & SPA",
     cards: [],
-    proximamente: "Una demo para unidades comerciales e industriales.",
+    proximamente:
+      "Una demo para hoteles y spas: habitaciones y suites con su disponibilidad, y los amenities.",
   },
 ];
 
