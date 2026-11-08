@@ -26,8 +26,6 @@ import { EdificioInfoPanel } from "./EdificioInfoPanel";
 
 const config = defaultBuildingConfig;
 
-/** How long the pointer rests on a unit before its card opens. */
-const PREVIEW_DELAY_MS = 1500;
 /** How long a hover card stays open (unless pinned or under the pointer). */
 const PREVIEW_DURATION_MS = 4000;
 
@@ -241,7 +239,13 @@ export function SelectorExperience({
 
   const handleApartmentPointerOver = useCallback((code: string) => {
     const unit = unitsRef.current.find((u) => meshId(u) === code);
-    setHovered(unit && isForSale(unit) ? code : null);
+    if (!unit || !isForSale(unit)) {
+      setHovered(null);
+      return;
+    }
+    setHovered(code);
+    // The hover card opens right away; it carries no photos, so hovering loads nothing.
+    setPreview(code);
   }, []);
 
   const handleApartmentPointerOut = useCallback(() => {
@@ -253,14 +257,7 @@ export function SelectorExperience({
     setOverPreview(false);
   }, []);
 
-  // Hover preview: opens once the pointer rests on a unit, closes on its own a few seconds
-  // later unless the pointer is on the card.
-  useEffect(() => {
-    if (!hovered) return;
-    const timer = setTimeout(() => setPreview(hovered), PREVIEW_DELAY_MS);
-    return () => clearTimeout(timer);
-  }, [hovered]);
-
+  // Hover card: closes on its own a few seconds later unless the pointer is on it.
   useEffect(() => {
     if (!preview || overPreview) return;
     const timer = setTimeout(() => setPreview(null), PREVIEW_DURATION_MS);
