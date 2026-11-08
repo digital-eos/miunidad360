@@ -1,11 +1,12 @@
 import type { MetadataRoute } from "next";
+import { BIM_DEMO_PATH } from "@/lib/bim/route";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://miunidad360.com.ar";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 
-  const routes = ["", "/demos/maqueta", "/demos/selector", "/demos/sol", "/demos/bim", "/demos/lotes", "/privacidad"];
+  const routes = ["", "/demos/maqueta", "/demos/selector", "/demos/sol", BIM_DEMO_PATH, "/demos/lotes", "/privacidad"];
 
   return routes.map((route) => ({
     url: `${siteUrl}${route}`,

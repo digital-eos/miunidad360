@@ -6,6 +6,7 @@ import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/ui/Reveal";
 import { trackDemoClick, type DemoKind } from "@/lib/analytics";
+import { BIM_DEMO_PATH } from "@/lib/bim/route";
 
 type DemoCard = {
   kind: DemoKind;
@@ -27,7 +28,7 @@ const BLOQUES: Bloque[] = [
     cards: [
       {
         kind: "bim",
-        href: "/demos/bim",
+        href: BIM_DEMO_PATH,
         title: "Proyecto BIM real",
         description:
           "Un modelo de arquitectura real: tocá una unidad, cortalo por piso o mirá el avance de obra.",

@@ -157,7 +157,7 @@ a ningún servidor: todo pasa en el navegador de quien graba.
 ## Notas de implementación
 
 - El hero de la home es el propio visualizador BIM (`components/three/demos/bim`,
-  el mismo que `/demos/bim`) en vivo, con un curtido "antes/después" sobre una
+  el mismo que `/demos/schependomlaan`) en vivo, con un curtido "antes/después" sobre una
   foto de referencia del proyecto. El proyecto mostrado es configurable desde
   `config/featured.ts` (modelo, dataset, fotos y su encuadre de cámara); cambiar
   de proyecto solo implica editar ese archivo.

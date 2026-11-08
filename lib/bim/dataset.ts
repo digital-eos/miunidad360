@@ -60,7 +60,7 @@ export const floorLevels: FloorLevel[] = (() => {
 })();
 
 /** Project slug of the Schependomlaan apartments in the `unidades` table. */
-export const BIM_PROJECT_SLUG = "schependomlaan";
+export { BIM_PROJECT_SLUG } from "./route";
 
 /** Fictitious baseline — this is a demo dataset, prices are illustrative only. */
 const BASE_PRICE_PER_M2 = 2200;

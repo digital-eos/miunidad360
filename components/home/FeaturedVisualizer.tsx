@@ -20,7 +20,7 @@ export type FeaturedVisualizerProps = {
 
 /**
  * The BIM demo's visualizer, embedded in the homepage's "El resultado" frame (see
- * /demos/bim for the standalone page). Unlike BimCanvas it has no capture-mode stage and
+ * /demos/schependomlaan for the standalone page). Unlike BimCanvas it has no capture-mode stage and
  * a transparent loading fallback, since the frame already paints a poster image behind it.
  */
 export function FeaturedVisualizer(props: FeaturedVisualizerProps) {

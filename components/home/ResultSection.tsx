@@ -4,6 +4,7 @@ import Link from "next/link";
 import { featuredProject } from "@/config/featured";
 import { useInView } from "@/lib/hooks/use-in-view";
 import { trackDemoClick } from "@/lib/analytics";
+import { BIM_DEMO_PATH } from "@/lib/bim/route";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { FeaturedVisualizer } from "@/components/home/FeaturedVisualizer";
@@ -50,7 +51,7 @@ export function ResultSection() {
 
         <div className="flex justify-end lg:col-span-2">
           <Link
-            href="/demos/bim"
+            href={BIM_DEMO_PATH}
             onClick={() => trackDemoClick("bim")}
             className="text-sm font-medium text-foreground transition-colors duration-200 hover:text-accent-strong"
           >
