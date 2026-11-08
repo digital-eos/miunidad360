@@ -429,13 +429,11 @@ export function SelectorExperience({
         projectName={ready ? state.project.name : "Edificio Demo"}
         projectAddress={ready ? state.project.address : null}
         projectSlug={projectSlug}
-        floors={config.floors}
         units={units}
         filters={filters}
         onFiltersChange={handleFiltersChange}
         orientations={orientations}
         focusFloor={focusFloor}
-        onSelectFloor={handleSelectFloor}
         selectedUnit={selectedUnit}
         onSelectUnit={handleSelectUnit}
         onHoverUnit={setListHover}

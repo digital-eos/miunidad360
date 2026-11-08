@@ -14,8 +14,9 @@ export function FloorSelector({
   const floorList = Array.from({ length: floors }, (_, i) => floors - i);
 
   return (
-    <div className="pointer-events-none absolute inset-y-0 left-4 z-20 hidden items-center sm:flex">
-      <div className="pointer-events-auto flex max-h-[70vh] flex-col items-center gap-1 overflow-y-auto rounded-2xl border border-border-subtle bg-background/80 p-2 backdrop-blur-md">
+    <div className="pointer-events-none absolute inset-y-0 left-2 z-20 flex items-center sm:left-4">
+      {/* Leaves room for the back link above and the disclaimer below on short phones. */}
+      <div className="pointer-events-auto flex max-h-[calc(100%-7rem)] flex-col items-center gap-1 overflow-y-auto rounded-2xl border border-border-subtle bg-background/80 p-1.5 backdrop-blur-md sm:max-h-[70vh] sm:p-2">
         <button
           type="button"
           onClick={() => onSelectFloor(null)}

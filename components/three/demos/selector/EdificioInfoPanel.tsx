@@ -15,7 +15,6 @@ import {
 } from "@/lib/units/filters";
 import { FloorPlanSvg } from "./FloorPlanSvg";
 
-const ALL_FLOORS = "all";
 const ROOMS_OPTIONS = [2, 3, 4];
 const PRICE_OPTIONS = [120_000, 160_000, 200_000, 250_000];
 
@@ -57,13 +56,11 @@ export type EdificioInfoPanelProps = {
   projectName: string;
   projectAddress: string | null;
   projectSlug: string;
-  floors: number;
   units: Unidad[];
   filters: UnitFilters;
   onFiltersChange: (filters: UnitFilters) => void;
   orientations: string[];
   focusFloor: number | null;
-  onSelectFloor: (floor: number | null) => void;
   selectedUnit: Unidad | null;
   onSelectUnit: (code: string | null) => void;
   onHoverUnit: (code: string | null) => void;
@@ -73,20 +70,18 @@ export type EdificioInfoPanelProps = {
 };
 
 /**
- * The card beside the 3D view: pick a floor, filter, browse the units and open one. Shows
+ * The card beside the 3D view: filter, browse the units and open one. Shows
  * the whole building's figures when nothing is selected.
  */
 export function EdificioInfoPanel({
   projectName,
   projectAddress,
   projectSlug,
-  floors,
   units,
   filters,
   onFiltersChange,
   orientations,
   focusFloor,
-  onSelectFloor,
   selectedUnit,
   onSelectUnit,
   onHoverUnit,
@@ -106,13 +101,6 @@ export function EdificioInfoPanel({
   const filtering = hasActiveFilters(filters);
   const scopeLabel = focusFloor === null ? "Todo el edificio" : `Piso ${focusFloor}`;
 
-  const availableOn = (floor: number | null) =>
-    pluralAvailable(
-      units.filter(
-        (u) => u.estado === "disponible" && (floor === null || unitFloor(u) === floor),
-      ).length,
-    );
-
   // When a unit opens, show its card from the top; on mobile the card sits below the 3D
   // view, so bring it on screen.
   useEffect(() => {
@@ -124,8 +112,6 @@ export function EdificioInfoPanel({
       rootRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, [selectedUnit]);
-
-  const floorList = Array.from({ length: floors }, (_, i) => floors - i);
 
   return (
     <div
@@ -139,23 +125,6 @@ export function EdificioInfoPanel({
             <span className="text-foreground-muted"> · {projectAddress}</span>
           ) : null}
         </p>
-        <label className="mt-3 block">
-          <span className="text-xs font-medium text-foreground-muted">Piso</span>
-          <select
-            value={focusFloor === null ? ALL_FLOORS : String(focusFloor)}
-            onChange={(e) =>
-              onSelectFloor(e.target.value === ALL_FLOORS ? null : Number(e.target.value))
-            }
-            className="mt-1.5 w-full rounded-lg border border-border-subtle bg-background px-3 py-2.5 text-sm font-medium text-foreground focus:border-accent focus:outline-none"
-          >
-            <option value={ALL_FLOORS}>Edificio completo · {availableOn(null)}</option>
-            {floorList.map((f) => (
-              <option key={f} value={String(f)}>
-                Piso {f} · {availableOn(f)}
-              </option>
-            ))}
-          </select>
-        </label>
       </div>
 
       <div ref={scrollRef} className="min-h-0 flex-1 overflow-y-auto">
