@@ -1,10 +1,10 @@
 "use client";
 
-import { Suspense, useMemo, useRef } from "react";
-import { generateApartmentLayout } from "@/lib/three/building-layout";
+import { Suspense, useRef } from "react";
 import { ContactShadows } from "@react-three/drei";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import type { BuildingConfig } from "@/lib/three/building-config";
+import type { FloorPlan } from "@/lib/units/floor-plan";
 import { CameraRig, type Viewpoint } from "@/components/three/CameraRig";
 import { PostFX } from "@/components/three/visual/PostFX";
 import { EdificioModel, type UnitPinTarget } from "./EdificioModel";
@@ -25,6 +25,7 @@ export type SelectorSceneProps = {
   focusFloor: number | null;
   hoveredId: string | null;
   selectedId: string | null;
+  openPlan?: FloorPlan | null;
   pins?: UnitPinTarget[];
   onApartmentClick: (id: string, event: ThreeEvent<MouseEvent>) => void;
   onApartmentPointerOver: (id: string, event: ThreeEvent<PointerEvent>) => void;
@@ -60,13 +61,6 @@ export function SelectorScene({
   onReady,
   ...model
 }: SelectorSceneProps) {
-  const layouts = useMemo(() => generateApartmentLayout(config), [config]);
-  // Focus mode: the selected unit stays sharp while the rest of the scene softens.
-  const focus = useMemo<[number, number, number] | null>(() => {
-    const apt = layouts.find((a) => a.id === model.selectedId);
-    return apt ? [apt.position[0], apt.position[1] - config.floorHeight / 2, apt.position[2]] : null;
-  }, [layouts, model.selectedId, config.floorHeight]);
-
   return (
     <>
       <Suspense fallback={null}>
@@ -87,7 +81,7 @@ export function SelectorScene({
       />
 
       {/* Desktop only: mobile keeps the plain renderer (ACES set on gl). */}
-      {!isMobile ? <PostFX aoRadius={1.4} focus={focus} /> : null}
+      {!isMobile ? <PostFX aoRadius={1.4} /> : null}
 
       <CameraRig
         target={cameraTarget}

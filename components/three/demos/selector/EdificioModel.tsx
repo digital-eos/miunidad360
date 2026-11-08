@@ -15,6 +15,7 @@ import {
   type ApartmentLayout,
   type ExteriorSide,
 } from "@/lib/three/building-layout";
+import type { FloorPlan, FloorPlanRoom } from "@/lib/units/floor-plan";
 
 /**
  * The "Edificio Demo" tower drawn as architecture: floor-to-ceiling glazing between white
@@ -260,6 +261,8 @@ export type EdificioModelProps = {
   focusFloor: number | null;
   hoveredId: string | null;
   selectedId: string | null;
+  /** Plan of the selected unit: when set, that unit is drawn open with these rooms. */
+  openPlan?: FloorPlan | null;
   /** DOM cards over the canvas, each moved every frame to sit on top of its unit. */
   pins?: UnitPinTarget[];
   onApartmentClick: (id: string, event: ThreeEvent<MouseEvent>) => void;
@@ -276,6 +279,7 @@ export function EdificioModel({
   focusFloor,
   hoveredId,
   selectedId,
+  openPlan,
   pins,
   onApartmentClick,
   onApartmentPointerOver,
@@ -349,8 +353,11 @@ export function EdificioModel({
       {layouts.map((apt) => {
         if (apt.floor > lastSolidFloor) return null;
         const y = apt.position[1] - floorHeight / 2 + clear / 2;
+        const plan = selectedId === apt.id ? openPlan : null;
+        const open = plan != null;
         return (
           <group key={apt.id}>
+            {plan ? <OpenUnitPlan apt={apt} plan={plan} floorY={apt.position[1] - floorHeight / 2} /> : null}
             <mesh
               position={[apt.position[0], y, apt.position[2]]}
               castShadow={castShadow}
@@ -369,7 +376,12 @@ export function EdificioModel({
               }}
             >
               <boxGeometry args={[apt.size[0], clear, apt.size[2]]} />
-              <meshStandardMaterial color={EDIFICIO_PALETTE.stoneShade} roughness={0.9} />
+              {/* Opened unit: the box stays as the click target but is not drawn. */}
+              <meshStandardMaterial
+                color={EDIFICIO_PALETTE.stoneShade}
+                roughness={0.9}
+                visible={!open}
+              />
             </mesh>
             <StatusShell
               position={[apt.position[0], y, apt.position[2]]}
@@ -380,8 +392,8 @@ export function EdificioModel({
                   : (apartmentColors[apt.id] ?? "#ffffff")
               }
               mode={
-                selectedId === apt.id
-                  ? "selected"
+                open
+                  ? "hidden"
                   : hoveredId === apt.id
                     ? "hovered"
                     : showStatus
@@ -452,6 +464,152 @@ export function EdificioModel({
           <Edges color="#8d969c" threshold={15} />
         </mesh>
       ) : null}
+    </group>
+  );
+}
+
+const PLAN_WALL_HEIGHT = 1.1;
+const PLAN_WALL = 0.12;
+const PLAN_DOOR = 0.9;
+/** Width of the opening between the living room and the kitchen. */
+const PLAN_KITCHEN_OPENING = 2.6;
+const PLAN_COLORS = {
+  wood: "#c9a37c",
+  tile: "#dfe2e1",
+  wall: "#fbf9f5",
+  wallEdge: "#9a9488",
+  furniture: "#8f8a82",
+  light: "#e9e4da",
+};
+
+/** An axis-aligned box of the plan, in unit meters (see `OpenUnitPlan`). */
+type PlanBox = { u: [number, number]; v: [number, number]; h: number; color: string };
+type PlanRect = { u: [number, number]; v: [number, number] };
+
+/**
+ * The selected unit drawn open, seen from above: floors, low cut walls and a few pieces of
+ * furniture. Rooms follow the unit's 2D plan (same rooms, same arrangement as the panel),
+ * stretched to the unit's footprint in the tower.
+ *
+ * Unit meters: u runs from the core (0) to the side facade (W), v from the core (0) to the
+ * balcony facade (D), so the same plan mirrors itself into each corner of the floor.
+ */
+function OpenUnitPlan({
+  apt,
+  plan,
+  floorY,
+}: {
+  apt: ApartmentLayout;
+  plan: FloorPlan;
+  floorY: number;
+}) {
+  const [W, , D] = apt.size;
+  const col = apt.position[0] < 0 ? -1 : 1;
+  const row = apt.position[2] < 0 ? -1 : 1;
+
+  const boxes = useMemo(() => {
+    const t = PLAN_WALL;
+    const h = PLAN_WALL_HEIGHT;
+    const su = W / plan.totalWidth;
+    const sv = D / plan.totalDepth;
+    // Plan x = 0 (living column) goes to the side facade; plan y grows toward the balcony.
+    const rect = (r: FloorPlanRoom): PlanRect => ({
+      u: [W - (r.x + r.width) * su, W - r.x * su],
+      v: [r.y * sv, (r.y + r.depth) * sv],
+    });
+    const rooms = plan.rooms.map((r) => ({ label: r.label, ...rect(r) }));
+    const living = rooms.find((r) => r.label.startsWith("Estar"));
+    const kitchen = rooms.find((r) => r.label === "Cocina");
+    const bath = rooms.find((r) => r.label === "Baño");
+    const bedrooms = rooms.filter((r) => r.label.startsWith("Dormitorio"));
+    if (!living || !kitchen || !bath) return [];
+
+    const box = (u: [number, number], v: [number, number], height: number, color: string) => ({
+      u,
+      v,
+      h: height,
+      color,
+    });
+    const wall = (u: [number, number], v: [number, number]) => box(u, v, h, PLAN_COLORS.wall);
+    const mid = (a: [number, number]) => (a[0] + a[1]) / 2;
+    // Wall along v = `at` (or u = `at`), from a0 to a1, with openings of `gap` centred on `doors`.
+    const cutWall = (axis: "u" | "v", at: number, a0: number, a1: number, doors: number[], gap = PLAN_DOOR) => {
+      const pieces: PlanBox[] = [];
+      let start = a0;
+      for (const d of [...doors].sort((a, b) => a - b)) {
+        if (d - gap / 2 > start) pieces.push(span(axis, at, start, d - gap / 2));
+        start = d + gap / 2;
+      }
+      if (a1 > start) pieces.push(span(axis, at, start, a1));
+      return pieces;
+    };
+    const span = (axis: "u" | "v", at: number, a0: number, a1: number) =>
+      axis === "v" ? wall([a0, a1], [at - t / 2, at + t / 2]) : wall([at - t / 2, at + t / 2], [a0, a1]);
+
+    // The line between the living column and the bedroom column.
+    const split = living.u[0];
+    const floors: PlanBox[] = rooms.map((r) =>
+      box(r.u, r.v, 0, r.label === "Baño" ? PLAN_COLORS.tile : PLAN_COLORS.wood),
+    );
+    const walls: PlanBox[] = [
+      // Outer walls
+      wall([0, W], [0, t]),
+      wall([0, W], [D - t, D]),
+      wall([0, t], [0, D]),
+      wall([W - t, W], [0, D]),
+      // Bedroom column: a door from the living side into each room
+      ...cutWall("u", split, 0, D, [...bedrooms, bath].map((r) => mid(r.v))),
+      ...[...bedrooms.slice(1), bath].map((r) => span("v", r.v[0], 0, split)),
+      // Open kitchen
+      ...cutWall("v", kitchen.v[0], split, W, [mid(kitchen.u)], PLAN_KITCHEN_OPENING),
+    ];
+
+    const furniture: PlanBox[] = [];
+    bedrooms.forEach((r, i) => {
+      // Bed against the outer (core-side) wall, head on the wall at u = t.
+      const width = i === 0 ? 1.6 : 0.9;
+      const length = Math.min(2, split - t - 0.6);
+      const v0 = mid(r.v) - width / 2;
+      furniture.push(box([t, t + length], [v0, v0 + width], 0.45, PLAN_COLORS.light));
+    });
+    // Kitchen counter along the balcony facade, island in front of it.
+    furniture.push(box([kitchen.u[0] + 0.6, kitchen.u[1] - 0.6], [D - t - 0.6, D - t], 0.9, PLAN_COLORS.furniture));
+    // Living: sofa facing the side facade, dining table toward the kitchen.
+    const sofaU = W - t - Math.min(2.6, (W - split) * 0.4);
+    furniture.push(box([sofaU, sofaU + 0.9], [mid(living.v) - 1.2, mid(living.v) + 1.2], 0.42, PLAN_COLORS.furniture));
+    const tableV = living.v[1] - 1.6;
+    furniture.push(box([split + 1.2, split + 2.8], [tableV, tableV + 0.9], 0.75, PLAN_COLORS.light));
+
+    return [...floors, ...walls, ...furniture];
+  }, [W, D, plan]);
+
+  return (
+    <group>
+      {boxes.map((b, i) => {
+        const cu = (b.u[0] + b.u[1]) / 2;
+        const cv = (b.v[0] + b.v[1]) / 2;
+        const position: [number, number, number] = [
+          apt.position[0] + col * (cu - W / 2),
+          floorY + 0.02 + b.h / 2,
+          apt.position[2] + row * (cv - D / 2),
+        ];
+        const width = b.u[1] - b.u[0];
+        const depth = b.v[1] - b.v[0];
+        if (b.h === 0)
+          return (
+            <mesh key={i} position={position} rotation={[-Math.PI / 2, 0, 0]} receiveShadow raycast={() => null}>
+              <planeGeometry args={[width, depth]} />
+              <meshStandardMaterial color={b.color} roughness={0.8} />
+            </mesh>
+          );
+        return (
+          <mesh key={i} position={position} castShadow receiveShadow raycast={() => null}>
+            <boxGeometry args={[width, b.h, depth]} />
+            <meshStandardMaterial color={b.color} roughness={0.85} />
+            {b.color === PLAN_COLORS.wall ? <Edges color={PLAN_COLORS.wallEdge} threshold={15} /> : null}
+          </mesh>
+        );
+      })}
     </group>
   );
 }

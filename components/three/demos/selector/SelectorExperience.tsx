@@ -13,6 +13,7 @@ import { useIsMobile } from "@/lib/hooks/use-is-mobile";
 import { usePrefersReducedMotion } from "@/lib/hooks/use-prefers-reduced-motion";
 import { fetchUnidades } from "@/lib/unidades/fetch";
 import { attrNumber, findUnidad, type Unidad } from "@/lib/unidades/types";
+import { generateFloorPlan } from "@/lib/units/floor-plan";
 import { defaultBuildingConfig, totalBuildingHeight } from "@/lib/three/building-config";
 import type { Viewpoint } from "@/components/three/CameraRig";
 import { EMPTY_FILTERS, unitMatchesFilters, type UnitFilters } from "@/lib/units/filters";
@@ -90,8 +91,9 @@ const LETTER_QUADRANT: Record<string, [number, number]> = {
 };
 
 /**
- * Looks at a unit from its own corner, a little above its floor. The camera aims above the
- * unit so it sits in the lower part of the view, leaving room for its card on top.
+ * Looks down into a unit from its own corner, steep enough to see its open plan over the
+ * cut walls. The camera aims above the unit so it sits in the lower part of the view,
+ * leaving room for its card on top.
  */
 function unitViewpoint(unit: Unidad): Viewpoint {
   const y = floorCenterY(unitFloor(unit));
@@ -100,8 +102,8 @@ function unitViewpoint(unit: Unidad): Viewpoint {
   const tx = sx * config.buildingWidth * 0.22;
   const tz = sz * config.buildingDepth * 0.22;
   return {
-    position: [sx * config.buildingWidth * 1.7, y + config.floorHeight * 6, sz * config.buildingDepth * 2.3],
-    target: [tx, y + config.floorHeight * 2.5, tz],
+    position: [sx * config.buildingWidth * 1.05, y + config.floorHeight * 9, sz * config.buildingDepth * 1.45],
+    target: [tx, y + config.floorHeight * 1.5, tz],
   };
 }
 
@@ -360,6 +362,18 @@ export function SelectorExperience({
     () => units.find((u) => u.codigo === selectedCode) ?? null,
     [units, selectedCode],
   );
+  // Same plan as the panel's 2D plan: the selected unit opens up in the tower with these rooms.
+  const selectedPlan = useMemo(
+    () =>
+      selectedUnit
+        ? generateFloorPlan({
+            bedrooms: attrNumber(selectedUnit, "dormitorios") ?? 1,
+            areaM2: selectedUnit.superficieM2,
+            balconyM2: attrNumber(selectedUnit, "balcon_m2") ?? 0,
+          })
+        : null,
+    [selectedUnit],
+  );
 
   // A pinned card offers "Ver": load the apartment view ahead so the switch is instant.
   useEffect(() => {
@@ -445,6 +459,7 @@ export function SelectorExperience({
           focusFloor={focusFloor}
           hoveredId={hovered ?? listHoverMeshId}
           selectedId={selectedUnit ? meshId(selectedUnit) : null}
+          openPlan={selectedPlan}
           pins={pins}
           onApartmentClick={handleApartmentClick}
           onApartmentPointerOver={handleApartmentPointerOver}

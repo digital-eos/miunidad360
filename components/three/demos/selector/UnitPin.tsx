@@ -36,16 +36,21 @@ export function UnitPin({
   return (
     <div
       className={cn(
-        "-translate-x-1/2 -translate-y-[calc(100%+12px)] rounded-2xl border bg-background/95 p-4 shadow-xl backdrop-blur-md",
+        "-translate-x-1/2 -translate-y-[calc(100%+12px)] rounded-2xl border bg-background/95 shadow-xl backdrop-blur-md",
         pinned
-          ? "pointer-events-auto w-[min(22rem,calc(100vw-2.5rem))] border-accent"
-          : "pointer-events-none w-[min(16rem,calc(100vw-2.5rem))] border-border-subtle",
+          ? "pointer-events-auto w-[min(30rem,calc(100vw-2.5rem))] border-accent p-5"
+          : "pointer-events-none w-[min(16rem,calc(100vw-2.5rem))] border-border-subtle p-4",
       )}
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="font-mono text-sm text-foreground-muted">{unit.codigo}</span>
+        <span className={cn("font-mono text-foreground-muted", pinned ? "text-base" : "text-sm")}>
+          {unit.codigo}
+        </span>
         <span
-          className="rounded-full px-2.5 py-0.5 text-xs font-medium"
+          className={cn(
+            "rounded-full font-medium",
+            pinned ? "px-3 py-1 text-sm" : "px-2.5 py-0.5 text-xs",
+          )}
           style={{
             backgroundColor: `${STATUS_COLORS[unit.estado]}26`,
             color: STATUS_COLORS[unit.estado],
@@ -54,8 +59,10 @@ export function UnitPin({
           {STATUS_LABELS[unit.estado]}
         </span>
       </div>
-      <p className="mt-1 font-display text-2xl">{formatPrecio(unit.precio, unit.moneda)}</p>
-      <p className="mt-0.5 text-sm text-foreground-muted">
+      <p className={cn("mt-1 font-display", pinned ? "text-3xl" : "text-2xl")}>
+        {formatPrecio(unit.precio, unit.moneda)}
+      </p>
+      <p className={cn("mt-0.5 text-foreground-muted", pinned ? "text-base" : "text-sm")}>
         {rooms != null ? `${rooms} amb · ` : ""}
         {formatArea(unit.superficieM2)}
         {unit.orientacion ? ` · ${unit.orientacion}` : ""}
@@ -63,7 +70,7 @@ export function UnitPin({
 
       {pinned ? (
         <>
-          <div className="mt-3 grid grid-cols-2 gap-2">
+          <div className="mt-4 grid grid-cols-2 gap-3">
             {Array.from({ length: PHOTO_SLOTS }, (_, i) =>
               photos[i] ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -83,7 +90,7 @@ export function UnitPin({
             )}
           </div>
 
-          <div className="mt-4 flex gap-2">
+          <div className="mt-5 flex gap-3">
             <button
               type="button"
               onClick={action(onView)}
