@@ -6,7 +6,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://miunidad360.com.ar"
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 
-  const routes = ["", "/demos/selector", BIM_DEMO_PATH, "/demos/lotes", "/privacidad"];
+  const routes = ["", "/demos/selector", BIM_DEMO_PATH, "/demos/lotes", "/demos/departamento", "/privacidad"];
 
   return routes.map((route) => ({
     url: `${siteUrl}${route}`,

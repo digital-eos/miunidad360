@@ -43,9 +43,15 @@ const BLOQUES: Bloque[] = [
   },
   {
     titulo: "Departamentos",
-    cards: [],
-    proximamente:
-      "Una demo centrada en un solo departamento: recorrido por sus ambientes, plano y vistas.",
+    cards: [
+      {
+        kind: "departamento",
+        href: "/demos/departamento",
+        title: "Cataluña II · Unidad 103",
+        description:
+          "Un departamento real en 3D, generado desde el plano del folleto: tocá un ambiente y mirá sus medidas y renders.",
+      },
+    ],
   },
   {
     titulo: "Lotes",
