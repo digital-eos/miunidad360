@@ -1,12 +1,12 @@
 "use client";
 
-import { Suspense, useRef, type RefObject } from "react";
+import { Suspense, useRef } from "react";
 import { ContactShadows } from "@react-three/drei";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import type { BuildingConfig } from "@/lib/three/building-config";
 import { CameraRig, type Viewpoint } from "@/components/three/CameraRig";
 import { PostFX } from "@/components/three/visual/PostFX";
-import { EdificioModel } from "./EdificioModel";
+import { EdificioModel, type UnitPinTarget } from "./EdificioModel";
 import { EdificioCity } from "./EdificioCity";
 import { EdificioLighting } from "./EdificioLighting";
 
@@ -24,7 +24,7 @@ export type SelectorSceneProps = {
   focusFloor: number | null;
   hoveredId: string | null;
   selectedId: string | null;
-  pinRef?: RefObject<HTMLDivElement | null>;
+  pins?: UnitPinTarget[];
   onApartmentClick: (id: string, event: ThreeEvent<MouseEvent>) => void;
   onApartmentPointerOver: (id: string, event: ThreeEvent<PointerEvent>) => void;
   onApartmentPointerOut: (id: string, event: ThreeEvent<PointerEvent>) => void;

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Canvas, type ThreeEvent } from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
 import { PerformanceMonitor } from "@react-three/drei";
 import * as THREE from "three";
 import { cn } from "@/lib/utils";
@@ -21,12 +21,15 @@ import { useSunHours } from "@/lib/sun/use-sun-hours";
 import { trackFilterUsed, trackUnitOpened } from "@/lib/analytics";
 import { SelectorScene } from "./SelectorScene";
 import { FloorSelector } from "./FloorSelector";
-import { UnitPin, UnitTooltip } from "./UnitTooltip";
+import { UnitPin } from "./UnitPin";
 import { EdificioInfoPanel } from "./EdificioInfoPanel";
 
 const config = defaultBuildingConfig;
 
-const HOVER_CARD_DELAY_MS = 3000;
+/** How long the pointer rests on a unit before its card opens. */
+const PREVIEW_DELAY_MS = 1500;
+/** How long a hover card stays open (unless pinned or under the pointer). */
+const PREVIEW_DURATION_MS = 4000;
 
 /** Interior renders shown in the pinned card, picked by the unit's room count. */
 const PHOTOS_BY_TYPE = {
@@ -130,16 +133,18 @@ export function SelectorExperience({
   const [dpr, setDpr] = useState(maxDpr);
   const stageRef = useRef<HTMLDivElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
+  const previewRef = useRef<HTMLDivElement>(null);
   const [aspect, setAspect] = useState(1.6);
 
   const [state, setState] = useState<FetchState>({ status: "loading" });
   const [filters, setFilters] = useState<UnitFilters>(EMPTY_FILTERS);
   const [focusFloor, setFocusFloor] = useState<number | null>(null);
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
-  const [hovered, setHovered] = useState<{ code: string; x: number; y: number } | null>(null);
-  // Hover card: shown only after the pointer rests on the same unit for a while.
-  const [tooltip, setTooltip] = useState<{ code: string; x: number; y: number } | null>(null);
-  const pointerRef = useRef({ x: 0, y: 0 });
+  /** 3D id of the unit under the pointer. */
+  const [hovered, setHovered] = useState<string | null>(null);
+  /** 3D id of the unit whose card shows as a hover preview (not pinned). */
+  const [preview, setPreview] = useState<string | null>(null);
+  const [overPreview, setOverPreview] = useState(false);
   const [listHover, setListHover] = useState<string | null>(null);
   const [sceneReady, setSceneReady] = useState(false);
   const unitsRef = useRef<Unidad[]>([]);
@@ -219,29 +224,37 @@ export function SelectorExperience({
     (id: string) => {
       const unit = unitsRef.current.find((u) => meshId(u) === id);
       if (unit) handleSelectUnit(unit.codigo);
+      setPreview(null);
     },
     [handleSelectUnit],
   );
 
-  const handleApartmentPointerOver = useCallback(
-    (code: string, event: ThreeEvent<PointerEvent>) => {
-      setHovered({ code, x: event.clientX, y: event.clientY });
-    },
-    [],
-  );
+  const handleApartmentPointerOver = useCallback((code: string) => {
+    setHovered(code);
+  }, []);
 
   const handleApartmentPointerOut = useCallback(() => {
     setHovered(null);
   }, []);
 
-  const hoveredCode = hovered?.code ?? null;
+  const closePreview = useCallback(() => {
+    setPreview(null);
+    setOverPreview(false);
+  }, []);
+
+  // Hover preview: opens once the pointer rests on a unit, closes on its own a few seconds
+  // later unless the pointer is on the card.
   useEffect(() => {
-    if (!hoveredCode) return;
-    const timer = setTimeout(() => {
-      setTooltip({ code: hoveredCode, ...pointerRef.current });
-    }, HOVER_CARD_DELAY_MS);
+    if (!hovered) return;
+    const timer = setTimeout(() => setPreview(hovered), PREVIEW_DELAY_MS);
     return () => clearTimeout(timer);
-  }, [hoveredCode]);
+  }, [hovered]);
+
+  useEffect(() => {
+    if (!preview || overPreview) return;
+    const timer = setTimeout(() => setPreview(null), PREVIEW_DURATION_MS);
+    return () => clearTimeout(timer);
+  }, [preview, overPreview]);
 
   const units = useMemo(() => (state.status === "ready" ? state.units : []), [state]);
   useEffect(() => {
@@ -324,12 +337,18 @@ export function SelectorExperience({
     [units, selectedCode],
   );
 
-  const tooltipUnit = useMemo(
-    () =>
-      tooltip && tooltip.code === hoveredCode
-        ? (units.find((u) => meshId(u) === tooltip.code) ?? null)
-        : null,
-    [units, tooltip, hoveredCode],
+  // The pinned unit already has its card: no preview on top of it.
+  const previewUnit = useMemo(() => {
+    const unit = preview ? (units.find((u) => meshId(u) === preview) ?? null) : null;
+    return unit && unit !== selectedUnit ? unit : null;
+  }, [units, preview, selectedUnit]);
+
+  const pins = useMemo(
+    () => [
+      { id: selectedUnit ? meshId(selectedUnit) : null, ref: pinRef },
+      { id: previewUnit ? meshId(previewUnit) : null, ref: previewRef },
+    ],
+    [selectedUnit, previewUnit],
   );
 
   const listHoverMeshId = useMemo(() => {
@@ -366,9 +385,6 @@ export function SelectorExperience({
     <div
       ref={stageRef}
       className={cn("relative h-full w-full", hovered ? "cursor-pointer" : "")}
-      onPointerMove={(e) => {
-        pointerRef.current = { x: e.clientX, y: e.clientY };
-      }}
     >
       <Canvas
         camera={{ position: overviewViewpoint(aspect).position, fov: 40, near: 0.5, far: 600 }}
@@ -398,9 +414,9 @@ export function SelectorExperience({
           dimmedIds={dimmedIds}
           showStatus={false}
           focusFloor={focusFloor}
-          hoveredId={hovered?.code ?? listHoverMeshId}
+          hoveredId={hovered ?? listHoverMeshId}
           selectedId={selectedUnit ? meshId(selectedUnit) : null}
-          pinRef={pinRef}
+          pins={pins}
           onApartmentClick={handleApartmentClick}
           onApartmentPointerOver={handleApartmentPointerOver}
           onApartmentPointerOut={handleApartmentPointerOut}
@@ -408,16 +424,31 @@ export function SelectorExperience({
         />
       </Canvas>
 
-      {/* Moved over the selected unit every frame by the scene. */}
-      <div
-        ref={pinRef}
-        className="pointer-events-none invisible absolute top-0 left-0 z-[5]"
-      >
-        {selectedUnit ? (
+      {/* Unit cards, moved over their unit every frame by the scene: pinned, then preview. */}
+      <div ref={pinRef} className="pointer-events-none invisible absolute top-0 left-0 z-[25]">
+        {selectedUnit && sceneReady ? (
           <UnitPin
             unit={selectedUnit}
             photos={unitPhotos(selectedUnit)}
+            pinned
             onClose={() => handleSelectUnit(null)}
+          />
+        ) : null}
+      </div>
+      <div ref={previewRef} className="pointer-events-none invisible absolute top-0 left-0 z-[26]">
+        {previewUnit && sceneReady ? (
+          <UnitPin
+            key={previewUnit.codigo}
+            unit={previewUnit}
+            photos={unitPhotos(previewUnit)}
+            pinned={false}
+            onPin={() => {
+              handleSelectUnit(previewUnit.codigo);
+              closePreview();
+            }}
+            onClose={closePreview}
+            onPointerEnter={() => setOverPreview(true)}
+            onPointerLeave={() => setOverPreview(false)}
           />
         ) : null}
       </div>
@@ -449,10 +480,6 @@ export function SelectorExperience({
             </p>
           </div>
         </>
-      ) : null}
-
-      {tooltipUnit && tooltipUnit !== selectedUnit && !isMobile ? (
-        <UnitTooltip unit={tooltipUnit} x={tooltip!.x} y={tooltip!.y} />
       ) : null}
 
       {children}

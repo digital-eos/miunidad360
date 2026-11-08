@@ -160,36 +160,60 @@ function buildFacade(layouts: ApartmentLayout[], config: BuildingConfig): Facade
 
 const projected = new THREE.Vector3();
 
+const PIN_MARGIN = 8;
+/** Gap between the unit and the card's bottom edge (matches the card's CSS offset). */
+const PIN_GAP = 12;
+
+/** A DOM card over the canvas that should sit on top of a unit. */
+export type UnitPinTarget = { id: string | null; ref: RefObject<HTMLDivElement | null> };
+
 /**
- * Moves `pinRef` to the screen position of `point` every frame; hides it when there is no
- * point or the point is behind the camera. Plain DOM instead of drei's Html, whose extra
- * React root does not survive dev double-mounting here.
+ * Moves each pin's element to the screen position of its unit every frame, kept inside the
+ * view; hides it when there is no unit or it is behind the camera. Plain DOM instead of
+ * drei's Html, whose extra React root does not survive dev double-mounting here.
  */
-function ScreenPin({
-  point,
-  pinRef,
+function ScreenPins({
+  pins,
+  pointFor,
 }: {
-  point: THREE.Vector3 | null;
-  pinRef: RefObject<HTMLDivElement | null>;
+  pins: UnitPinTarget[];
+  pointFor: (id: string | null) => THREE.Vector3 | null;
 }) {
   useFrame(({ camera, size }) => {
-    const el = pinRef.current;
-    if (!el) return;
-    if (!point) {
-      el.style.visibility = "hidden";
-      return;
+    for (const pin of pins) {
+      const el = pin.ref.current;
+      if (!el) continue;
+      const point = pointFor(pin.id);
+      if (!point) {
+        placePin(el, null);
+        continue;
+      }
+      projected.copy(point).project(camera);
+      if (projected.z > 1) {
+        placePin(el, null);
+        continue;
+      }
+      const card = el.firstElementChild as HTMLElement | null;
+      const halfW = (card?.offsetWidth ?? 0) / 2;
+      const h = card?.offsetHeight ?? 0;
+      let x = ((projected.x + 1) / 2) * size.width;
+      let y = ((1 - projected.y) / 2) * size.height;
+      x = Math.min(Math.max(x, halfW + PIN_MARGIN), size.width - halfW - PIN_MARGIN);
+      y = Math.min(Math.max(y, h + PIN_GAP + PIN_MARGIN), size.height - PIN_MARGIN);
+      placePin(el, [x, y]);
     }
-    projected.copy(point).project(camera);
-    if (projected.z > 1) {
-      el.style.visibility = "hidden";
-      return;
-    }
-    const x = ((projected.x + 1) / 2) * size.width;
-    const y = ((1 - projected.y) / 2) * size.height;
-    el.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-    el.style.visibility = "visible";
   });
   return null;
+}
+
+/** Moves a pin element to a screen position, or hides it. */
+function placePin(el: HTMLElement, at: [number, number] | null) {
+  if (!at) {
+    el.style.visibility = "hidden";
+    return;
+  }
+  el.style.transform = `translate3d(${at[0]}px, ${at[1]}px, 0)`;
+  el.style.visibility = "visible";
 }
 
 function visibleUpTo<T extends { floor: number }>(items: T[], focusFloor: number | null) {
@@ -209,8 +233,8 @@ export type EdificioModelProps = {
   focusFloor: number | null;
   hoveredId: string | null;
   selectedId: string | null;
-  /** DOM element over the canvas, moved each frame to sit on top of the selected unit. */
-  pinRef?: RefObject<HTMLDivElement | null>;
+  /** DOM cards over the canvas, each moved every frame to sit on top of its unit. */
+  pins?: UnitPinTarget[];
   onApartmentClick: (id: string, event: ThreeEvent<MouseEvent>) => void;
   onApartmentPointerOver: (id: string, event: ThreeEvent<PointerEvent>) => void;
   onApartmentPointerOut: (id: string, event: ThreeEvent<PointerEvent>) => void;
@@ -225,7 +249,7 @@ export function EdificioModel({
   focusFloor,
   hoveredId,
   selectedId,
-  pinRef,
+  pins,
   onApartmentClick,
   onApartmentPointerOver,
   onApartmentPointerOut,
@@ -244,22 +268,32 @@ export function EdificioModel({
   const roofY = G + floors * floorHeight;
   const roofVisible = focusFloor == null || focusFloor >= floors;
   const height = totalBuildingHeight(config);
-  const pinned = layouts.find((apt) => apt.id === selectedId) ?? null;
-  const pinPoint = useMemo(
+  // Top centre of each unit: where its card is anchored.
+  const unitTops = useMemo(
     () =>
-      pinned && pinned.floor <= lastSolidFloor
-        ? new THREE.Vector3(
-            pinned.position[0],
-            pinned.position[1] - floorHeight / 2 + clear,
-            pinned.position[2],
-          )
-        : null,
-    [pinned, lastSolidFloor, floorHeight, clear],
+      new Map(
+        layouts.map((apt) => [
+          apt.id,
+          {
+            floor: apt.floor,
+            point: new THREE.Vector3(
+              apt.position[0],
+              apt.position[1] - floorHeight / 2 + clear,
+              apt.position[2],
+            ),
+          },
+        ]),
+      ),
+    [layouts, floorHeight, clear],
   );
+  const pointFor = (id: string | null) => {
+    const top = id ? unitTops.get(id) : undefined;
+    return top && top.floor <= lastSolidFloor ? top.point : null;
+  };
 
   return (
     <group>
-      {pinRef ? <ScreenPin point={pinPoint} pinRef={pinRef} /> : null}
+      {pins?.length ? <ScreenPins pins={pins} pointFor={pointFor} /> : null}
 
       <Lobby config={config} castShadow={castShadow} />
 
