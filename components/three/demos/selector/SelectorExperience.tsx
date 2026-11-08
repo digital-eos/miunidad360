@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import dynamic from "next/dynamic";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Canvas } from "@react-three/fiber";
 import { PerformanceMonitor } from "@react-three/drei";
@@ -23,6 +24,18 @@ import { SelectorScene } from "./SelectorScene";
 import { FloorSelector } from "./FloorSelector";
 import { UnitPin } from "./UnitPin";
 import { EdificioInfoPanel } from "./EdificioInfoPanel";
+
+const loadDepartamento = () =>
+  import("../departamento/DepartamentoExperience").then((mod) => mod.DepartamentoExperience);
+
+/** The apartment interior opened by a card's "Ver"; loaded only when needed. */
+const DepartamentoExperience = dynamic(loadDepartamento, {
+  ssr: false,
+  loading: () => <div className="h-[100svh] w-full bg-background" />,
+});
+
+/** Length of the fade between the building and the apartment. */
+const FADE_MS = 400;
 
 const config = defaultBuildingConfig;
 
@@ -153,6 +166,11 @@ export function SelectorExperience({
   const [overPreview, setOverPreview] = useState(false);
   const [listHover, setListHover] = useState<string | null>(null);
   const [sceneReady, setSceneReady] = useState(false);
+  /** Building view, or the sample apartment interior opened from a card. */
+  const [vista, setVista] = useState<"edificio" | "departamento">("edificio");
+  const [fading, setFading] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const fadeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const unitsRef = useRef<Unidad[]>([]);
 
   useEffect(() => {
@@ -264,6 +282,29 @@ export function SelectorExperience({
     return () => clearTimeout(timer);
   }, [preview, overPreview]);
 
+  // Fade out, swap the view while the screen is blank, fade back in. Same page, no redirect.
+  const switchVista = useCallback((next: "edificio" | "departamento") => {
+    if (fadeTimer.current) clearTimeout(fadeTimer.current);
+    setFading(true);
+    fadeTimer.current = setTimeout(() => {
+      setVista(next);
+      setPreview(null);
+      setHovered(null);
+      // The building canvas mounts again: show its loader until it has drawn.
+      if (next === "edificio") setSceneReady(false);
+      const top = wrapperRef.current?.getBoundingClientRect().top ?? 0;
+      if (top < 0) wrapperRef.current?.scrollIntoView({ block: "start" });
+      requestAnimationFrame(() => setFading(false));
+    }, FADE_MS);
+  }, []);
+
+  useEffect(
+    () => () => {
+      if (fadeTimer.current) clearTimeout(fadeTimer.current);
+    },
+    [],
+  );
+
   const units = useMemo(() => (state.status === "ready" ? state.units : []), [state]);
   useEffect(() => {
     unitsRef.current = units;
@@ -341,6 +382,11 @@ export function SelectorExperience({
     () => units.find((u) => u.codigo === selectedCode) ?? null,
     [units, selectedCode],
   );
+
+  // A pinned card offers "Ver": load the apartment view ahead so the switch is instant.
+  useEffect(() => {
+    if (selectedUnit && !embedded) void loadDepartamento();
+  }, [selectedUnit, embedded]);
 
   // The pinned unit already has its card: no preview on top of it.
   const previewUnit = useMemo(() => {
@@ -436,6 +482,7 @@ export function SelectorExperience({
             unit={selectedUnit}
             photos={unitPhotos(selectedUnit)}
             pinned
+            onView={embedded ? undefined : () => switchVista("departamento")}
             onClose={() => handleSelectUnit(null)}
           />
         ) : null}
@@ -493,51 +540,87 @@ export function SelectorExperience({
 
   if (capturing) return stage;
 
-  return (
+  const fade = (
     <div
-      className={
-        embedded
-          ? "grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]"
-          : "flex flex-col lg:h-[100svh] lg:flex-row"
-      }
-    >
+      aria-hidden
+      className={cn(
+        "pointer-events-none absolute inset-0 z-50 bg-background transition-opacity ease-in-out",
+        fading ? "opacity-100" : "opacity-0",
+      )}
+      style={{ transitionDuration: `${FADE_MS}ms` }}
+    />
+  );
+
+  if (vista === "departamento") {
+    return (
+      <div ref={wrapperRef} className="relative">
+        <DepartamentoExperience>
+          <div className="absolute top-4 left-4 z-30 flex flex-col items-start gap-2 sm:top-6 sm:left-6">
+            <button
+              type="button"
+              onClick={() => switchVista("edificio")}
+              className="inline-flex items-center gap-2 rounded-full border border-border-subtle bg-background/85 px-4 py-2 text-xs font-medium backdrop-blur-md transition-colors duration-200 hover:border-accent hover:text-accent-strong sm:text-sm"
+            >
+              ← Volver al edificio
+            </button>
+            <p className="rounded-full bg-background/80 px-3 py-1 font-mono text-[9px] uppercase tracking-[0.15em] text-foreground-muted backdrop-blur-md sm:text-[10px]">
+              Interior de ejemplo · Cataluña II, unidad 103
+            </p>
+          </div>
+        </DepartamentoExperience>
+        {fade}
+      </div>
+    );
+  }
+
+  return (
+    <div ref={wrapperRef} className="relative">
       <div
         className={
           embedded
-            ? "relative h-[65vh] w-full overflow-hidden rounded-2xl border border-border-subtle bg-background-elevated lg:h-[70vh]"
-            : "relative h-[70svh] w-full lg:h-full lg:flex-1"
+            ? "grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]"
+            : "flex flex-col lg:h-[100svh] lg:flex-row"
         }
       >
-        {stage}
+        <div
+          className={
+            embedded
+              ? "relative h-[65vh] w-full overflow-hidden rounded-2xl border border-border-subtle bg-background-elevated lg:h-[70vh]"
+              : "relative h-[70svh] w-full lg:h-full lg:flex-1"
+          }
+        >
+          {stage}
+        </div>
+        <EdificioInfoPanel
+          projectName={ready ? state.project.name : "Edificio Demo"}
+          projectAddress={ready ? state.project.address : null}
+          projectSlug={projectSlug}
+          units={units}
+          filters={filters}
+          onFiltersChange={handleFiltersChange}
+          orientations={orientations}
+          focusFloor={focusFloor}
+          selectedUnit={selectedUnit}
+          onSelectUnit={handleSelectUnit}
+          onHoverUnit={setListHover}
+          sunHoursVerano={
+            selectedUnit
+              ? (sunHoursCache[civilDateKey(verano)]?.[meshId(selectedUnit)] ?? null)
+              : null
+          }
+          sunHoursInvierno={
+            selectedUnit
+              ? (sunHoursCache[civilDateKey(invierno)]?.[meshId(selectedUnit)] ?? null)
+              : null
+          }
+          className={
+            embedded
+              ? "h-[70vh] rounded-2xl border border-border-subtle"
+              : "border-t border-border-subtle lg:h-full lg:w-[400px] lg:border-t-0 lg:border-l"
+          }
+        />
       </div>
-      <EdificioInfoPanel
-        projectName={ready ? state.project.name : "Edificio Demo"}
-        projectAddress={ready ? state.project.address : null}
-        projectSlug={projectSlug}
-        units={units}
-        filters={filters}
-        onFiltersChange={handleFiltersChange}
-        orientations={orientations}
-        focusFloor={focusFloor}
-        selectedUnit={selectedUnit}
-        onSelectUnit={handleSelectUnit}
-        onHoverUnit={setListHover}
-        sunHoursVerano={
-          selectedUnit
-            ? (sunHoursCache[civilDateKey(verano)]?.[meshId(selectedUnit)] ?? null)
-            : null
-        }
-        sunHoursInvierno={
-          selectedUnit
-            ? (sunHoursCache[civilDateKey(invierno)]?.[meshId(selectedUnit)] ?? null)
-            : null
-        }
-        className={
-          embedded
-            ? "h-[70vh] rounded-2xl border border-border-subtle"
-            : "border-t border-border-subtle lg:h-full lg:w-[400px] lg:border-t-0 lg:border-l"
-        }
-      />
+      {fade}
     </div>
   );
 }
