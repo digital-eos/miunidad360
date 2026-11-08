@@ -22,6 +22,7 @@ export type SelectorSceneProps = {
   apartmentColors: Record<string, string>;
   dimmedIds: Set<string>;
   showStatus: boolean;
+  availableIds?: Set<string>;
   focusFloor: number | null;
   hoveredId: string | null;
   selectedId: string | null;

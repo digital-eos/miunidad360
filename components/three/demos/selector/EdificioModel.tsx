@@ -257,6 +257,8 @@ export type EdificioModelProps = {
   dimmedIds: Set<string>;
   /** Tint every unit with its status color ("Disponibilidad" view). */
   showStatus: boolean;
+  /** Units for sale: kept lightly tinted so the user sees which ones carry information. */
+  availableIds?: Set<string>;
   /** Floors above this one turn into a light wireframe ghost. */
   focusFloor: number | null;
   hoveredId: string | null;
@@ -276,6 +278,7 @@ export function EdificioModel({
   apartmentColors,
   dimmedIds,
   showStatus,
+  availableIds,
   focusFloor,
   hoveredId,
   selectedId,
@@ -400,7 +403,9 @@ export function EdificioModel({
                       ? dimmedIds.has(apt.id)
                         ? "dimmed"
                         : "status"
-                      : "hidden"
+                      : availableIds?.has(apt.id) && !dimmedIds.has(apt.id)
+                        ? "available"
+                        : "hidden"
               }
             />
           </group>
@@ -614,10 +619,11 @@ function OpenUnitPlan({
   );
 }
 
-type ShellMode = "hidden" | "status" | "dimmed" | "hovered" | "selected";
+type ShellMode = "hidden" | "available" | "status" | "dimmed" | "hovered" | "selected";
 
 const SHELL_OPACITY: Record<ShellMode, number> = {
   hidden: 0,
+  available: 0.24,
   status: 0.36,
   dimmed: 0.06,
   hovered: 0.35,

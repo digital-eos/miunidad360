@@ -349,6 +349,11 @@ export function SelectorExperience({
     [units, filters],
   );
 
+  const availableIds = useMemo(
+    () => new Set(units.filter(isForSale).map(meshId)),
+    [units],
+  );
+
   const orientations = useMemo(
     () =>
       Array.from(
@@ -452,6 +457,7 @@ export function SelectorExperience({
           apartmentColors={apartmentColors}
           dimmedIds={dimmedIds}
           showStatus={false}
+          availableIds={availableIds}
           focusFloor={focusFloor}
           hoveredId={hovered ?? listHoverMeshId}
           selectedId={selectedUnit ? meshId(selectedUnit) : null}
