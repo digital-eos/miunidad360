@@ -87,7 +87,7 @@ export function SelectorScene({
         target={cameraTarget}
         targetKey={cameraTargetKey}
         autoRotateEnabled={autoRotate}
-        autoRotateSpeed={0.35}
+        autoRotateSpeed={0.55}
         minDistance={minDistance}
         maxDistance={maxDistance}
         onInteractionChange={(interacting) => {
