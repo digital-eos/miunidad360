@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  DepthOfField,
   EffectComposer,
   HueSaturation,
   SSAO,
@@ -12,6 +13,11 @@ import { BlendFunction, ToneMappingMode } from "postprocessing";
 type PostFXProps = {
   /** World-space radius of the ambient occlusion, in meters. */
   aoRadius?: number;
+  /**
+   * World point to keep sharp. When set, everything nearer or farther blurs lightly and the
+   * colors fade a little, so that point stands out ("focus mode").
+   */
+  focus?: [number, number, number] | null;
 };
 
 /**
@@ -23,7 +29,7 @@ type PostFXProps = {
  * - N8AO: n8ao 2.0.1 crashes on three r187.
  * - BrightnessContrast and daytime Bloom: both washed the image out.
  */
-export function PostFX({ aoRadius = 1.2 }: PostFXProps) {
+export function PostFX({ aoRadius = 1.2, focus = null }: PostFXProps) {
   return (
     <EffectComposer multisampling={4} enableNormalPass>
       <SSAO
@@ -41,8 +47,13 @@ export function PostFX({ aoRadius = 1.2 }: PostFXProps) {
         fade={0.02}
         resolutionScale={0.5}
       />
+      {focus ? (
+        <DepthOfField target={focus} worldFocusRange={8} bokehScale={3} />
+      ) : (
+        <></>
+      )}
       <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
-      <HueSaturation saturation={0.1} />
+      <HueSaturation saturation={focus ? -0.3 : 0.1} />
       <Vignette offset={0.32} darkness={0.32} />
     </EffectComposer>
   );

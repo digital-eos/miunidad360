@@ -81,7 +81,10 @@ const LETTER_QUADRANT: Record<string, [number, number]> = {
   D: [1, 1],
 };
 
-/** Looks at a unit from its own corner, a little above its floor. */
+/**
+ * Looks at a unit from its own corner, a little above its floor. The camera aims above the
+ * unit so it sits in the lower part of the view, leaving room for its card on top.
+ */
 function unitViewpoint(unit: Unidad): Viewpoint {
   const y = floorCenterY(unitFloor(unit));
   const letter = (unit.objeto3d ?? unit.codigo).slice(-1);
@@ -90,7 +93,7 @@ function unitViewpoint(unit: Unidad): Viewpoint {
   const tz = sz * config.buildingDepth * 0.22;
   return {
     position: [sx * config.buildingWidth * 1.7, y + config.floorHeight * 6, sz * config.buildingDepth * 2.3],
-    target: [tx, y, tz],
+    target: [tx, y + config.floorHeight * 2.5, tz],
   };
 }
 
@@ -102,6 +105,11 @@ type FetchState =
 /** 3D id of an apartment in the procedural building ("P04-B"). */
 function meshId(unit: Unidad): string {
   return unit.objeto3d ?? unit.codigo;
+}
+
+/** Only units on sale react in the 3D view: sold or reserved ones show nothing. */
+function isForSale(unit: Unidad): boolean {
+  return unit.estado === "disponible";
 }
 
 function unitFloor(unit: Unidad): number {
@@ -168,7 +176,7 @@ export function SelectorExperience({
         setState({ status: "ready", project: data.project, units: data.unidades });
 
         const unit = embedded ? null : findUnidad(data.unidades, searchParams.get("unidad"));
-        if (unit) {
+        if (unit && isForSale(unit)) {
           setSelectedCode(unit.codigo);
           setFocusFloor(unitFloor(unit));
         }
@@ -196,10 +204,11 @@ export function SelectorExperience({
 
   const handleSelectUnit = useCallback(
     (code: string | null) => {
+      const unit = code ? unitsRef.current.find((u) => u.codigo === code) : null;
+      if (unit && !isForSale(unit)) return;
       setSelectedCode(code);
       updateUrl(code);
       if (!code) return;
-      const unit = unitsRef.current.find((u) => u.codigo === code);
       if (unit) setFocusFloor(unitFloor(unit));
       trackUnitOpened("selector", code);
     },
@@ -223,14 +232,16 @@ export function SelectorExperience({
   const handleApartmentClick = useCallback(
     (id: string) => {
       const unit = unitsRef.current.find((u) => meshId(u) === id);
-      if (unit) handleSelectUnit(unit.codigo);
+      if (!unit || !isForSale(unit)) return;
+      handleSelectUnit(unit.codigo);
       setPreview(null);
     },
     [handleSelectUnit],
   );
 
   const handleApartmentPointerOver = useCallback((code: string) => {
-    setHovered(code);
+    const unit = unitsRef.current.find((u) => meshId(u) === code);
+    setHovered(unit && isForSale(unit) ? code : null);
   }, []);
 
   const handleApartmentPointerOut = useCallback(() => {
@@ -267,10 +278,7 @@ export function SelectorExperience({
     if (!capturing || state.status !== "ready" || units.length === 0) return;
 
     const floor = Math.ceil(config.floors / 2);
-    const targetUnit =
-      units.find((u) => unitFloor(u) === floor && u.estado === "disponible") ??
-      units.find((u) => unitFloor(u) === floor) ??
-      null;
+    const targetUnit = units.find((u) => unitFloor(u) === floor && isForSale(u)) ?? null;
 
     let cancelled = false;
     const timers: ReturnType<typeof setTimeout>[] = [];
@@ -353,7 +361,7 @@ export function SelectorExperience({
 
   const listHoverMeshId = useMemo(() => {
     const unit = listHover ? units.find((u) => u.codigo === listHover) : null;
-    return unit ? meshId(unit) : null;
+    return unit && isForSale(unit) ? meshId(unit) : null;
   }, [units, listHover]);
 
   const cameraTarget = selectedUnit

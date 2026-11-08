@@ -168,37 +168,64 @@ const PIN_GAP = 12;
 export type UnitPinTarget = { id: string | null; ref: RefObject<HTMLDivElement | null> };
 
 /**
- * Moves each pin's element to the screen position of its unit every frame, kept inside the
- * view; hides it when there is no unit or it is behind the camera. Plain DOM instead of
- * drei's Html, whose extra React root does not survive dev double-mounting here.
+ * Moves each pin's card next to its unit every frame without covering it: above the unit's
+ * on-screen outline when there is room, otherwise beside it, always inside the view. Hidden
+ * when there is no unit or it is behind the camera. Plain DOM instead of drei's Html, whose
+ * extra React root does not survive dev double-mounting here.
+ *
+ * The card's CSS anchors it by its bottom centre (translate -50%, -100% - PIN_GAP).
  */
 function ScreenPins({
   pins,
-  pointFor,
+  cornersFor,
 }: {
   pins: UnitPinTarget[];
-  pointFor: (id: string | null) => THREE.Vector3 | null;
+  cornersFor: (id: string | null) => THREE.Vector3[] | null;
 }) {
   useFrame(({ camera, size }) => {
     for (const pin of pins) {
       const el = pin.ref.current;
       if (!el) continue;
-      const point = pointFor(pin.id);
-      if (!point) {
+      const corners = cornersFor(pin.id);
+      if (!corners) {
         placePin(el, null);
         continue;
       }
-      projected.copy(point).project(camera);
-      if (projected.z > 1) {
+      let minX = Infinity;
+      let maxX = -Infinity;
+      let minY = Infinity;
+      let maxY = -Infinity;
+      let behind = false;
+      for (const corner of corners) {
+        projected.copy(corner).project(camera);
+        if (projected.z > 1) behind = true;
+        const sx = ((projected.x + 1) / 2) * size.width;
+        const sy = ((1 - projected.y) / 2) * size.height;
+        minX = Math.min(minX, sx);
+        maxX = Math.max(maxX, sx);
+        minY = Math.min(minY, sy);
+        maxY = Math.max(maxY, sy);
+      }
+      if (behind) {
         placePin(el, null);
         continue;
       }
       const card = el.firstElementChild as HTMLElement | null;
-      const halfW = (card?.offsetWidth ?? 0) / 2;
+      const w = card?.offsetWidth ?? 0;
       const h = card?.offsetHeight ?? 0;
-      let x = ((projected.x + 1) / 2) * size.width;
-      let y = ((1 - projected.y) / 2) * size.height;
-      x = Math.min(Math.max(x, halfW + PIN_MARGIN), size.width - halfW - PIN_MARGIN);
+      const fitsAbove = minY - PIN_GAP - h >= PIN_MARGIN;
+      const fitsRight = maxX + PIN_GAP + w <= size.width - PIN_MARGIN;
+      let x: number;
+      let y: number;
+      if (fitsAbove) {
+        x = (minX + maxX) / 2;
+        y = minY;
+      } else {
+        // Beside the unit, vertically centred on it.
+        x = fitsRight ? maxX + PIN_GAP + w / 2 : minX - PIN_GAP - w / 2;
+        y = (minY + maxY) / 2 + h / 2 + PIN_GAP;
+      }
+      x = Math.min(Math.max(x, w / 2 + PIN_MARGIN), size.width - w / 2 - PIN_MARGIN);
       y = Math.min(Math.max(y, h + PIN_GAP + PIN_MARGIN), size.height - PIN_MARGIN);
       placePin(el, [x, y]);
     }
@@ -268,32 +295,36 @@ export function EdificioModel({
   const roofY = G + floors * floorHeight;
   const roofVisible = focusFloor == null || focusFloor >= floors;
   const height = totalBuildingHeight(config);
-  // Top centre of each unit: where its card is anchored.
-  const unitTops = useMemo(
+  // Corners of each unit's box: its card is placed around their on-screen outline.
+  const unitCorners = useMemo(
     () =>
       new Map(
-        layouts.map((apt) => [
-          apt.id,
-          {
-            floor: apt.floor,
-            point: new THREE.Vector3(
-              apt.position[0],
-              apt.position[1] - floorHeight / 2 + clear,
-              apt.position[2],
-            ),
-          },
-        ]),
+        layouts.map((apt) => {
+          const bottom = apt.position[1] - floorHeight / 2;
+          const corners: THREE.Vector3[] = [];
+          for (const dx of [-0.5, 0.5])
+            for (const dz of [-0.5, 0.5])
+              for (const yy of [bottom, bottom + clear])
+                corners.push(
+                  new THREE.Vector3(
+                    apt.position[0] + dx * apt.size[0],
+                    yy,
+                    apt.position[2] + dz * apt.size[2],
+                  ),
+                );
+          return [apt.id, { floor: apt.floor, corners }];
+        }),
       ),
     [layouts, floorHeight, clear],
   );
-  const pointFor = (id: string | null) => {
-    const top = id ? unitTops.get(id) : undefined;
-    return top && top.floor <= lastSolidFloor ? top.point : null;
+  const cornersFor = (id: string | null) => {
+    const unit = id ? unitCorners.get(id) : undefined;
+    return unit && unit.floor <= lastSolidFloor ? unit.corners : null;
   };
 
   return (
     <group>
-      {pins?.length ? <ScreenPins pins={pins} pointFor={pointFor} /> : null}
+      {pins?.length ? <ScreenPins pins={pins} cornersFor={cornersFor} /> : null}
 
       <Lobby config={config} castShadow={castShadow} />
 
@@ -343,7 +374,11 @@ export function EdificioModel({
             <StatusShell
               position={[apt.position[0], y, apt.position[2]]}
               size={[apt.size[0] + 0.22, clear + 0.04, apt.size[2] + 0.22]}
-              color={apartmentColors[apt.id] ?? "#ffffff"}
+              color={
+                selectedId === apt.id || hoveredId === apt.id
+                  ? HIGHLIGHT_COLOR
+                  : (apartmentColors[apt.id] ?? "#ffffff")
+              }
               mode={
                 selectedId === apt.id
                   ? "selected"
@@ -427,9 +462,12 @@ const SHELL_OPACITY: Record<ShellMode, number> = {
   hidden: 0,
   status: 0.36,
   dimmed: 0.06,
-  hovered: 0.78,
-  selected: 0.85,
+  hovered: 0.35,
+  selected: 0.62,
 };
+
+/** Hovered and selected units: a smoked graphite that reads on the white tower, not a sales-status color. */
+const HIGHLIGHT_COLOR = "#2c2c30";
 
 /** Tinted volume over a unit's glazing; fades between states. */
 function StatusShell({
@@ -451,7 +489,7 @@ function StatusShell({
     const mesh = meshRef.current;
     if (!material || !mesh) return;
     let target = SHELL_OPACITY[mode];
-    if (mode === "selected") target += Math.sin(clock.elapsedTime * 3) * 0.08;
+    if (mode === "selected") target += Math.sin(clock.elapsedTime * 2.5) * 0.06;
     material.opacity = THREE.MathUtils.damp(material.opacity, target, 10, delta);
     mesh.visible = material.opacity > 0.01;
     const glow = mode === "hovered" || mode === "selected" ? 0.45 : 0.12;

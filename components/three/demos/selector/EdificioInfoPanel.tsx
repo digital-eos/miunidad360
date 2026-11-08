@@ -279,6 +279,8 @@ export function EdificioInfoPanel({
                 const header =
                   focusFloor === null && (index === 0 || unitFloor(matching[index - 1]) !== floor);
                 const rooms = attrNumber(u, "ambientes");
+                // Sold or reserved units are listed for context but cannot be opened.
+                const forSale = u.estado === "disponible";
                 return (
                   <li key={u.codigo}>
                     {header ? (
@@ -288,11 +290,15 @@ export function EdificioInfoPanel({
                     ) : null}
                     <button
                       type="button"
+                      disabled={!forSale}
                       onClick={() => onSelectUnit(u.codigo)}
-                      onMouseEnter={() => onHoverUnit(u.codigo)}
+                      onMouseEnter={() => onHoverUnit(forSale ? u.codigo : null)}
                       onFocus={() => onHoverUnit(u.codigo)}
                       className={cn(
-                        "flex w-full items-center gap-3 py-2.5 text-left transition-colors duration-200 hover:bg-background-elevated focus-visible:bg-background-elevated focus-visible:outline-none",
+                        "flex w-full items-center gap-3 py-2.5 text-left transition-colors duration-200",
+                        forSale
+                          ? "hover:bg-background-elevated focus-visible:bg-background-elevated focus-visible:outline-none"
+                          : "cursor-default opacity-55",
                         !header && "border-t border-border-subtle",
                       )}
                     >
@@ -314,13 +320,16 @@ export function EdificioInfoPanel({
                         </span>
                       </span>
                       <span className="shrink-0 text-right text-sm">
-                        {u.estado === "vendida" ? (
-                          <span className="text-foreground-muted">Vendida</span>
-                        ) : (
+                        {forSale ? (
                           formatPrecio(u.precio, u.moneda)
+                        ) : (
+                          <span className="text-foreground-muted">{STATUS_LABELS[u.estado]}</span>
                         )}
                       </span>
-                      <span aria-hidden="true" className="text-foreground-muted">
+                      <span
+                        aria-hidden="true"
+                        className={cn("text-foreground-muted", !forSale && "invisible")}
+                      >
                         →
                       </span>
                     </button>
