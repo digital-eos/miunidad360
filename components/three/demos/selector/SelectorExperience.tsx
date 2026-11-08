@@ -26,13 +26,6 @@ import { EdificioInfoPanel } from "./EdificioInfoPanel";
 
 const config = defaultBuildingConfig;
 
-type ViewMode = "disponibilidad" | "fachada";
-
-const VIEW_MODES: { id: ViewMode; label: string }[] = [
-  { id: "disponibilidad", label: "Disponibilidad" },
-  { id: "fachada", label: "Fachada" },
-];
-
 function floorCenterY(floor: number): number {
   return config.groundFloorHeight + (floor - 0.5) * config.floorHeight;
 }
@@ -123,7 +116,6 @@ export function SelectorExperience({
   const [filters, setFilters] = useState<UnitFilters>(EMPTY_FILTERS);
   const [focusFloor, setFocusFloor] = useState<number | null>(null);
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>("disponibilidad");
   const [hovered, setHovered] = useState<{ code: string; x: number; y: number } | null>(null);
   const [listHover, setListHover] = useState<string | null>(null);
   const [sceneReady, setSceneReady] = useState(false);
@@ -366,7 +358,7 @@ export function SelectorExperience({
           maxDistance={span * 5.5}
           apartmentColors={apartmentColors}
           dimmedIds={dimmedIds}
-          showStatus={viewMode === "disponibilidad"}
+          showStatus={false}
           focusFloor={focusFloor}
           hoveredId={hovered?.code ?? listHoverMeshId}
           selectedId={selectedUnit ? meshId(selectedUnit) : null}
@@ -393,30 +385,6 @@ export function SelectorExperience({
 
       {ready && !capturing ? (
         <>
-          <div
-            className={cn(
-              "pointer-events-none absolute inset-x-0 z-30 flex justify-center px-3",
-              embedded ? "top-4" : "top-16 sm:top-6",
-            )}
-          >
-            <div className="pointer-events-auto flex gap-1 rounded-full border border-border-subtle bg-background/85 p-1.5 backdrop-blur-md">
-              {VIEW_MODES.map(({ id, label }) => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => setViewMode(id)}
-                  className={cn(
-                    "rounded-full px-3.5 py-1.5 text-xs font-medium tracking-wide whitespace-nowrap transition-colors duration-200 sm:text-sm",
-                    viewMode === id
-                      ? "bg-accent text-accent-foreground"
-                      : "text-foreground-muted hover:text-foreground",
-                  )}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
           <FloorSelector
             floors={config.floors}
             activeFloor={focusFloor}
