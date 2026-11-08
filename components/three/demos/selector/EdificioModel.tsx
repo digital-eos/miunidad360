@@ -375,7 +375,7 @@ export function EdificioModel({
               position={[apt.position[0], y, apt.position[2]]}
               size={[apt.size[0] + 0.22, clear + 0.04, apt.size[2] + 0.22]}
               color={
-                selectedId === apt.id || hoveredId === apt.id
+                selectedId === apt.id
                   ? HIGHLIGHT_COLOR
                   : (apartmentColors[apt.id] ?? "#ffffff")
               }
@@ -466,10 +466,13 @@ const SHELL_OPACITY: Record<ShellMode, number> = {
   selected: 0.62,
 };
 
-/** Hovered and selected units: a smoked graphite that reads on the white tower, not a sales-status color. */
+/** Selected unit: a smoked graphite that reads on the white tower. Hovered units show their status color. */
 const HIGHLIGHT_COLOR = "#2c2c30";
 
-/** Tinted volume over a unit's glazing; fades between states. */
+/**
+ * Tinted volume over a unit's glazing; fades between states. While it fades out it keeps
+ * the color it had, so leaving a unit never flashes another color.
+ */
 function StatusShell({
   position,
   size,
@@ -483,11 +486,17 @@ function StatusShell({
 }) {
   const materialRef = useRef<THREE.MeshStandardMaterial>(null);
   const meshRef = useRef<THREE.Mesh>(null);
+  const appliedColor = useRef<string | null>(null);
 
   useFrame(({ clock }, delta) => {
     const material = materialRef.current;
     const mesh = meshRef.current;
     if (!material || !mesh) return;
+    if (mode !== "hidden" && appliedColor.current !== color) {
+      material.color.set(color);
+      material.emissive.set(color);
+      appliedColor.current = color;
+    }
     let target = SHELL_OPACITY[mode];
     if (mode === "selected") target += Math.sin(clock.elapsedTime * 2.5) * 0.06;
     material.opacity = THREE.MathUtils.damp(material.opacity, target, 10, delta);
@@ -501,8 +510,6 @@ function StatusShell({
       <boxGeometry args={size} />
       <meshStandardMaterial
         ref={materialRef}
-        color={color}
-        emissive={color}
         emissiveIntensity={0.12}
         roughness={0.4}
         transparent
