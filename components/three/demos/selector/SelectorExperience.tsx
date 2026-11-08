@@ -13,7 +13,7 @@ import { usePrefersReducedMotion } from "@/lib/hooks/use-prefers-reduced-motion"
 import { fetchUnidades } from "@/lib/unidades/fetch";
 import { attrNumber, findUnidad, type Unidad } from "@/lib/unidades/types";
 import { defaultBuildingConfig, totalBuildingHeight } from "@/lib/three/building-config";
-import type { Viewpoint } from "@/components/three/demos/maqueta/CameraRig";
+import type { Viewpoint } from "@/components/three/CameraRig";
 import { EMPTY_FILTERS, unitMatchesFilters, type UnitFilters } from "@/lib/units/filters";
 import { STATUS_COLORS } from "@/lib/units/status-colors";
 import { civilDateKey, solsticeDates, todayInBuenosAires } from "@/lib/sun/sun-position";

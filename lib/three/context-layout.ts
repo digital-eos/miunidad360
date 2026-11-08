@@ -6,29 +6,11 @@ export type NeighborBox = {
   color: "light" | "mid";
 };
 
-export type PerimeterPoint = { x: number; z: number; rotationY: number };
-
 export function plazaHalfExtent(config: BuildingConfig = defaultBuildingConfig): {
   halfW: number;
   halfD: number;
 } {
   return { halfW: config.buildingWidth / 2 + 5, halfD: config.buildingDepth / 2 + 5 };
-}
-
-/** Evenly-spaced points just outside a rectangle, one per side, skipping corners. */
-export function perimeterPoints(halfW: number, halfD: number, spacing: number): PerimeterPoint[] {
-  const points: PerimeterPoint[] = [];
-  const margin = spacing * 0.6;
-
-  for (let x = -halfW + margin; x <= halfW - margin; x += spacing) {
-    points.push({ x, z: -halfD, rotationY: 0 });
-    points.push({ x, z: halfD, rotationY: Math.PI });
-  }
-  for (let z = -halfD + margin; z <= halfD - margin; z += spacing) {
-    points.push({ x: -halfW, z, rotationY: Math.PI / 2 });
-    points.push({ x: halfW, z, rotationY: -Math.PI / 2 });
-  }
-  return points;
 }
 
 /** Deterministic (seeded) ring of neighboring building volumes around the plaza. */

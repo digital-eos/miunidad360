@@ -7,20 +7,13 @@ import { useCaptureMode } from "@/lib/hooks/use-capture-mode";
 
 const PAGE_MESSAGES: Record<string, string> = {
   "/": "¡Hola! Quiero pedir una demo de MiUnidad360 para mi desarrollo.",
-  "/demos/maqueta":
-    "¡Hola! Estaba mirando la maqueta 3D de MiUnidad360 y quiero saber más para mi proyecto.",
   "/demos/selector":
     "¡Hola! Estaba probando el selector de unidades de MiUnidad360 y quiero saber más para mi proyecto.",
-  "/demos/sol":
-    "¡Hola! Estaba probando el estudio de asoleamiento de MiUnidad360 y quiero saber más para mi proyecto.",
 };
 
-// Mobile bottom offset per route, clearing each demo's own bottom control panel
-// (the sun-study timeline is the tallest, stacked on narrow screens).
+// Mobile bottom offset per route, clearing each demo's own bottom controls.
 const MOBILE_BOTTOM_OFFSET: Record<string, string> = {
-  "/demos/maqueta": "bottom-32",
   "/demos/selector": "bottom-6",
-  "/demos/sol": "bottom-[26rem]",
 };
 
 const DEFAULT_MESSAGE = "¡Hola! Quiero pedir una demo de MiUnidad360 para mi desarrollo.";

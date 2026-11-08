@@ -18,7 +18,7 @@ import { useIsMobile } from "@/lib/hooks/use-is-mobile";
 import { usePrefersReducedMotion } from "@/lib/hooks/use-prefers-reduced-motion";
 import { BIM_SIZE } from "@/lib/bim/dataset";
 import { floorMidHeight, floorRange } from "@/lib/bim/floors";
-import { CameraRig, type Viewpoint } from "@/components/three/demos/maqueta/CameraRig";
+import { CameraRig, type Viewpoint } from "@/components/three/CameraRig";
 import { BimModel, type BimMode } from "./BimModel";
 import { PostFX } from "@/components/three/visual/PostFX";
 import { BimLighting } from "./BimLighting";

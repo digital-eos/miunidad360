@@ -18,7 +18,6 @@ type DemoCard = {
 type Bloque = {
   titulo: string;
   cards: DemoCard[];
-  secundarios?: { kind: DemoKind; href: string; label: string }[];
   proximamente?: string;
 };
 
@@ -39,10 +38,6 @@ const BLOQUES: Bloque[] = [
         title: "Edificio demo",
         description: "Filtrá por ambientes, precio y piso, y abrí la ficha de cada departamento.",
       },
-    ],
-    secundarios: [
-      { kind: "maqueta", href: "/demos/maqueta", label: "Maqueta 3D" },
-      { kind: "sol", href: "/demos/sol", label: "Asoleamiento" },
     ],
   },
   {
@@ -141,21 +136,6 @@ export function Demos() {
                 ) : null}
               </div>
 
-              {bloque.secundarios ? (
-                <p className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-foreground-muted">
-                  <span>También:</span>
-                  {bloque.secundarios.map((s) => (
-                    <Link
-                      key={s.kind}
-                      href={s.href}
-                      onClick={() => trackDemoClick(s.kind)}
-                      className="font-medium text-foreground underline decoration-border-subtle underline-offset-4 transition-colors duration-200 hover:text-accent-strong hover:decoration-accent"
-                    >
-                      {s.label} →
-                    </Link>
-                  ))}
-                </p>
-              ) : null}
             </div>
           ))}
         </div>

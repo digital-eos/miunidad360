@@ -4,7 +4,7 @@ import { Suspense, useRef } from "react";
 import { ContactShadows } from "@react-three/drei";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import type { BuildingConfig } from "@/lib/three/building-config";
-import { CameraRig, type Viewpoint } from "@/components/three/demos/maqueta/CameraRig";
+import { CameraRig, type Viewpoint } from "@/components/three/CameraRig";
 import { PostFX } from "@/components/three/visual/PostFX";
 import { EdificioModel } from "./EdificioModel";
 import { EdificioCity } from "./EdificioCity";

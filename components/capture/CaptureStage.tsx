@@ -13,7 +13,7 @@ export function CaptureStage({
   children,
   className = "h-[100svh]",
 }: {
-  demo: "maqueta" | "selector" | "sol" | "bim";
+  demo: "selector" | "bim";
   children: ReactNode;
   /** Size of the stage outside capture mode. */
   className?: string;

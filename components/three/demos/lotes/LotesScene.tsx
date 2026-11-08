@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
-import { CameraRig, type Viewpoint } from "@/components/three/demos/maqueta/CameraRig";
+import { CameraRig, type Viewpoint } from "@/components/three/CameraRig";
 import {
   CALLES,
   CANCHAS_PADEL,

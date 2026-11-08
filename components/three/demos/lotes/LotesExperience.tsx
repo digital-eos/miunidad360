@@ -28,7 +28,7 @@ import {
   type LoteFilters,
   type RangoSuperficie,
 } from "@/lib/lotes/filters";
-import type { Viewpoint } from "@/components/three/demos/maqueta/CameraRig";
+import type { Viewpoint } from "@/components/three/CameraRig";
 import { FichaUnidad } from "@/components/unidades/FichaUnidad";
 import { LotesScene } from "./LotesScene";
 import { LotesPlano } from "./LotesPlano";

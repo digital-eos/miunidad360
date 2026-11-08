@@ -114,12 +114,12 @@ Abrí [http://localhost:3000](http://localhost:3000).
 
 Se trackean estos eventos personalizados con `@vercel/analytics` (`lib/analytics.ts`):
 
-- `demo_click` — clic en una de las tres tarjetas de demos (`maqueta`, `selector`, `sol`)
+- `demo_click` — clic en una tarjeta de demo (`selector`, `bim`, `lotes`)
 - `whatsapp_click` — clic en cualquier botón de WhatsApp, con el origen (`hero`, `header`,
   `contact-section`, `floating-button`, `demo-{demo}-end`, `selector-unidad`, …)
 - `form_submit` — intento de envío de un formulario (contacto general o CTA de fin de demo)
 - `filter_used` — se aplicó un filtro en el selector de unidades
-- `unit_opened` — se abrió la ficha de una unidad (`selector` o `sol`)
+- `unit_opened` — se abrió la ficha de una unidad (`selector`, `bim` o `lotes`)
 - `capture_mode_entered` — se entró al modo captura (`?capture=1`) de una demo, con el formato
 - `video_recorded` — se generó y descargó un video con el botón "Grabar video"
 
@@ -128,14 +128,13 @@ deployado (no se registran en `localhost`).
 
 ## Modo captura para redes (Instagram/Reels)
 
-Cada demo (`/demos/maqueta`, `/demos/selector`, `/demos/sol`) acepta dos parámetros de URL
+Las demos `/demos/selector` y `/demos/schependomlaan` aceptan dos parámetros de URL
 pensados para grabar contenido vertical:
 
 - `?capture=1` — oculta toda la interfaz propia del sitio (header, controles, botón de
   WhatsApp flotante) y muestra un cuadro recortado al formato elegido, con una secuencia de
-  cámara guionada de ~13s que se repite en loop (rotación aérea + atardecer en la maqueta,
-  zoom a un piso + apertura de una unidad en el selector, time-lapse de invierno en el
-  estudio de asoleamiento).
+  cámara guionada de ~13s que se repite en loop (en el selector: vista general, zoom a un
+  piso y apertura de una unidad).
 - `&format=9x16` (Reels/Stories, 1080×1920, default) o `&format=4x5` (feed, 1080×1350).
 
 El botón **"Grabar video"** graba el canvas 3D con `canvas.captureStream` + `MediaRecorder`
