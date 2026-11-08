@@ -8,10 +8,10 @@ import { STATUS_COLORS, STATUS_LABELS } from "@/lib/units/status-colors";
 const PHOTO_SLOTS = 2;
 
 /**
- * Unit card drawn on top of the 3D view, next to its unit. On hover it is a light preview
+ * Unit card drawn on top of the 3D view. On hover it is a light preview next to its unit
  * (figures only, so hovering never loads images) that lets the pointer pass through and
- * disappears once the pointer leaves the unit; clicking the unit pins it and adds the
- * interior photos and the actions.
+ * disappears once the pointer leaves the unit; clicking the unit pins it, docked in a
+ * corner of the view by its parent, with the interior photos and the actions.
  */
 export function UnitPin({
   unit,
@@ -36,10 +36,10 @@ export function UnitPin({
   return (
     <div
       className={cn(
-        "-translate-x-1/2 -translate-y-[calc(100%+12px)] rounded-2xl border bg-background/95 shadow-xl backdrop-blur-md",
+        "rounded-2xl border bg-background/95 shadow-xl backdrop-blur-md",
         pinned
-          ? "pointer-events-auto w-[min(30rem,calc(100vw-2.5rem))] border-accent p-5"
-          : "pointer-events-none w-[min(16rem,calc(100vw-2.5rem))] border-border-subtle p-4",
+          ? "pointer-events-auto w-full border-accent p-4 md:w-[30rem] md:p-5"
+          : "pointer-events-none w-[min(16rem,calc(100vw-2.5rem))] -translate-x-1/2 -translate-y-[calc(100%+12px)] border-border-subtle p-4",
       )}
     >
       <div className="flex items-center justify-between gap-2">
@@ -59,7 +59,7 @@ export function UnitPin({
           {STATUS_LABELS[unit.estado]}
         </span>
       </div>
-      <p className={cn("mt-1 font-display", pinned ? "text-3xl" : "text-2xl")}>
+      <p className={cn("mt-1 font-display", pinned ? "text-2xl md:text-3xl" : "text-2xl")}>
         {formatPrecio(unit.precio, unit.moneda)}
       </p>
       <p className={cn("mt-0.5 text-foreground-muted", pinned ? "text-base" : "text-sm")}>
@@ -70,7 +70,8 @@ export function UnitPin({
 
       {pinned ? (
         <>
-          <div className="mt-4 grid grid-cols-2 gap-3">
+          {/* Phones skip the photos: the panel under the view shows the unit in full. */}
+          <div className="mt-4 hidden grid-cols-2 gap-3 md:grid">
             {Array.from({ length: PHOTO_SLOTS }, (_, i) =>
               photos[i] ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -90,7 +91,7 @@ export function UnitPin({
             )}
           </div>
 
-          <div className="mt-5 flex gap-3">
+          <div className="mt-4 flex gap-3 md:mt-5">
             <button
               type="button"
               onClick={action(onView)}

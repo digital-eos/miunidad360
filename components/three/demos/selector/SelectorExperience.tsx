@@ -150,7 +150,6 @@ export function SelectorExperience({
   const maxDpr = isMobile ? 1.5 : 2;
   const [dpr, setDpr] = useState(maxDpr);
   const stageRef = useRef<HTMLDivElement>(null);
-  const pinRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
   const [aspect, setAspect] = useState(1.6);
 
@@ -387,11 +386,8 @@ export function SelectorExperience({
   }, [units, hovered, selectedUnit]);
 
   const pins = useMemo(
-    () => [
-      { id: selectedUnit ? meshId(selectedUnit) : null, ref: pinRef },
-      { id: previewUnit ? meshId(previewUnit) : null, ref: previewRef },
-    ],
-    [selectedUnit, previewUnit],
+    () => [{ id: previewUnit ? meshId(previewUnit) : null, ref: previewRef }],
+    [previewUnit],
   );
 
   const listHoverMeshId = useMemo(() => {
@@ -468,9 +464,10 @@ export function SelectorExperience({
         />
       </Canvas>
 
-      {/* Unit cards, moved over their unit every frame by the scene: pinned, then preview. */}
-      <div ref={pinRef} className="pointer-events-none invisible absolute top-0 left-0 z-[25]">
-        {selectedUnit && sceneReady ? (
+      {/* Selected unit's card: docked top right so it never covers the opened unit. */}
+      {selectedUnit && sceneReady ? (
+        // Phones: below the back button and right of the floor selector.
+        <div className="absolute top-16 right-4 left-[4.75rem] z-[25] md:top-6 md:right-6 md:left-auto">
           <UnitPin
             unit={selectedUnit}
             photos={unitPhotos(selectedUnit)}
@@ -478,8 +475,9 @@ export function SelectorExperience({
             onView={embedded ? undefined : () => switchVista("departamento")}
             onClose={() => handleSelectUnit(null)}
           />
-        ) : null}
-      </div>
+        </div>
+      ) : null}
+      {/* Hover preview, moved over its unit every frame by the scene. */}
       <div ref={previewRef} className="pointer-events-none invisible absolute top-0 left-0 z-[26]">
         {previewUnit && sceneReady ? (
           <UnitPin
