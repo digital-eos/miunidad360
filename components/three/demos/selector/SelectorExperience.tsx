@@ -26,6 +26,25 @@ import { EdificioInfoPanel } from "./EdificioInfoPanel";
 
 const config = defaultBuildingConfig;
 
+const HOVER_CARD_DELAY_MS = 3000;
+
+/** Interior renders shown in the pinned card, picked by the unit's room count. */
+const PHOTOS_BY_TYPE = {
+  dosAmbientes: [
+    "/projects/edificio-demo/fotos/dos-ambientes-1.webp",
+    "/projects/edificio-demo/fotos/dos-ambientes-2.webp",
+  ],
+  tresAmbientes: [
+    "/projects/edificio-demo/fotos/tres-ambientes-1.webp",
+    "/projects/edificio-demo/fotos/tres-ambientes-2.webp",
+  ],
+};
+
+function unitPhotos(unit: Unidad): string[] {
+  const rooms = attrNumber(unit, "ambientes") ?? 2;
+  return rooms <= 2 ? PHOTOS_BY_TYPE.dosAmbientes : PHOTOS_BY_TYPE.tresAmbientes;
+}
+
 function floorCenterY(floor: number): number {
   return config.groundFloorHeight + (floor - 0.5) * config.floorHeight;
 }
@@ -118,6 +137,9 @@ export function SelectorExperience({
   const [focusFloor, setFocusFloor] = useState<number | null>(null);
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
   const [hovered, setHovered] = useState<{ code: string; x: number; y: number } | null>(null);
+  // Hover card: shown only after the pointer rests on the same unit for a while.
+  const [tooltip, setTooltip] = useState<{ code: string; x: number; y: number } | null>(null);
+  const pointerRef = useRef({ x: 0, y: 0 });
   const [listHover, setListHover] = useState<string | null>(null);
   const [sceneReady, setSceneReady] = useState(false);
   const unitsRef = useRef<Unidad[]>([]);
@@ -212,6 +234,15 @@ export function SelectorExperience({
     setHovered(null);
   }, []);
 
+  const hoveredCode = hovered?.code ?? null;
+  useEffect(() => {
+    if (!hoveredCode) return;
+    const timer = setTimeout(() => {
+      setTooltip({ code: hoveredCode, ...pointerRef.current });
+    }, HOVER_CARD_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [hoveredCode]);
+
   const units = useMemo(() => (state.status === "ready" ? state.units : []), [state]);
   useEffect(() => {
     unitsRef.current = units;
@@ -293,9 +324,12 @@ export function SelectorExperience({
     [units, selectedCode],
   );
 
-  const hoveredUnit = useMemo(
-    () => (hovered ? (units.find((u) => meshId(u) === hovered.code) ?? null) : null),
-    [units, hovered],
+  const tooltipUnit = useMemo(
+    () =>
+      tooltip && tooltip.code === hoveredCode
+        ? (units.find((u) => meshId(u) === tooltip.code) ?? null)
+        : null,
+    [units, tooltip, hoveredCode],
   );
 
   const listHoverMeshId = useMemo(() => {
@@ -332,6 +366,9 @@ export function SelectorExperience({
     <div
       ref={stageRef}
       className={cn("relative h-full w-full", hovered ? "cursor-pointer" : "")}
+      onPointerMove={(e) => {
+        pointerRef.current = { x: e.clientX, y: e.clientY };
+      }}
     >
       <Canvas
         camera={{ position: overviewViewpoint(aspect).position, fov: 40, near: 0.5, far: 600 }}
@@ -376,7 +413,13 @@ export function SelectorExperience({
         ref={pinRef}
         className="pointer-events-none invisible absolute top-0 left-0 z-[5]"
       >
-        {selectedUnit ? <UnitPin unit={selectedUnit} /> : null}
+        {selectedUnit ? (
+          <UnitPin
+            unit={selectedUnit}
+            photos={unitPhotos(selectedUnit)}
+            onClose={() => handleSelectUnit(null)}
+          />
+        ) : null}
       </div>
 
       <div
@@ -408,8 +451,8 @@ export function SelectorExperience({
         </>
       ) : null}
 
-      {hoveredUnit && hoveredUnit !== selectedUnit && !isMobile ? (
-        <UnitTooltip unit={hoveredUnit} x={hovered!.x} y={hovered!.y} />
+      {tooltipUnit && tooltipUnit !== selectedUnit && !isMobile ? (
+        <UnitTooltip unit={tooltipUnit} x={tooltip!.x} y={tooltip!.y} />
       ) : null}
 
       {children}
