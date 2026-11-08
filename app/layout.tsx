@@ -27,18 +27,21 @@ const plexMono = IBM_Plex_Mono({
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://miunidad360.com.ar";
 
 const HERO_DESCRIPTION =
-  "Departamentos, casas, lotes, locales o naves: tus clientes tocan una unidad en el 3D y ven su superficie, precio, disponibilidad, asoleamiento y avance de obra. Partimos de tus renders, planos o modelo BIM y te devolvemos un link para compartir.";
+  "Edificios, departamentos, casas o lotes: convertimos tus planos, renders o modelo BIM en una publicación 3D con su propio link. Tus compradores tocan cada unidad y ven su superficie, precio y disponibilidad desde el navegador.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "MiUnidad360 · Visualización 3D interactiva de proyectos inmobiliarios",
+    default: "MiUnidad360 · Transformá tu propiedad en una experiencia 3D interactiva",
     template: "%s · MiUnidad360",
   },
   description: HERO_DESCRIPTION,
   keywords: [
-    "visualización 3D interactiva de proyectos inmobiliarios",
-    "visualización 3D inmobiliaria",
+    "visualización 3D interactiva",
+    "publicaciones 3D inmobiliarias",
+    "propiedades en 3D",
+    "edificios en 3D",
+    "departamentos en 3D",
     "maqueta 3D",
     "venta en pozo",
     "real estate 3D",
@@ -54,12 +57,12 @@ export const metadata: Metadata = {
     locale: "es_AR",
     url: siteUrl,
     siteName: "MiUnidad360",
-    title: "MiUnidad360 · Cada unidad de tu proyecto, en 3D",
+    title: "MiUnidad360 · Transformá tu propiedad en una experiencia 3D interactiva",
     description: HERO_DESCRIPTION,
   },
   twitter: {
     card: "summary_large_image",
-    title: "MiUnidad360 · Cada unidad de tu proyecto, en 3D",
+    title: "MiUnidad360 · Transformá tu propiedad en una experiencia 3D interactiva",
     description: HERO_DESCRIPTION,
   },
 };

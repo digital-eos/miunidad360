@@ -24,11 +24,11 @@ export function Hero() {
             {...fadeUp(0)}
             className="font-mono text-xs uppercase tracking-[0.2em] text-accent-strong"
           >
-            Digital EOS · Visualización 3D interactiva de proyectos inmobiliarios
+            Digital EOS · Transformá tu propiedad en una experiencia 3D interactiva
           </motion.p>
           <motion.h1
             {...fadeUp(0.05)}
-            className="mt-5 font-display text-4xl leading-[1.08] sm:text-5xl"
+            className="mt-5 font-display text-4xl leading-[1.08] text-balance sm:text-5xl"
           >
             Cada unidad de tu proyecto, en 3D y{" "}
             <span className="text-gradient-accent italic">con toda su información.</span>
@@ -37,10 +37,9 @@ export function Hero() {
             {...fadeUp(0.1)}
             className="mt-6 max-w-xl text-base leading-relaxed text-foreground-muted sm:text-lg"
           >
-            Departamentos, casas, lotes, locales o naves: tus clientes tocan una unidad en
-            el 3D y ven su superficie, precio, disponibilidad, asoleamiento y avance de
-            obra. Partimos de tus renders, planos o modelo BIM y te devolvemos un link
-            para compartir.
+            Edificios, departamentos, casas o lotes: convertimos tus planos, renders o
+            modelo BIM en una publicación 3D con su propio link. Tus compradores tocan
+            cada unidad y ven su superficie, precio y disponibilidad desde el navegador.
           </motion.p>
           <motion.div
             {...fadeUp(0.15)}
