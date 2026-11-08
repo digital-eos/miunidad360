@@ -10,9 +10,9 @@ const SelectorExperience = dynamic(
   { ssr: false, loading: () => <SelectorFallback /> },
 );
 
-function SelectorFallback() {
+function SelectorFallback({ className = "h-[100svh]" }: { className?: string }) {
   return (
-    <div className="flex h-[100svh] w-full items-center justify-center bg-background bg-grid">
+    <div className={`flex w-full items-center justify-center bg-background bg-grid ${className}`}>
       <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent-strong">
         Cargando el selector…
       </p>
@@ -22,9 +22,12 @@ function SelectorFallback() {
 
 export function SelectorCanvas({
   projectSlug,
+  embedded = false,
   children,
 }: {
   projectSlug: string;
+  /** Framed version for the homepage: no capture stage, no full-screen height. */
+  embedded?: boolean;
   /** Overlays drawn on the 3D view (back link, scroll cue). */
   children?: ReactNode;
 }) {
@@ -32,7 +35,9 @@ export function SelectorCanvas({
 
   if (supportsWebGL === false) {
     return (
-      <div className="flex h-[100svh] w-full flex-col items-center justify-center gap-3 bg-background bg-grid px-6 text-center">
+      <div
+        className={`flex w-full flex-col items-center justify-center gap-3 bg-background bg-grid px-6 text-center ${embedded ? "h-[65vh] rounded-2xl" : "h-[100svh]"}`}
+      >
         <p className="font-display text-2xl">Tu navegador no soporta WebGL</p>
         <p className="max-w-sm text-sm text-foreground-muted">
           Para ver el selector de unidades 3D necesitás un navegador con soporte WebGL habilitado.
@@ -42,7 +47,17 @@ export function SelectorCanvas({
   }
 
   if (supportsWebGL === null) {
-    return <SelectorFallback />;
+    return <SelectorFallback className={embedded ? "h-[65vh] rounded-2xl" : undefined} />;
+  }
+
+  if (embedded) {
+    return (
+      <Suspense fallback={<SelectorFallback className="h-[65vh] rounded-2xl" />}>
+        <SelectorExperience projectSlug={projectSlug} embedded>
+          {children}
+        </SelectorExperience>
+      </Suspense>
+    );
   }
 
   return (

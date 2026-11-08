@@ -1,20 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { featuredProject } from "@/config/featured";
 import { useInView } from "@/lib/hooks/use-in-view";
 import { trackDemoClick } from "@/lib/analytics";
-import { BIM_DEMO_PATH } from "@/lib/bim/route";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { FeaturedVisualizer } from "@/components/home/FeaturedVisualizer";
-import { BimInfoPanel } from "@/components/three/demos/bim/BimInfoPanel";
-import { useBimViewer } from "@/components/three/demos/bim/use-bim-viewer";
+import { SelectorCanvas } from "@/components/three/demos/selector/SelectorCanvas";
 
 export function ResultSection() {
-  const viewer = useBimViewer();
-  // The 3D bundle and model only load once the frame is close to the viewport (useInView
-  // uses a 200px root margin).
+  // The 3D bundle only loads once the frame is close to the viewport (useInView uses a
+  // 200px root margin).
   const { ref, inView } = useInView<HTMLDivElement>();
 
   return (
@@ -25,34 +20,23 @@ export function ResultSection() {
       <Container>
         <SectionHeading
           title="El resultado: lo que recorren tus clientes"
-          description="Tocá una unidad para ver sus datos. Cortalo piso por piso o mirá cómo avanzó la obra."
+          description="Tocá una unidad para ver su precio, su plano y su disponibilidad. Filtrá por ambientes, orientación o piso."
         />
       </Container>
 
-      <div className="mx-auto mt-10 grid w-full max-w-[1200px] gap-4 px-4 sm:px-8 lg:grid-cols-[minmax(0,1fr)_360px]">
-        <div
-          ref={ref}
-          className="relative h-[65vh] w-full overflow-hidden rounded-2xl border border-border-subtle bg-background-elevated lg:h-[70vh]"
-        >
+      <div className="mx-auto mt-10 w-full max-w-[1200px] px-4 sm:px-8">
+        <div ref={ref} className="min-h-[65vh] lg:min-h-[70vh]">
           {inView ? (
-            <FeaturedVisualizer
-              viewer={viewer}
-              enableIdleHint
-              modeSwitcherTopClassName="top-4"
-            />
-          ) : null}
+            <SelectorCanvas projectSlug="edificio-demo" embedded />
+          ) : (
+            <div className="h-[65vh] rounded-2xl border border-border-subtle bg-background-elevated lg:h-[70vh]" />
+          )}
         </div>
 
-        <BimInfoPanel
-          viewer={viewer}
-          projectName={`${featuredProject.nombre} · ${featuredProject.ubicacion}`}
-          className="rounded-2xl border border-border-subtle lg:h-[70vh]"
-        />
-
-        <div className="flex justify-end lg:col-span-2">
+        <div className="mt-4 flex justify-end">
           <Link
-            href={BIM_DEMO_PATH}
-            onClick={() => trackDemoClick("bim")}
+            href="/demos/selector"
+            onClick={() => trackDemoClick("selector")}
             className="text-sm font-medium text-foreground transition-colors duration-200 hover:text-accent-strong"
           >
             Abrir en pantalla completa →

@@ -95,9 +95,15 @@ function unitFloor(unit: Unidad): number {
 
 export function SelectorExperience({
   projectSlug,
+  embedded = false,
   children,
 }: {
   projectSlug: string;
+  /**
+   * Inside another page (the homepage's "El resultado" frame): framed layout, the URL is
+   * left alone and the capture mode is off.
+   */
+  embedded?: boolean;
   /** Overlays drawn on the 3D view (back link, scroll cue). */
   children?: ReactNode;
 }) {
@@ -107,6 +113,7 @@ export function SelectorExperience({
   const isMobile = useIsMobile();
   const prefersReducedMotion = usePrefersReducedMotion();
   const captureMode = useCaptureMode();
+  const capturing = captureMode.active && !embedded;
   const maxDpr = isMobile ? 1.5 : 2;
   const [dpr, setDpr] = useState(maxDpr);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -140,7 +147,7 @@ export function SelectorExperience({
         if (cancelled) return;
         setState({ status: "ready", project: data.project, units: data.unidades });
 
-        const unit = findUnidad(data.unidades, searchParams.get("unidad"));
+        const unit = embedded ? null : findUnidad(data.unidades, searchParams.get("unidad"));
         if (unit) {
           setSelectedCode(unit.codigo);
           setFocusFloor(unitFloor(unit));
@@ -157,13 +164,14 @@ export function SelectorExperience({
 
   const updateUrl = useCallback(
     (code: string | null) => {
+      if (embedded) return;
       const params = new URLSearchParams(searchParams.toString());
       if (code) params.set("unidad", code);
       else params.delete("unidad");
       const query = params.toString();
       router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
     },
-    [pathname, router, searchParams],
+    [embedded, pathname, router, searchParams],
   );
 
   const handleSelectUnit = useCallback(
@@ -219,7 +227,7 @@ export function SelectorExperience({
   // Scripted capture sequence: colored overview, isolate a floor, open a unit card.
   const captureCycleRef = useRef(0);
   useEffect(() => {
-    if (!captureMode.active || state.status !== "ready" || units.length === 0) return;
+    if (!capturing || state.status !== "ready" || units.length === 0) return;
 
     const floor = Math.ceil(config.floors / 2);
     const targetUnit =
@@ -254,7 +262,7 @@ export function SelectorExperience({
       timers.forEach(clearTimeout);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [captureMode.active, state.status, units]);
+  }, [capturing, state.status, units]);
 
   const lat = state.status === "ready" ? (state.project.latitude ?? -34.5755) : -34.5755;
   const lng = state.status === "ready" ? (state.project.longitude ?? -58.4338) : -58.4338;
@@ -353,7 +361,7 @@ export function SelectorExperience({
           cameraTarget={cameraTarget}
           cameraTargetKey={cameraTargetKey}
           isMobile={isMobile}
-          autoRotate={!prefersReducedMotion && !isMobile && !selectedUnit && !captureMode.active}
+          autoRotate={!prefersReducedMotion && !isMobile && !selectedUnit && !capturing}
           minDistance={span * 0.75}
           maxDistance={span * 5.5}
           apartmentColors={apartmentColors}
@@ -383,9 +391,14 @@ export function SelectorExperience({
         </p>
       </div>
 
-      {ready && !captureMode.active ? (
+      {ready && !capturing ? (
         <>
-          <div className="pointer-events-none absolute inset-x-0 top-16 z-30 flex justify-center px-3 sm:top-6">
+          <div
+            className={cn(
+              "pointer-events-none absolute inset-x-0 z-30 flex justify-center px-3",
+              embedded ? "top-4" : "top-16 sm:top-6",
+            )}
+          >
             <div className="pointer-events-auto flex gap-1 rounded-full border border-border-subtle bg-background/85 p-1.5 backdrop-blur-md">
               {VIEW_MODES.map(({ id, label }) => (
                 <button
@@ -425,11 +438,25 @@ export function SelectorExperience({
     </div>
   );
 
-  if (captureMode.active) return stage;
+  if (capturing) return stage;
 
   return (
-    <div className="flex flex-col lg:h-[100svh] lg:flex-row">
-      <div className="relative h-[70svh] w-full lg:h-full lg:flex-1">{stage}</div>
+    <div
+      className={
+        embedded
+          ? "grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]"
+          : "flex flex-col lg:h-[100svh] lg:flex-row"
+      }
+    >
+      <div
+        className={
+          embedded
+            ? "relative h-[65vh] w-full overflow-hidden rounded-2xl border border-border-subtle bg-background-elevated lg:h-[70vh]"
+            : "relative h-[70svh] w-full lg:h-full lg:flex-1"
+        }
+      >
+        {stage}
+      </div>
       <EdificioInfoPanel
         projectName={ready ? state.project.name : "Edificio Demo"}
         projectAddress={ready ? state.project.address : null}
@@ -454,7 +481,11 @@ export function SelectorExperience({
             ? (sunHoursCache[civilDateKey(invierno)]?.[meshId(selectedUnit)] ?? null)
             : null
         }
-        className="border-t border-border-subtle lg:h-full lg:w-[400px] lg:border-t-0 lg:border-l"
+        className={
+          embedded
+            ? "h-[70vh] rounded-2xl border border-border-subtle"
+            : "border-t border-border-subtle lg:h-full lg:w-[400px] lg:border-t-0 lg:border-l"
+        }
       />
     </div>
   );
