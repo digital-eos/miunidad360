@@ -39,9 +39,6 @@ const FADE_MS = 400;
 
 const config = defaultBuildingConfig;
 
-/** How long a hover card stays open (unless pinned or under the pointer). */
-const PREVIEW_DURATION_MS = 4000;
-
 /** Interior renders shown in the pinned card, picked by the unit's room count. */
 const PHOTOS_BY_TYPE = {
   dosAmbientes: [
@@ -159,11 +156,8 @@ export function SelectorExperience({
   const [filters, setFilters] = useState<UnitFilters>(EMPTY_FILTERS);
   const [focusFloor, setFocusFloor] = useState<number | null>(null);
   const [selectedCode, setSelectedCode] = useState<string | null>(null);
-  /** 3D id of the unit under the pointer. */
+  /** 3D id of the for-sale unit under the pointer; its card shows only while hovered. */
   const [hovered, setHovered] = useState<string | null>(null);
-  /** 3D id of the unit whose card shows as a hover preview (not pinned). */
-  const [preview, setPreview] = useState<string | null>(null);
-  const [overPreview, setOverPreview] = useState(false);
   const [listHover, setListHover] = useState<string | null>(null);
   const [sceneReady, setSceneReady] = useState(false);
   /** Building view, or the sample apartment interior opened from a card. */
@@ -250,7 +244,6 @@ export function SelectorExperience({
       const unit = unitsRef.current.find((u) => meshId(u) === id);
       if (!unit || !isForSale(unit)) return;
       handleSelectUnit(unit.codigo);
-      setPreview(null);
     },
     [handleSelectUnit],
   );
@@ -262,25 +255,11 @@ export function SelectorExperience({
       return;
     }
     setHovered(code);
-    // The hover card opens right away; it carries no photos, so hovering loads nothing.
-    setPreview(code);
   }, []);
 
   const handleApartmentPointerOut = useCallback(() => {
     setHovered(null);
   }, []);
-
-  const closePreview = useCallback(() => {
-    setPreview(null);
-    setOverPreview(false);
-  }, []);
-
-  // Hover card: closes on its own a few seconds later unless the pointer is on it.
-  useEffect(() => {
-    if (!preview || overPreview) return;
-    const timer = setTimeout(() => setPreview(null), PREVIEW_DURATION_MS);
-    return () => clearTimeout(timer);
-  }, [preview, overPreview]);
 
   // Fade out, swap the view while the screen is blank, fade back in. Same page, no redirect.
   const switchVista = useCallback((next: "edificio" | "departamento") => {
@@ -288,7 +267,6 @@ export function SelectorExperience({
     setFading(true);
     fadeTimer.current = setTimeout(() => {
       setVista(next);
-      setPreview(null);
       setHovered(null);
       // The building canvas mounts again: show its loader until it has drawn.
       if (next === "edificio") setSceneReady(false);
@@ -388,11 +366,11 @@ export function SelectorExperience({
     if (selectedUnit && !embedded) void loadDepartamento();
   }, [selectedUnit, embedded]);
 
-  // The pinned unit already has its card: no preview on top of it.
+  // Hover card for the unit under the pointer; the pinned unit already has its own card.
   const previewUnit = useMemo(() => {
-    const unit = preview ? (units.find((u) => meshId(u) === preview) ?? null) : null;
+    const unit = hovered ? (units.find((u) => meshId(u) === hovered) ?? null) : null;
     return unit && unit !== selectedUnit ? unit : null;
-  }, [units, preview, selectedUnit]);
+  }, [units, hovered, selectedUnit]);
 
   const pins = useMemo(
     () => [
@@ -494,13 +472,6 @@ export function SelectorExperience({
             unit={previewUnit}
             photos={unitPhotos(previewUnit)}
             pinned={false}
-            onPin={() => {
-              handleSelectUnit(previewUnit.codigo);
-              closePreview();
-            }}
-            onClose={closePreview}
-            onPointerEnter={() => setOverPreview(true)}
-            onPointerLeave={() => setOverPreview(false)}
           />
         ) : null}
       </div>

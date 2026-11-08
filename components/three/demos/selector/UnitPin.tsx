@@ -9,29 +9,23 @@ const PHOTO_SLOTS = 2;
 
 /**
  * Unit card drawn on top of the 3D view, next to its unit. On hover it is a light preview
- * (figures only, so hovering never loads images); clicking pins it and adds the interior
- * photos and the actions.
+ * (figures only, so hovering never loads images) that lets the pointer pass through and
+ * disappears once the pointer leaves the unit; clicking the unit pins it and adds the
+ * interior photos and the actions.
  */
 export function UnitPin({
   unit,
   photos,
   pinned,
-  onPin,
   onView,
   onClose,
-  onPointerEnter,
-  onPointerLeave,
 }: {
   unit: Unidad;
   /** Interior photo URLs; the first two are shown. */
   photos: string[];
   pinned: boolean;
-  /** Called when a preview card is clicked. */
-  onPin?: () => void;
   onView?: () => void;
-  onClose: () => void;
-  onPointerEnter?: () => void;
-  onPointerLeave?: () => void;
+  onClose?: () => void;
 }) {
   const rooms = attrNumber(unit, "ambientes");
   const action = (handler?: () => void) => (e: MouseEvent) => {
@@ -41,14 +35,11 @@ export function UnitPin({
 
   return (
     <div
-      onClick={pinned ? undefined : onPin}
-      onPointerEnter={onPointerEnter}
-      onPointerLeave={onPointerLeave}
       className={cn(
-        "pointer-events-auto -translate-x-1/2 -translate-y-[calc(100%+12px)] rounded-2xl border bg-background/95 p-4 shadow-xl backdrop-blur-md",
+        "-translate-x-1/2 -translate-y-[calc(100%+12px)] rounded-2xl border bg-background/95 p-4 shadow-xl backdrop-blur-md",
         pinned
-          ? "w-[min(22rem,calc(100vw-2.5rem))] border-accent"
-          : "w-[min(16rem,calc(100vw-2.5rem))] cursor-pointer border-border-subtle",
+          ? "pointer-events-auto w-[min(22rem,calc(100vw-2.5rem))] border-accent"
+          : "pointer-events-none w-[min(16rem,calc(100vw-2.5rem))] border-border-subtle",
       )}
     >
       <div className="flex items-center justify-between gap-2">
