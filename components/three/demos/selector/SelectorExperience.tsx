@@ -73,22 +73,21 @@ function floorCenterY(floor: number): number {
 }
 
 /**
- * Whole-tower shot. On the real map it is the city view the entrance descent ends on: further
- * back and higher, about where the model city has finished rising, so the tower reads within
- * its blocks.
+ * Whole-tower shot. On the real map it is the view the entrance descent ends on: closer than
+ * the plain shot, so the tower fills most of the frame with the street at its foot.
  */
 function overviewViewpoint(aspect: number, city = false): Viewpoint {
   const height = totalBuildingHeight(config);
   // Narrow (portrait) views step back so the whole tower fits.
-  const back = (aspect < 1 ? 2.3 : 1.7) * (city ? 2.2 : 1);
-  const lift = city ? 1.3 : 1;
+  const back = (aspect < 1 ? 2.3 : 1.7) * (city ? 0.6 : 1);
   return {
     position: [
       config.buildingWidth * 1.15 * back,
-      height * 0.95 * back * lift,
+      height * 0.95 * back,
       config.buildingDepth * 2.1 * back,
     ],
-    target: [0, height * 0.48, 0],
+    // Up close, aim a little lower so the entrance stays in the frame.
+    target: [0, height * (city ? 0.42 : 0.48), 0],
   };
 }
 
@@ -424,11 +423,6 @@ export function SelectorExperience({
     [units, filters],
   );
 
-  const availableIds = useMemo(
-    () => new Set(units.filter(isForSale).map(meshId)),
-    [units],
-  );
-
   const orientations = useMemo(
     () =>
       Array.from(
@@ -603,8 +597,7 @@ export function SelectorExperience({
           apartmentColors={apartmentColors}
           dimmedIds={dimmedIds}
           showStatus={false}
-          // The frontal comparison view shows the bare facade (hover still tints a unit).
-          availableIds={frontal ? undefined : availableIds}
+          // No standing tint on the units for sale: only the hovered one is colored.
           focusFloor={focusFloor}
           hoveredId={hovered ?? listHoverMeshId}
           selectedId={selectedUnit ? meshId(selectedUnit) : null}

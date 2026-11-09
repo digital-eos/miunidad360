@@ -6,16 +6,17 @@ import { useFrame } from "@react-three/fiber";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { SITE } from "@/lib/geo/site";
 import type { MapBlend } from "./MapGround";
+import { buildingAttribute, createFacadeMaterial, FACADE_FLOOR_HEIGHT } from "./facade-material";
 
 /**
- * The neighborhood as a white architect's model: real building footprints around the lot
- * (Google Open Buildings via Overture Maps, extracted once into public/geo/buildings/), extruded
- * to estimated heights (the data has none). They rise out of the street plan as the intro tilts
+ * The neighborhood: real building footprints around the lot (Google Open Buildings via Overture
+ * Maps, extracted once into public/geo/buildings/), extruded to estimated heights (the data has
+ * none) and dressed with procedural facades (facade-material.ts). They rise out of the street plan as the intro tilts
  * into 3D. Same frame as MapGround: +X east, −Z north, turned to the facade bearing.
  */
 
 const DATA_URL = "/geo/buildings/cataluna-ii.json";
-const FLOOR_HEIGHT = 3;
+const FLOOR_HEIGHT = FACADE_FLOOR_HEIGHT;
 const DEG = Math.PI / 180;
 
 type BuildingsFile = { buildings: { r: [number, number][]; f?: number }[] };
@@ -95,11 +96,14 @@ export function MapBuildings({
           if (Math.abs(toScene.x) < halfX + 3 && Math.abs(toScene.z) < halfZ + 3) continue;
 
           const floors = b.f ?? estimateFloors(ringArea(ring), hash(cx, cy));
+          const top = floors * FLOOR_HEIGHT + 0.4;
           const shape = new THREE.Shape(ring.map(([x, y]) => new THREE.Vector2(x, y)));
-          const geo = new THREE.ExtrudeGeometry(shape, {
-            depth: floors * FLOOR_HEIGHT + 0.4,
-            bevelEnabled: false,
-          });
+          const geo = new THREE.ExtrudeGeometry(shape, { depth: top, bevelEnabled: false });
+          const count = geo.attributes.position.count;
+          geo.setAttribute(
+            "aBuilding",
+            buildingAttribute(count, hash(cy, cx), floors, top, hash(cx * 0.37, cy * 1.91)),
+          );
           parts.push(geo);
         }
         const merged = mergeGeometries(parts, false);
@@ -118,15 +122,7 @@ export function MapBuildings({
     };
   }, [radius, rotationY, halfX, halfZ]);
 
-  const material = useMemo(
-    () =>
-      new THREE.MeshStandardMaterial({
-        color: "#f3f0e9",
-        roughness: 0.88,
-        metalness: 0,
-      }),
-    [],
-  );
+  const material = useMemo(() => createFacadeMaterial(), []);
   useEffect(() => () => material.dispose(), [material]);
 
   // Rise out of the plan once the satellite has faded.
