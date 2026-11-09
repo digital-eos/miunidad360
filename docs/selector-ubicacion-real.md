@@ -1,4 +1,19 @@
-# Selector: real location (Google Photorealistic 3D Tiles)
+# Selector: real location
+
+## Default: 2D street map (Nov 2026)
+
+Google's photorealistic 3D mesh of Mar del Plata is outdated, so by default the tower stands on
+a flat Google roadmap instead (`components/three/geo/MapGround.tsx`): Map Tiles API **2D tiles**,
+same key, warm custom style, north-aligned with the real facade bearing (Buenos Aires street in
+front, Entre Ríos behind). Two layers, because map labels are sized for a top-down view:
+zoom 19 around the lot (~300 m, street names) over zoom 16 without labels (~2.4 km, fading into
+the horizon). ~50 tiles per visit on desktop. Lighting, shadows and post-processing are the
+classic scene's; there is no aerial intro. Google logo + credit line shown bottom right
+(`/tile/v1/viewport`). Any error or 12 s without tiles → classic procedural city.
+
+`?geo=3d` still opens the 3D tiles version described below; `?geo=0` forces the classic city.
+
+## 3D version (`?geo=3d`): Google Photorealistic 3D Tiles
 
 `/demos/cataluna-ii` can show the tower at its real address, **Buenos Aires 2771, Mar del Plata**,
 inside Google's photorealistic city, with an aerial approach, a physical sky and clouds.

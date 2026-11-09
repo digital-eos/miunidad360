@@ -11,6 +11,7 @@ import { EdificioModel, type UnitPinTarget } from "./EdificioModel";
 import { EdificioCity } from "./EdificioCity";
 import { EdificioLighting } from "./EdificioLighting";
 import type { GeoEnvironmentProps } from "@/components/three/geo/GeoEnvironment";
+import { MapGround, type MapGroundProps } from "@/components/three/geo/MapGround";
 
 /** Real-location environment (Google 3D tiles, atmosphere, flyover): loaded only when used. */
 const GeoEnvironment = lazy(() => import("@/components/three/geo/GeoEnvironment"));
@@ -22,6 +23,9 @@ export type SelectorGeoOptions = Omit<
   /** The aerial intro is still flying: the orbit controls wait for it. */
   introActive: boolean;
 };
+
+/** Real location as a flat street map under the tower. */
+export type SelectorMapOptions = Pick<MapGroundProps, "apiKey" | "onFallback" | "onAttribution">;
 
 export type SelectorSceneProps = {
   config: BuildingConfig;
@@ -48,6 +52,8 @@ export type SelectorSceneProps = {
   onReady?: () => void;
   /** Real geographic environment instead of the procedural city. */
   geo?: SelectorGeoOptions | null;
+  /** Real street map (2D) under the tower instead of the procedural city. Ignored with `geo`. */
+  map?: SelectorMapOptions | null;
 };
 
 /** Fires `onReady` after a couple of rendered frames (shaders compiled, environment loaded). */
@@ -75,6 +81,7 @@ export function SelectorScene({
   onInteraction,
   onReady,
   geo = null,
+  map = null,
   ...model
 }: SelectorSceneProps) {
   const building = <EdificioModel config={config} castShadow={!isMobile} {...model} />;
@@ -99,15 +106,20 @@ export function SelectorScene({
       ) : (
         <>
           <Suspense fallback={null}>
-            <EdificioLighting highQuality={!isMobile} />
-            <ReadySignal onReady={onReady} />
+            <EdificioLighting highQuality={!isMobile} fogRange={map ? [260, 1150] : undefined} />
+            {/* The map signals ready itself, once its tiles are drawn. */}
+            {map ? null : <ReadySignal onReady={onReady} />}
           </Suspense>
 
           {building}
-          <EdificioCity castShadow={!isMobile} />
+          {map ? (
+            <MapGround {...map} isMobile={isMobile} onReady={() => onReady?.()} />
+          ) : (
+            <EdificioCity castShadow={!isMobile} />
+          )}
 
           <ContactShadows
-            position={[0, 0.17, 0]}
+            position={[0, map ? 0.03 : 0.17, 0]}
             opacity={0.35}
             scale={Math.max(config.buildingWidth, config.buildingDepth) * 1.6}
             blur={2.4}

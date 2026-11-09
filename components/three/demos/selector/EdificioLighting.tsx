@@ -9,12 +9,19 @@ const HORIZON = "#e2eaee";
  * Afternoon light over Buenos Aires: the sun high in the north-east, so the north faces
  * (balconies, the side the camera looks from) are lit and the shadows fall south-west.
  */
-export function EdificioLighting({ highQuality }: { highQuality: boolean }) {
+export function EdificioLighting({
+  highQuality,
+  fogRange = [90, 330],
+}: {
+  highQuality: boolean;
+  /** Fog start/end in meters; the real-location map reaches much farther than the city. */
+  fogRange?: [number, number];
+}) {
   return (
     <>
       <color attach="background" args={[HORIZON]} />
       <SkyDome zenith="#7fa9cf" horizon={HORIZON} ground="#d9e2e6" />
-      <fog attach="fog" args={[HORIZON, 90, 330]} />
+      <fog attach="fog" args={[HORIZON, fogRange[0], fogRange[1]]} />
       <ambientLight intensity={0.12} />
       <hemisphereLight args={["#d3e3f0", "#5c4c3c", 0.55]} />
       <directionalLight

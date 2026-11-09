@@ -1,0 +1,326 @@
+"use client";
+
+import { useEffect, useMemo, useRef, useState } from "react";
+import * as THREE from "three";
+import { useFrame, useThree } from "@react-three/fiber";
+import { SITE } from "@/lib/geo/site";
+
+/**
+ * Real location as a flat street map: Google's 2D roadmap tiles (Map Tiles API, same key as the
+ * 3D tiles) drawn under the tower, north-aligned with the real facade bearing. Google's 3D mesh
+ * of Mar del Plata is outdated; a clean map is always current.
+ *
+ * Map labels are sized for a top-down view, so two layers:
+ * - near: zoom 19 around the lot (~300 m), street names at a believable size;
+ * - far: zoom 16 without labels (~2.4 km), melting into the horizon.
+ * 50 tiles per visit on desktop.
+ */
+
+const TILE_API = "https://tile.googleapis.com/v1";
+/** Same as EdificioLighting's horizon: the far map fades into it. */
+export const MAP_HORIZON = "#e2eaee";
+const DEFAULT_COPYRIGHT = `Datos del mapa ©${new Date().getFullYear()} Google`;
+
+/** Warm, quiet roadmap that matches the site palette. */
+const BASE_STYLES = [
+  { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
+  { featureType: "poi.business", stylers: [{ visibility: "off" }] },
+  { featureType: "transit", stylers: [{ visibility: "off" }] },
+  { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#efebe3" }] },
+  { featureType: "landscape.man_made", elementType: "geometry", stylers: [{ color: "#e4ded1" }] },
+  { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#dde5d2" }] },
+  { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
+  { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#f6dfb8" }] },
+  { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#6e6a62" }] },
+  { featureType: "road", elementType: "labels.text.stroke", stylers: [{ color: "#ffffff" }] },
+  { featureType: "water", elementType: "geometry", stylers: [{ color: "#bcd3dd" }] },
+];
+const NO_LABELS = [...BASE_STYLES, { elementType: "labels", stylers: [{ visibility: "off" }] }];
+
+type LayerSpec = {
+  zoom: number;
+  /** Tiles each side of the site's tile. */
+  radius: number;
+  labels: boolean;
+  /** Edge fade: into the horizon (far layer) or to transparent over the far layer (near). */
+  edge: "horizon" | "transparent";
+  /** Draw order and lift above the ground, to avoid z-fighting. */
+  lift: number;
+};
+
+const DEG = Math.PI / 180;
+const EARTH_CIRCUMFERENCE = 40075016.686;
+
+/** Web Mercator pixel (256 px tiles) of a lat/lon at a zoom. */
+function mercatorPixel(lat: number, lon: number, zoom: number) {
+  const world = 256 * 2 ** zoom;
+  const s = Math.sin(lat * DEG);
+  return {
+    x: ((lon + 180) / 360) * world,
+    y: (0.5 - Math.log((1 + s) / (1 - s)) / (4 * Math.PI)) * world,
+  };
+}
+
+/** Mercator pixel → lat/lon (for the attribution bounds). */
+function pixelToLatLon(x: number, y: number, zoom: number) {
+  const world = 256 * 2 ** zoom;
+  const lon = (x / world) * 360 - 180;
+  const n = Math.PI - (2 * Math.PI * y) / world;
+  return { lat: (Math.atan(Math.sinh(n)) * 180) / Math.PI, lon };
+}
+
+function layerLayout({ zoom, radius }: LayerSpec) {
+  const site = mercatorPixel(SITE.lat, SITE.lon, zoom);
+  const tx0 = Math.floor(site.x / 256) - radius;
+  const ty0 = Math.floor(site.y / 256) - radius;
+  const count = radius * 2 + 1;
+  const worldPx = count * 256;
+  const metersPerPx = (Math.cos(SITE.lat * DEG) * EARTH_CIRCUMFERENCE) / (256 * 2 ** zoom);
+  const sx = site.x - tx0 * 256;
+  const sy = site.y - ty0 * 256;
+  const nw = pixelToLatLon(tx0 * 256, ty0 * 256, zoom);
+  const se = pixelToLatLon((tx0 + count) * 256, (ty0 + count) * 256, zoom);
+  return {
+    tx0,
+    ty0,
+    count,
+    size: worldPx * metersPerPx,
+    // Mosaic center relative to the site, map frame (+X east, +Z south).
+    center: [(worldPx / 2 - sx) * metersPerPx, (worldPx / 2 - sy) * metersPerPx] as const,
+    bounds: { north: nw.lat, south: se.lat, east: se.lon, west: nw.lon },
+  };
+}
+
+type Session = { session: string; tileWidth: number };
+
+async function createSession(apiKey: string, hiDpi: boolean, labels: boolean): Promise<Session> {
+  const res = await fetch(`${TILE_API}/createSession?key=${encodeURIComponent(apiKey)}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      mapType: "roadmap",
+      language: "es-419",
+      region: "AR",
+      // 512 px tiles with normal-size labels.
+      ...(hiDpi ? { highDpi: true } : {}),
+      styles: labels ? BASE_STYLES : NO_LABELS,
+    }),
+  });
+  if (!res.ok) throw new Error(`session-${res.status}`);
+  return (await res.json()) as Session;
+}
+
+async function loadTile(apiKey: string, session: string, z: number, x: number, y: number) {
+  const url = `${TILE_API}/2dtiles/${z}/${x}/${y}?session=${session}&key=${encodeURIComponent(apiKey)}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`tile-${res.status}`);
+  return createImageBitmap(await res.blob());
+}
+
+/** Copyright line Google asks to show for the visible area. */
+async function loadAttribution(
+  apiKey: string,
+  session: string,
+  zoom: number,
+  bounds: Record<"north" | "south" | "east" | "west", number>,
+) {
+  const params = new URLSearchParams({ session, key: apiKey, zoom: String(zoom) });
+  for (const [k, v] of Object.entries(bounds)) params.set(k, String(v));
+  const res = await fetch(`https://tile.googleapis.com/tile/v1/viewport?${params}`);
+  if (!res.ok) return DEFAULT_COPYRIGHT;
+  const data = (await res.json()) as { copyright?: string };
+  return data.copyright || DEFAULT_COPYRIGHT;
+}
+
+/** Fetches a layer's tiles into one canvas texture, edges faded. */
+async function buildLayerTexture(
+  apiKey: string,
+  spec: LayerSpec,
+  hiDpi: boolean,
+  maxAnisotropy: number,
+  isCancelled: () => boolean,
+  onAttribution?: (text: string) => void,
+) {
+  const layout = layerLayout(spec);
+  const { session, tileWidth } = await createSession(apiKey, hiDpi, spec.labels);
+  if (isCancelled()) return null;
+  if (onAttribution) {
+    void loadAttribution(apiKey, session, spec.zoom, layout.bounds)
+      .catch(() => DEFAULT_COPYRIGHT)
+      .then((text) => !isCancelled() && onAttribution(text));
+  }
+
+  const px = tileWidth || 256;
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = layout.count * px;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("no-canvas");
+  ctx.fillStyle = "#efebe3";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const jobs: Promise<void>[] = [];
+  for (let j = 0; j < layout.count; j++) {
+    for (let i = 0; i < layout.count; i++) {
+      jobs.push(
+        loadTile(apiKey, session, spec.zoom, layout.tx0 + i, layout.ty0 + j).then((img) => {
+          ctx.drawImage(img, i * px, j * px, px, px);
+          img.close();
+        }),
+      );
+    }
+  }
+  const results = await Promise.allSettled(jobs);
+  if (isCancelled()) return null;
+  if (results.every((r) => r.status === "rejected")) throw new Error("tiles-failed");
+
+  const half = canvas.width / 2;
+  if (spec.edge === "horizon") {
+    const fade = ctx.createRadialGradient(half, half, half * 0.45, half, half, half);
+    fade.addColorStop(0, "rgba(226,234,238,0)");
+    fade.addColorStop(1, MAP_HORIZON);
+    ctx.fillStyle = fade;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  } else {
+    // Erase toward the edges so the near map blends into the far one.
+    ctx.globalCompositeOperation = "destination-in";
+    const fade = ctx.createRadialGradient(half, half, half * 0.6, half, half, half * 0.98);
+    fade.addColorStop(0, "rgba(0,0,0,1)");
+    fade.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = fade;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.globalCompositeOperation = "source-over";
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = maxAnisotropy;
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  return { texture, layout };
+}
+
+type BuiltLayer = { texture: THREE.CanvasTexture; layout: ReturnType<typeof layerLayout>; spec: LayerSpec };
+
+export type MapGroundProps = {
+  apiKey: string;
+  isMobile: boolean;
+  onReady: () => void;
+  onFallback: (reason: string) => void;
+  onAttribution?: (text: string) => void;
+};
+
+export function MapGround({ apiKey, isMobile, onReady, onFallback, onAttribution }: MapGroundProps) {
+  const gl = useThree((s) => s.gl);
+  const [layers, setLayers] = useState<BuiltLayer[] | null>(null);
+
+  const specs = useMemo<LayerSpec[]>(
+    () => [
+      { zoom: 16, radius: 2, labels: false, edge: "horizon", lift: 0 },
+      { zoom: 19, radius: isMobile ? 1 : 2, labels: true, edge: "transparent", lift: 0.01 },
+    ],
+    [isMobile],
+  );
+
+  const callbacks = useRef({ onFallback, onAttribution });
+  useEffect(() => {
+    callbacks.current = { onFallback, onAttribution };
+  }, [onFallback, onAttribution]);
+
+  useEffect(() => {
+    let cancelled = false;
+    let built: BuiltLayer[] = [];
+    const timeout = setTimeout(() => {
+      cancelled = true;
+      callbacks.current.onFallback("map-timeout");
+    }, 12000);
+    const hiDpi = !isMobile || window.devicePixelRatio > 1.5;
+    const maxAnisotropy = gl.capabilities.getMaxAnisotropy();
+
+    Promise.all(
+      specs.map((spec) =>
+        buildLayerTexture(
+          apiKey,
+          spec,
+          hiDpi,
+          maxAnisotropy,
+          () => cancelled,
+          // One credit line is enough: the wide layer's covers both.
+          spec.labels ? undefined : (text) => callbacks.current.onAttribution?.(text),
+        ).then((result) => (result ? { ...result, spec } : null)),
+      ),
+    )
+      .then((results) => {
+        clearTimeout(timeout);
+        built = results.filter((r): r is BuiltLayer => r != null);
+        if (cancelled) {
+          built.forEach((l) => l.texture.dispose());
+          return;
+        }
+        setLayers(built);
+      })
+      .catch((error: unknown) => {
+        clearTimeout(timeout);
+        if (!cancelled) callbacks.current.onFallback(String((error as Error)?.message ?? error));
+      });
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+      built.forEach((l) => l.texture.dispose());
+    };
+  }, [apiKey, isMobile, specs, gl]);
+
+  // Ready once the map has been drawn a couple of times.
+  const frames = useRef(0);
+  const done = useRef(false);
+  useFrame(() => {
+    if (!layers || done.current) return;
+    frames.current += 1;
+    if (frames.current > 2) {
+      done.current = true;
+      onReady();
+    }
+  });
+
+  // Map frame (+X east, −Z north) turned so +Z is the facade bearing (see sceneToEcefMatrix).
+  const rotationY = (SITE.facadeBearing + 180) * DEG;
+
+  return (
+    <group
+      position={[SITE.addressOffset.x, -0.02, SITE.addressOffset.z]}
+      rotation={[0, rotationY, 0]}
+    >
+      {layers?.map(({ texture, layout, spec }) => (
+        <mesh
+          key={spec.zoom}
+          position={[layout.center[0], spec.lift, layout.center[1]]}
+          rotation={[-Math.PI / 2, 0, 0]}
+          renderOrder={spec.lift > 0 ? 1 : 0}
+        >
+          <planeGeometry args={[layout.size, layout.size]} />
+          {/* Unlit, not tone-mapped: the map keeps its palette; ContactShadows grounds the tower. */}
+          <meshBasicMaterial
+            map={texture}
+            toneMapped={false}
+            transparent={spec.edge === "transparent"}
+            depthWrite={spec.edge !== "transparent"}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/** Google logo and data credits, required by the Map Tiles API policies. */
+export function MapAttribution({ text }: { text: string | null }) {
+  return (
+    <div className="pointer-events-none absolute right-2 bottom-7 z-20 flex max-w-[60%] items-center gap-2 rounded bg-black/35 px-2 py-0.5 text-[10px] text-white/90 backdrop-blur-sm">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="https://maps.gstatic.com/mapfiles/api-3/images/google_white5_hdpi.png"
+        alt="Google"
+        className="h-3 w-auto"
+      />
+      {text ? <span className="truncate">{text}</span> : null}
+    </div>
+  );
+}

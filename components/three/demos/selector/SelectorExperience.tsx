@@ -28,7 +28,8 @@ const PROJECT_NAME = "Cataluña II";
 const PROJECT_ADDRESS = `${SITE.address}, ${SITE.city}`;
 import { GEO_PREVIEW_KEY, geoApiKey, geoPreviewAllowed, supportsGeo } from "@/lib/geo/config";
 import type { FlyoverCaption } from "@/components/three/geo/AerialFlyover";
-import { SelectorScene, type SelectorGeoOptions } from "./SelectorScene";
+import { MapAttribution } from "@/components/three/geo/MapGround";
+import { SelectorScene, type SelectorGeoOptions, type SelectorMapOptions } from "./SelectorScene";
 import { FloorSelector } from "./FloorSelector";
 import { UnitPin } from "./UnitPin";
 import { EdificioInfoPanel } from "./EdificioInfoPanel";
@@ -180,13 +181,21 @@ export function SelectorExperience({
   const [geoFailed, setGeoFailed] = useState(false);
   const geoKey =
     geoPreviewAllowed() && searchParams.get("geo") === "preview" ? GEO_PREVIEW_KEY : geoApiKey();
+  // Google's 3D mesh of Mar del Plata is outdated: the default is a flat street map under the
+  // tower (2D tiles, same key). The 3D city stays behind ?geo=3d (and ?geo=preview in dev).
+  const geoParam = searchParams.get("geo");
+  const realLocationAllowed = !embedded && !capturing && geoParam !== "0";
   const geoEnabled =
-    !embedded &&
-    !capturing &&
+    realLocationAllowed &&
     !geoFailed &&
     geoKey != null &&
-    searchParams.get("geo") !== "0" &&
+    (geoParam === "3d" || geoKey === GEO_PREVIEW_KEY) &&
     supportsGeo();
+  const [mapFailed, setMapFailed] = useState(false);
+  const [mapAttribution, setMapAttribution] = useState<string | null>(null);
+  const mapKey = geoApiKey();
+  const mapEnabled = realLocationAllowed && !geoEnabled && !mapFailed && mapKey != null;
+  const realLocation = geoEnabled || mapEnabled;
   // Skip the flight for deep links to a unit and for reduced motion.
   const [introActive, setIntroActive] = useState(
     () => !prefersReducedMotion && !searchParams.get("unidad"),
@@ -369,9 +378,9 @@ export function SelectorExperience({
   const lat = state.status === "ready" ? (state.project.latitude ?? -34.5755) : -34.5755;
   const lng = state.status === "ready" ? (state.project.longitude ?? -58.4338) : -58.4338;
   const { cache: sunHoursCache, requestDate } = useSunHours(
-    geoEnabled ? SITE.lat : lat,
-    geoEnabled ? SITE.lon : lng,
-    geoEnabled ? SITE.facadeBearing : undefined,
+    realLocation ? SITE.lat : lat,
+    realLocation ? SITE.lon : lng,
+    realLocation ? SITE.facadeBearing : undefined,
   );
   const { verano, invierno } = useMemo(() => solsticeDates(todayInBuenosAires().year), []);
 
@@ -454,6 +463,18 @@ export function SelectorExperience({
     setSceneReady(false);
     setCaption(null);
   }, []);
+  const handleMapFallback = useCallback((reason: string) => {
+    console.warn("[selector] Google map tiles unavailable, using the classic scene:", reason);
+    setMapFailed(true);
+    setSceneReady(false);
+  }, []);
+  const map = useMemo<SelectorMapOptions | null>(
+    () =>
+      mapEnabled && mapKey
+        ? { apiKey: mapKey, onFallback: handleMapFallback, onAttribution: setMapAttribution }
+        : null,
+    [mapEnabled, mapKey, handleMapFallback],
+  );
   const overview = useMemo(() => overviewViewpoint(aspect), [aspect]);
   const geo = useMemo<SelectorGeoOptions | null>(
     () =>
@@ -508,12 +529,12 @@ export function SelectorExperience({
       onWheel={skipIntro}
     >
       <Canvas
-        key={geo ? "geo" : "classic"}
+        key={geo ? "geo" : map ? "map" : "classic"}
         camera={{
           position: overviewViewpoint(aspect).position,
           fov: 40,
           near: 0.5,
-          far: geo ? 8000 : 600,
+          far: geo ? 8000 : map ? 2000 : 600,
         }}
         dpr={dpr}
         shadows={!isMobile}
@@ -537,7 +558,7 @@ export function SelectorExperience({
           autoRotate={!prefersReducedMotion && !isMobile && !selectedUnit && !capturing}
           minDistance={span * 0.75}
           // The real neighborhood is worth pulling back for.
-          maxDistance={span * (geo ? 9 : 5.5)}
+          maxDistance={span * (geo ? 9 : map ? 7 : 5.5)}
           apartmentColors={apartmentColors}
           dimmedIds={dimmedIds}
           showStatus={false}
@@ -552,8 +573,11 @@ export function SelectorExperience({
           onApartmentPointerOut={handleApartmentPointerOut}
           onReady={() => setSceneReady(true)}
           geo={geo}
+          map={map}
         />
       </Canvas>
+
+      {map && sceneReady ? <MapAttribution text={mapAttribution} /> : null}
 
       {/* Aerial intro: where we are, and a way out. */}
       {flying && sceneReady ? (
@@ -608,14 +632,16 @@ export function SelectorExperience({
         )}
       >
         <p className="px-6 text-center font-mono text-xs uppercase tracking-[0.3em] text-accent-strong">
-          {geo ? `${SITE.address} · ${SITE.city}` : PROJECT_NAME}
+          {realLocation ? `${SITE.address} · ${SITE.city}` : PROJECT_NAME}
         </p>
         <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-foreground-muted">
           {!ready
             ? "Cargando unidades…"
             : geo
               ? "Cargando la ciudad en 3D…"
-              : "Preparando el modelo 3D…"}
+              : map
+                ? "Cargando el mapa…"
+                : "Preparando el modelo 3D…"}
         </p>
       </div>
 
@@ -628,7 +654,7 @@ export function SelectorExperience({
           />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex justify-center bg-gradient-to-t from-background/90 to-transparent px-3 pb-2 pt-6">
             <p className="text-center font-mono text-[9px] uppercase tracking-[0.1em] text-foreground-muted/80 sm:text-[10px]">
-              {geo
+              {geo || map
                 ? `Ubicación real: ${SITE.address}, ${SITE.city} · edificio, precios y estados ilustrativos`
                 : `${PROJECT_NAME} · modelo 3D, precios y estados ilustrativos`}
             </p>
