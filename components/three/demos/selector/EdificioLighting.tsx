@@ -59,7 +59,9 @@ export function EdificioLighting({
         ground="#b8a78d"
         sunColor={SUN_COLOR}
         sunIntensity={60}
-        environmentIntensity={0.7}
+        // The skyline hides some bright haze: a touch more intensity keeps the same fill.
+        environmentIntensity={0.76}
+        skyline="#a99f90"
       />
     </>
   );

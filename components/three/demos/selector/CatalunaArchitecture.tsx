@@ -10,6 +10,7 @@ import {
   STREET_NUMBER_PLATE,
   buildCatalunaParts,
 } from "@/lib/three/cataluna-ii-parts";
+import { addGlassVariation, addRenderTexture } from "@/components/three/visual/surface-detail";
 
 /**
  * Cataluña II's architecture (street facade, ground floor, rooftop, rear) drawn from the
@@ -29,17 +30,21 @@ function createMaterials(): Record<ArchMaterial, THREE.Material> {
   const standard = (color: string, roughness: number, extra: THREE.MeshStandardMaterialParameters = {}) =>
     new THREE.MeshStandardMaterial({ color, roughness, ...extra });
   return {
-    wall: standard(CATALUNA_PALETTE.wall, 0.92),
+    // Lightly textured render: faint patches and a fine relief that catches grazing sun.
+    wall: addRenderTexture(standard(CATALUNA_PALETTE.wall, 0.92)),
     frame: standard(CATALUNA_PALETTE.frame, 0.85),
-    white: standard(CATALUNA_PALETTE.white, 0.85),
+    white: addRenderTexture(standard(CATALUNA_PALETTE.white, 0.85), { bump: 0.016 }),
     black: standard(CATALUNA_PALETTE.black, 0.45, { metalness: 0.5 }),
-    glass: new THREE.MeshPhysicalMaterial({
-      color: "#3b4952",
-      roughness: 0.05,
-      metalness: 0,
-      ior: 1.5,
-      envMapIntensity: 1.6,
-    }),
+    // Float glass: each pane a little different, reflections slightly bent.
+    glass: addGlassVariation(
+      new THREE.MeshPhysicalMaterial({
+        color: "#3b4952",
+        roughness: 0.05,
+        metalness: 0,
+        ior: 1.52,
+        envMapIntensity: 1.6,
+      }),
+    ),
     // White sheer curtains seen through the glass.
     curtain: standard("#eeede8", 0.55, { emissive: "#ffffff", emissiveIntensity: 0.12 }),
     dark: standard("#2c2e30", 0.95),

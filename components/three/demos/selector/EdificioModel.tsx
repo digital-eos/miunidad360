@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, type RefObject } from "react";
+import { useEffect, useMemo, useRef, type RefObject } from "react";
 import * as THREE from "three";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import { Edges } from "@react-three/drei";
@@ -8,6 +8,7 @@ import { type BuildingConfig, totalBuildingHeight } from "@/lib/three/building-c
 import { generateApartmentLayout, type ApartmentLayout } from "@/lib/three/building-layout";
 import { CATALUNA_CONFIG } from "@/lib/three/cataluna-ii";
 import type { FloorPlan, FloorPlanRoom } from "@/lib/units/floor-plan";
+import { addRenderTexture } from "@/components/three/visual/surface-detail";
 import { CATALUNA_PALETTE, CatalunaArchitecture } from "./CatalunaArchitecture";
 
 /**
@@ -148,6 +149,24 @@ export function EdificioModel({
   onApartmentPointerOut,
 }: EdificioModelProps) {
   const layouts = useMemo(() => generateApartmentLayout(config), [config]);
+  // The units' volumes are the facade's render: one lightly textured material for all of
+  // them, and an invisible one for an opened unit (still the click target).
+  const unitMaterials = useMemo(
+    () => ({
+      shown: addRenderTexture(
+        new THREE.MeshStandardMaterial({ color: CATALUNA_PALETTE.wall, roughness: 0.92 }),
+      ),
+      hidden: new THREE.MeshStandardMaterial({ visible: false }),
+    }),
+    [],
+  );
+  useEffect(
+    () => () => {
+      unitMaterials.shown.dispose();
+      unitMaterials.hidden.dispose();
+    },
+    [unitMaterials],
+  );
 
   const { floors, floorHeight, groundFloorHeight: G, buildingWidth: W, buildingDepth: D } = config;
   const clear = floorHeight - config.slabThickness;
@@ -205,6 +224,7 @@ export function EdificioModel({
             {plan ? <OpenUnitPlan apt={apt} plan={plan} floorY={apt.position[1] - floorHeight / 2} /> : null}
             <mesh
               position={[apt.position[0], y, apt.position[2]]}
+              material={open ? unitMaterials.hidden : unitMaterials.shown}
               castShadow={castShadow}
               receiveShadow
               onClick={(e) => {
@@ -220,9 +240,8 @@ export function EdificioModel({
                 onApartmentPointerOut(apt.id, e);
               }}
             >
-              <boxGeometry args={[apt.size[0], clear, apt.size[2]]} />
               {/* Opened unit: the box stays as the click target but is not drawn. */}
-              <meshStandardMaterial color={CATALUNA_PALETTE.wall} roughness={0.92} visible={!open} />
+              <boxGeometry args={[apt.size[0], clear, apt.size[2]]} />
             </mesh>
             <StatusShell
               position={[apt.position[0], y, apt.position[2]]}
