@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, type RefObject } from "react";
 import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 import type { Viewpoint } from "@/components/three/CameraRig";
 import { SITE } from "@/lib/geo/site";
 import type { FlyoverCaption } from "./AerialFlyover";
+import type { MapBlend } from "./MapGround";
 
 type Props = {
   /** The map is drawn: the descent can start. */
@@ -16,6 +17,8 @@ type Props = {
   skipToken: number;
   onCaption: (caption: FlyoverCaption) => void;
   onComplete: () => void;
+  /** Satellite while looking down, street plan and 3D buildings once the camera tilts. */
+  blendRef: RefObject<MapBlend>;
 };
 
 /** Height of the opening, top-down view above the lot (meters). */
@@ -37,22 +40,20 @@ function easeInOutSine(t: number) {
  * spirals down onto Buenos Aires 2771 and into the selector's overview. While high up, the fog
  * is pushed back so the map stays readable; it returns to normal on landing.
  */
-export function MapIntro({ ready, endView, skipToken, onCaption, onComplete }: Props) {
+export function MapIntro({ ready, endView, skipToken, onCaption, onComplete, blendRef }: Props) {
   // Camera and scene are read through get(): they are mutated every frame, outside render.
   const get = useThree((s) => s.get);
   const invalidate = useThree((s) => s.invalidate);
 
-  const path = useRef<{
-    target: THREE.Vector3;
-    end: THREE.Spherical;
-  } | null>(null);
-  if (path.current == null) {
+  // Follows the latest landing shot: the stage's real size (and so the overview distance) is
+  // only known after mount; a stale one made the descent land too close, then back out.
+  const path = useMemo(() => {
     const target = new THREE.Vector3(...endView.target);
     const end = new THREE.Spherical().setFromVector3(
       new THREE.Vector3(...endView.position).sub(target),
     );
-    path.current = { target, end };
-  }
+    return { target, end };
+  }, [endView]);
 
   const state = useRef<{
     phase: "wait" | "hold" | "fly" | "done";
@@ -65,7 +66,7 @@ export function MapIntro({ ready, endView, skipToken, onCaption, onComplete }: P
 
   function place(u: number) {
     const { camera, scene } = get();
-    const { target, end } = path.current!;
+    const { target, end } = path;
     const s = spherical.current;
     s.radius = THREE.MathUtils.lerp(START_HEIGHT, end.radius, u);
     // Tilt late, so the plan view lasts and the tower rises into view at the end.
@@ -75,6 +76,9 @@ export function MapIntro({ ready, endView, skipToken, onCaption, onComplete }: P
     camera.position.copy(target).add(offset.current);
     camera.lookAt(target);
     camera.updateMatrixWorld();
+    // The city turns from photo to model as the view leaves the vertical.
+    const t = THREE.MathUtils.clamp((u - 0.4) / 0.35, 0, 1);
+    blendRef.current.target = t * t * (3 - 2 * t);
 
     const fog = scene.fog as THREE.Fog | null;
     const base = state.current.fog;
@@ -89,6 +93,7 @@ export function MapIntro({ ready, endView, skipToken, onCaption, onComplete }: P
     const s = state.current;
     if (s.phase === "done") return;
     s.phase = "done";
+    blendRef.current.target = 1;
     const fog = get().scene.fog as THREE.Fog | null;
     if (fog && s.fog) {
       fog.near = s.fog.near;

@@ -69,14 +69,20 @@ function floorCenterY(floor: number): number {
   return config.groundFloorHeight + (floor - 0.5) * config.floorHeight;
 }
 
-function overviewViewpoint(aspect: number): Viewpoint {
+/**
+ * Whole-tower shot. On the real map it is the city view the entrance descent ends on: further
+ * back and higher, about where the model city has finished rising, so the tower reads within
+ * its blocks.
+ */
+function overviewViewpoint(aspect: number, city = false): Viewpoint {
   const height = totalBuildingHeight(config);
   // Narrow (portrait) views step back so the whole tower fits.
-  const back = aspect < 1 ? 2.3 : 1.7;
+  const back = (aspect < 1 ? 2.3 : 1.7) * (city ? 2.2 : 1);
+  const lift = city ? 1.3 : 1;
   return {
     position: [
       config.buildingWidth * 1.15 * back,
-      height * 0.95 * back,
+      height * 0.95 * back * lift,
       config.buildingDepth * 2.1 * back,
     ],
     target: [0, height * 0.48, 0],
@@ -468,7 +474,7 @@ export function SelectorExperience({
     setMapFailed(true);
     setSceneReady(false);
   }, []);
-  const overview = useMemo(() => overviewViewpoint(aspect), [aspect]);
+  const overview = useMemo(() => overviewViewpoint(aspect, mapEnabled), [aspect, mapEnabled]);
   const map = useMemo<SelectorMapOptions | null>(
     () =>
       mapEnabled && mapKey
@@ -483,9 +489,7 @@ export function SelectorExperience({
             onIntroDone: handleIntroDone,
           }
         : null,
-    // The descent's landing shot is fixed when it starts; a resize mid-flight doesn't move it.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [mapEnabled, mapKey, handleMapFallback, introActive, skipToken, handleIntroDone],
+    [mapEnabled, mapKey, handleMapFallback, introActive, overview, skipToken, handleIntroDone],
   );
   const geo = useMemo<SelectorGeoOptions | null>(
     () =>
@@ -510,7 +514,7 @@ export function SelectorExperience({
     ? unitViewpoint(selectedUnit)
     : focusFloor != null
       ? floorViewpoint(focusFloor)
-      : overviewViewpoint(aspect);
+      : overview;
   const cameraTargetKey = selectedUnit
     ? `unit-${selectedUnit.codigo}`
     : focusFloor != null
@@ -542,7 +546,7 @@ export function SelectorExperience({
       <Canvas
         key={geo ? "geo" : map ? "map" : "classic"}
         camera={{
-          position: overviewViewpoint(aspect).position,
+          position: overview.position,
           fov: 40,
           near: 0.5,
           far: geo ? 8000 : map ? 2000 : 600,
@@ -569,7 +573,7 @@ export function SelectorExperience({
           autoRotate={!prefersReducedMotion && !isMobile && !selectedUnit && !capturing}
           minDistance={span * 0.75}
           // The real neighborhood is worth pulling back for.
-          maxDistance={span * (geo ? 9 : map ? 7 : 5.5)}
+          maxDistance={span * (geo ? 9 : map ? 16 : 5.5)}
           apartmentColors={apartmentColors}
           dimmedIds={dimmedIds}
           showStatus={false}

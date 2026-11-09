@@ -1,15 +1,36 @@
 # Selector: real location
 
-## Default: 2D street map (Nov 2026)
+## Default: Google 2D map + 3D model city (Nov 2026)
 
 Google's photorealistic 3D mesh of Mar del Plata is outdated, so by default the tower stands on
-a flat Google roadmap instead (`components/three/geo/MapGround.tsx`): Map Tiles API **2D tiles**,
-same key, warm custom style, north-aligned with the real facade bearing (Buenos Aires street in
-front, Entre Ríos behind). Two layers, because map labels are sized for a top-down view:
-zoom 19 around the lot (~300 m, street names) over zoom 16 without labels (~2.4 km, fading into
-the horizon). ~50 tiles per visit on desktop. Lighting, shadows and post-processing are the
-classic scene's; there is no aerial intro. Google logo + credit line shown bottom right
-(`/tile/v1/viewport`). Any error or 12 s without tiles → classic procedural city.
+flat Google 2D tiles (Map Tiles API, same key), north-aligned with the real facade bearing
+(Buenos Aires street in front, Entre Ríos behind).
+
+- **Entrance** (`MapIntro.tsx`): top-down ~720 m above the lot over **satellite** photos, spiral
+  descent onto the selector's overview (always the current one, no zoom-out after landing). As
+  the view leaves the vertical, a shared blend value cross-fades satellite → **street plan**
+  (warm custom roadmap, street names kept) and the buildings rise out of it. Fog is pushed back
+  while high up. Skipped intro / deep links go straight to the plan.
+- **Ground** (`MapGround.tsx`): both looks loaded up front (~100 tiles per visit on desktop).
+  Two layers per look, because map labels are sized for a top-down view: zoom 19 around the lot
+  (~300 m) over zoom 16 without labels (~2.4 km, fading into the horizon). Building footprints
+  are hidden in the plan style: the 3D buildings replace them. Satellite failing only skips the
+  photo phase; the plan failing (or 12 s) → classic procedural city.
+- **Buildings** (`MapBuildings.tsx`): white architect's model. Real footprints from Overture
+  Maps 2026-10-21.0 (Google Open Buildings + a few OSM; OSM alone has ~13 buildings here),
+  extracted once into `public/geo/buildings/cataluna-ii.json` (3,640 buildings within 600 m,
+  local east/north meters from the address point, 271 KB). **Heights are estimated** from
+  footprint area (the data has none): houses on small lots, mid-rise and some towers on larger
+  ones, stable per building. Whatever sits on the tower's lot is left out.
+- **Overview** (where the descent ends, and "Todos"): the city view, 2.2× further back and
+  higher than the classic scene, about where the model city has finished rising. The plan and
+  the buildings are drawn from the start (opacity 0 / flattened) so their GPU upload happens
+  behind the loader, not mid-descent.
+- **Clouds** (`MapClouds.tsx`): drei volumetric puffs drifting with the wind, a ring around the
+  descent (330–480 m, the camera flies through it) and more over the whole sky, plus soft cloud
+  shadows sliding across the ground. Textures drawn at runtime, no assets.
+- Credits bottom right: Google (imagery or map data, from `/tile/v1/viewport`) and the
+  buildings' sources.
 
 `?geo=3d` still opens the 3D tiles version described below; `?geo=0` forces the classic city.
 

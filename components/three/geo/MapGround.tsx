@@ -1,19 +1,19 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 import { SITE } from "@/lib/geo/site";
 
 /**
- * Real location as a flat street map: Google's 2D roadmap tiles (Map Tiles API, same key as the
- * 3D tiles) drawn under the tower, north-aligned with the real facade bearing. Google's 3D mesh
- * of Mar del Plata is outdated; a clean map is always current.
+ * Real location on a flat Google map: 2D tiles (Map Tiles API, same key as the 3D tiles) drawn
+ * under the tower, north-aligned with the real facade bearing. Google's 3D mesh of Mar del
+ * Plata is outdated; flat tiles are not. Two looks: satellite photos or a street plan.
  *
- * Map labels are sized for a top-down view, so two layers:
+ * Two layers, because map labels are sized for a top-down view:
  * - near: zoom 19 around the lot (~300 m), street names at a believable size;
  * - far: zoom 16 without labels (~2.4 km), melting into the horizon.
- * 50 tiles per visit on desktop.
+ * 50 tiles per look per visit on desktop; a look is loaded once, then kept.
  */
 
 const TILE_API = "https://tile.googleapis.com/v1";
@@ -27,7 +27,8 @@ const BASE_STYLES = [
   { featureType: "poi.business", stylers: [{ visibility: "off" }] },
   { featureType: "transit", stylers: [{ visibility: "off" }] },
   { featureType: "landscape", elementType: "geometry", stylers: [{ color: "#efebe3" }] },
-  { featureType: "landscape.man_made", elementType: "geometry", stylers: [{ color: "#e4ded1" }] },
+  // Footprints match the ground: the 3D buildings stand in for them.
+  { featureType: "landscape.man_made", elementType: "geometry", stylers: [{ color: "#efebe3" }] },
   { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#dde5d2" }] },
   { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
   { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#f6dfb8" }] },
@@ -91,20 +92,30 @@ function layerLayout({ zoom, radius }: LayerSpec) {
   };
 }
 
+export type MapLook = "satellite" | "roadmap";
+
 type Session = { session: string; tileWidth: number };
 
-async function createSession(apiKey: string, hiDpi: boolean, labels: boolean): Promise<Session> {
+async function createSession(
+  apiKey: string,
+  look: MapLook,
+  hiDpi: boolean,
+  labels: boolean,
+): Promise<Session> {
+  // Satellite tiles take no styles; labels on photos would be clutter anyway.
+  const options =
+    look === "satellite"
+      ? { mapType: "satellite" }
+      : {
+          mapType: "roadmap",
+          // 512 px tiles with normal-size labels.
+          ...(hiDpi ? { highDpi: true } : {}),
+          styles: labels ? BASE_STYLES : NO_LABELS,
+        };
   const res = await fetch(`${TILE_API}/createSession?key=${encodeURIComponent(apiKey)}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      mapType: "roadmap",
-      language: "es-419",
-      region: "AR",
-      // 512 px tiles with normal-size labels.
-      ...(hiDpi ? { highDpi: true } : {}),
-      styles: labels ? BASE_STYLES : NO_LABELS,
-    }),
+    body: JSON.stringify({ language: "es-419", region: "AR", ...options }),
   });
   if (!res.ok) throw new Error(`session-${res.status}`);
   return (await res.json()) as Session;
@@ -136,13 +147,14 @@ async function loadAttribution(
 async function buildLayerTexture(
   apiKey: string,
   spec: LayerSpec,
+  look: MapLook,
   hiDpi: boolean,
   maxAnisotropy: number,
   isCancelled: () => boolean,
   onAttribution?: (text: string) => void,
 ) {
   const layout = layerLayout(spec);
-  const { session, tileWidth } = await createSession(apiKey, hiDpi, spec.labels);
+  const { session, tileWidth } = await createSession(apiKey, look, hiDpi, spec.labels);
   if (isCancelled()) return null;
   if (onAttribution) {
     void loadAttribution(apiKey, session, spec.zoom, layout.bounds)
@@ -200,17 +212,38 @@ async function buildLayerTexture(
 
 type BuiltLayer = { texture: THREE.CanvasTexture; layout: ReturnType<typeof layerLayout>; spec: LayerSpec };
 
+/**
+ * Satellite → street plan. The intro writes `target` (0 = satellite seen from above, 1 = plan
+ * with 3D buildings); MapGround eases `value` toward it every frame and everything else reads
+ * `value`.
+ */
+export type MapBlend = { target: number; value: number };
+
+const BUILDINGS_CREDIT = "Edificios: Google Open Buildings, Overture Maps";
+
 export type MapGroundProps = {
   apiKey: string;
+  blendRef: RefObject<MapBlend>;
   isMobile: boolean;
   onReady: () => void;
   onFallback: (reason: string) => void;
   onAttribution?: (text: string) => void;
 };
 
-export function MapGround({ apiKey, isMobile, onReady, onFallback, onAttribution }: MapGroundProps) {
+type LookMaterials = { look: MapLook; layers: BuiltLayer[] };
+
+export function MapGround({
+  apiKey,
+  blendRef,
+  isMobile,
+  onReady,
+  onFallback,
+  onAttribution,
+}: MapGroundProps) {
   const gl = useThree((s) => s.gl);
-  const [layers, setLayers] = useState<BuiltLayer[] | null>(null);
+  const [looks, setLooks] = useState<LookMaterials[] | null>(null);
+  const [credits, setCredits] = useState<Partial<Record<MapLook, string>>>({});
+  const [shownCredit, setShownCredit] = useState<MapLook>("satellite");
 
   const specs = useMemo<LayerSpec[]>(
     () => [
@@ -227,7 +260,7 @@ export function MapGround({ apiKey, isMobile, onReady, onFallback, onAttribution
 
   useEffect(() => {
     let cancelled = false;
-    let built: BuiltLayer[] = [];
+    let built: LookMaterials[] = [];
     const timeout = setTimeout(() => {
       cancelled = true;
       callbacks.current.onFallback("map-timeout");
@@ -235,45 +268,78 @@ export function MapGround({ apiKey, isMobile, onReady, onFallback, onAttribution
     const hiDpi = !isMobile || window.devicePixelRatio > 1.5;
     const maxAnisotropy = gl.capabilities.getMaxAnisotropy();
 
-    Promise.all(
-      specs.map((spec) =>
-        buildLayerTexture(
-          apiKey,
-          spec,
-          hiDpi,
-          maxAnisotropy,
-          () => cancelled,
-          // One credit line is enough: the wide layer's covers both.
-          spec.labels ? undefined : (text) => callbacks.current.onAttribution?.(text),
-        ).then((result) => (result ? { ...result, spec } : null)),
-      ),
-    )
-      .then((results) => {
-        clearTimeout(timeout);
-        built = results.filter((r): r is BuiltLayer => r != null);
-        if (cancelled) {
-          built.forEach((l) => l.texture.dispose());
-          return;
-        }
-        setLayers(built);
-      })
-      .catch((error: unknown) => {
-        clearTimeout(timeout);
-        if (!cancelled) callbacks.current.onFallback(String((error as Error)?.message ?? error));
-      });
+    const buildLook = async (look: MapLook): Promise<LookMaterials> => {
+      const layers = await Promise.all(
+        specs.map((spec) =>
+          buildLayerTexture(
+            apiKey,
+            spec,
+            look,
+            hiDpi,
+            maxAnisotropy,
+            () => cancelled,
+            // One credit line per look: the wide layer's covers both.
+            spec.labels ? undefined : (text) => setCredits((c) => ({ ...c, [look]: text })),
+          ).then((result) => (result ? { ...result, spec } : null)),
+        ),
+      );
+      return { look, layers: layers.filter((l): l is BuiltLayer => l != null) };
+    };
+
+    // The plan is required (it's the 3D view's ground); satellite only dresses the intro.
+    Promise.allSettled([buildLook("satellite"), buildLook("roadmap")]).then(([sat, road]) => {
+      clearTimeout(timeout);
+      built = [sat, road].flatMap((r) => (r.status === "fulfilled" ? [r.value] : []));
+      if (cancelled) {
+        built.forEach((l) => l.layers.forEach((x) => x.texture.dispose()));
+        return;
+      }
+      if (road.status === "rejected") {
+        callbacks.current.onFallback(String((road.reason as Error)?.message ?? road.reason));
+        return;
+      }
+      if (sat.status === "rejected") blendRef.current.target = blendRef.current.value = 1;
+      setLooks(built);
+    });
 
     return () => {
       cancelled = true;
       clearTimeout(timeout);
-      built.forEach((l) => l.texture.dispose());
+      built.forEach((l) => l.layers.forEach((x) => x.texture.dispose()));
     };
-  }, [apiKey, isMobile, specs, gl]);
+  }, [apiKey, isMobile, specs, gl, blendRef]);
 
-  // Ready once the map has been drawn a couple of times.
+  useEffect(() => {
+    const text = credits[shownCredit];
+    if (!text) return;
+    callbacks.current.onAttribution?.(
+      shownCredit === "roadmap" ? `${text} · ${BUILDINGS_CREDIT}` : text,
+    );
+  }, [shownCredit, credits]);
+
+  const satRefs = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
+  const roadRefs = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
   const frames = useRef(0);
   const done = useRef(false);
-  useFrame(() => {
-    if (!layers || done.current) return;
+  useFrame((_, delta) => {
+    // Ease toward the target: a skipped intro still fades instead of popping.
+    blendRef.current.value += (blendRef.current.target - blendRef.current.value) * Math.min(1, delta * 2.5);
+    if (Math.abs(blendRef.current.target - blendRef.current.value) < 0.002) blendRef.current.value = blendRef.current.target;
+    const v = blendRef.current.value;
+    // Hidden only once it's fully covered: it's already on the GPU by then.
+    for (const m of satRefs.current) if (m) m.visible = v < 1;
+    roadRefs.current.forEach((m, i) => {
+      if (!m) return;
+      // Always drawn, even at opacity 0: hiding it until the fade made the browser upload the
+      // big plan textures right in the middle of the descent, freezing it for about a second.
+      // Far layer fades in; the near one (with labels) follows a beat later.
+      m.opacity = THREE.MathUtils.clamp(i === 0 ? v * 1.4 : v * 1.4 - 0.4, 0, 1);
+    });
+    const credit: MapLook = v < 0.5 ? "satellite" : "roadmap";
+    if (credit !== shownCredit) setShownCredit(credit);
+
+    // Ready once the map has been drawn a couple of times.
+    if (!looks || done.current) return;
     frames.current += 1;
     if (frames.current > 2) {
       done.current = true;
@@ -289,23 +355,36 @@ export function MapGround({ apiKey, isMobile, onReady, onFallback, onAttribution
       position={[SITE.addressOffset.x, -0.02, SITE.addressOffset.z]}
       rotation={[0, rotationY, 0]}
     >
-      {layers?.map(({ texture, layout, spec }) => (
-        <mesh
-          key={spec.zoom}
-          position={[layout.center[0], spec.lift, layout.center[1]]}
-          rotation={[-Math.PI / 2, 0, 0]}
-          renderOrder={spec.lift > 0 ? 1 : 0}
-        >
-          <planeGeometry args={[layout.size, layout.size]} />
-          {/* Unlit, not tone-mapped: the map keeps its palette; ContactShadows grounds the tower. */}
-          <meshBasicMaterial
-            map={texture}
-            toneMapped={false}
-            transparent={spec.edge === "transparent"}
-            depthWrite={spec.edge !== "transparent"}
-          />
-        </mesh>
-      ))}
+      {looks?.flatMap(({ look, layers }) =>
+        layers.map(({ texture, layout, spec }, i) => {
+          const base = look === "satellite" && spec.edge === "horizon";
+          return (
+            <mesh
+              key={`${look}-${spec.zoom}`}
+              position={[layout.center[0], 0, layout.center[1]]}
+              rotation={[-Math.PI / 2, 0, 0]}
+              // Satellite under the plan, wide layer under the near one.
+              renderOrder={(look === "roadmap" ? 2 : 0) + i}
+            >
+              <planeGeometry args={[layout.size, layout.size]} />
+              {/* Unlit, not tone-mapped: the map keeps its palette. */}
+              <meshBasicMaterial
+                ref={(m) => {
+                  (look === "satellite" ? satRefs : roadRefs).current[i] = m;
+                }}
+                map={texture}
+                toneMapped={false}
+                transparent={!base}
+                depthWrite={base}
+                // The overlays sit on the same plane: push the base back instead of lifting them.
+                polygonOffset={base}
+                polygonOffsetFactor={base ? 2 : 0}
+                polygonOffsetUnits={base ? 2 : 0}
+              />
+            </mesh>
+          );
+        }),
+      )}
     </group>
   );
 }

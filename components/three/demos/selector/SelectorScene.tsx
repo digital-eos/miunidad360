@@ -11,8 +11,10 @@ import { EdificioModel, type UnitPinTarget } from "./EdificioModel";
 import { EdificioCity } from "./EdificioCity";
 import { EdificioLighting } from "./EdificioLighting";
 import type { GeoEnvironmentProps } from "@/components/three/geo/GeoEnvironment";
-import { MapGround, type MapGroundProps } from "@/components/three/geo/MapGround";
+import { MapGround, type MapBlend, type MapGroundProps } from "@/components/three/geo/MapGround";
+import { MapBuildings } from "@/components/three/geo/MapBuildings";
 import { MapIntro } from "@/components/three/geo/MapIntro";
+import { MapClouds } from "@/components/three/geo/MapClouds";
 import type { FlyoverCaption } from "@/components/three/geo/AerialFlyover";
 
 /** Real-location environment (Google 3D tiles, atmosphere, flyover): loaded only when used. */
@@ -97,6 +99,14 @@ export function SelectorScene({
   const { introActive: geoIntro = false, ...geoProps } = geo ?? {};
   const introActive = geo ? geoIntro : Boolean(map?.introActive);
   const [mapReady, setMapReady] = useState(false);
+  // Satellite (0) → plan with 3D buildings (1). Without an intro, straight to the plan.
+  const mapBlend = useRef<MapBlend>(
+    map?.introActive ? { target: 0, value: 0 } : { target: 1, value: 1 },
+  );
+  const footprint = {
+    halfX: config.buildingWidth / 2 + config.balconyDepth,
+    halfZ: config.buildingDepth / 2 + config.balconyDepth,
+  };
 
   return (
     <>
@@ -117,7 +127,7 @@ export function SelectorScene({
       ) : (
         <>
           <Suspense fallback={null}>
-            <EdificioLighting highQuality={!isMobile} fogRange={map ? [260, 1150] : undefined} />
+            <EdificioLighting highQuality={!isMobile} fogRange={map ? [420, 1500] : undefined} />
             {/* The map signals ready itself, once its tiles are drawn. */}
             {map ? null : <ReadySignal onReady={onReady} />}
           </Suspense>
@@ -127,6 +137,7 @@ export function SelectorScene({
             <>
               <MapGround
                 apiKey={map.apiKey}
+                blendRef={mapBlend}
                 onFallback={map.onFallback}
                 onAttribution={map.onAttribution}
                 isMobile={isMobile}
@@ -135,6 +146,10 @@ export function SelectorScene({
                   onReady?.();
                 }}
               />
+              <MapBuildings blendRef={mapBlend} footprint={footprint} isMobile={isMobile} />
+              <Suspense fallback={null}>
+                <MapClouds isMobile={isMobile} />
+              </Suspense>
               {map.introActive ? (
                 <MapIntro
                   ready={mapReady}
@@ -142,6 +157,7 @@ export function SelectorScene({
                   skipToken={map.skipToken}
                   onCaption={map.onCaption}
                   onComplete={map.onIntroDone}
+                  blendRef={mapBlend}
                 />
               ) : null}
             </>
