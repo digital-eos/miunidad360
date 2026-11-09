@@ -2,11 +2,25 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Container } from "@/components/ui/Container";
-import { zeusData } from "@/lib/zeus/dataset";
 
-/** The project's renders: a grid of thumbnails that opens a full-screen viewer. */
-export function ZeusGallery() {
-  const { galeria, proyecto } = zeusData;
+export type ListingImage = {
+  src: string;
+  /** Smaller version for the grid; falls back to `src`. */
+  miniatura?: string;
+  alt: string;
+};
+
+/** All the project's renders: a grid of thumbnails that opens a full-screen viewer. */
+export function ListingGallery({
+  images: galeria,
+  title,
+  credit,
+}: {
+  images: ListingImage[];
+  title: string;
+  /** Who made the renders, shown next to the count. */
+  credit?: string;
+}) {
   const [open, setOpen] = useState<number | null>(null);
 
   const close = useCallback(() => setOpen(null), []);
@@ -35,18 +49,17 @@ export function ZeusGallery() {
   const current = open === null ? null : galeria[open];
 
   return (
-    <section id="galeria" className="border-t border-border-subtle bg-background py-16">
-      <Container>
+    <section id="galeria" className="bg-background py-12 sm:py-16">
+      <Container className="max-w-[1400px]">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent-strong">
-              Galería
+              Fotos
             </p>
-            <h2 className="mt-2 font-display text-3xl">{proyecto.nombre} en imágenes</h2>
-            <p className="mt-2 max-w-xl text-sm text-foreground-muted">{proyecto.descripcion}</p>
+            <h2 className="mt-2 font-display text-3xl">{title}</h2>
           </div>
           <p className="text-xs text-foreground-muted">
-            {galeria.length} renders · {proyecto.estudio}
+            {galeria.length} renders{credit ? ` · ${credit}` : ""}
           </p>
         </div>
 
@@ -61,7 +74,7 @@ export function ZeusGallery() {
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={i === 0 ? img.src : img.miniatura}
+                  src={i === 0 ? img.src : (img.miniatura ?? img.src)}
                   alt={img.alt}
                   loading="lazy"
                   decoding="async"

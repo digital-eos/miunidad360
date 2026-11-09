@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ZeusCanvas } from "@/components/three/demos/zeus/ZeusCanvas";
-import { ZeusGallery } from "@/components/three/demos/zeus/ZeusGallery";
-import { BackToHomeLink } from "@/components/capture/BackToHomeLink";
-import { ScrollCue } from "@/components/ScrollCue";
+import { ListingHeader } from "@/components/listing/ListingHeader";
+import { ListingGallery } from "@/components/listing/ListingGallery";
+import { Container } from "@/components/ui/Container";
 import { DemoCTA } from "@/components/DemoCTA";
 import { Footer } from "@/components/Footer";
+import { zeusData } from "@/lib/zeus/dataset";
+import { formatPrecio } from "@/lib/unidades/format";
 
 export const metadata: Metadata = {
   title: "Zeus III · Pinamar",
@@ -17,15 +19,36 @@ export const metadata: Metadata = {
 };
 
 export default function ZeusDemoPage() {
+  const { proyecto, unidades, cocheras, niveles, galeria } = zeusData;
+  const available = unidades.filter((u) => u.estado === "disponible");
+  const prices = available.flatMap((u) => (u.precio != null ? [u.precio] : []));
+  const minPrice = prices.length ? Math.min(...prices) : null;
+
   return (
     <main className="relative bg-background">
-      <Suspense fallback={null}>
-        <ZeusCanvas>
-          <BackToHomeLink />
-          <ScrollCue targetId="galeria" />
-        </ZeusCanvas>
-      </Suspense>
-      <ZeusGallery />
+      <ListingHeader
+        eyebrow="Departamentos en venta"
+        title={proyecto.nombre}
+        location={`${proyecto.ubicacion} · ${proyecto.estudio}`}
+        priceLabel={minPrice != null ? formatPrecio(minPrice, proyecto.moneda) : null}
+        description={proyecto.descripcion}
+        stats={[
+          { label: "Unidades", value: String(unidades.length) },
+          { label: "Disponibles", value: String(available.length) },
+          { label: "Niveles", value: String(niveles.length) },
+          { label: "Cocheras", value: String(cocheras.length) },
+        ]}
+      />
+      <Container className="max-w-[1400px]">
+        <Suspense fallback={null}>
+          <ZeusCanvas />
+        </Suspense>
+      </Container>
+      <ListingGallery
+        images={galeria}
+        title={`${proyecto.nombre} en imágenes`}
+        credit={proyecto.estudio}
+      />
       <DemoCTA demo="zeus" />
       <Footer />
     </main>

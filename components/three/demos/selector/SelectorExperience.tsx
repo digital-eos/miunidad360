@@ -35,6 +35,11 @@ import { SelectorScene, type SelectorGeoOptions, type SelectorMapOptions } from 
 import { FloorSelector } from "./FloorSelector";
 import { UnitPin } from "./UnitPin";
 import { EdificioInfoPanel } from "./EdificioInfoPanel";
+import {
+  FullscreenButton,
+  fullscreenFrameClass,
+  useFullscreenFrame,
+} from "@/components/listing/use-fullscreen-frame";
 
 const loadDepartamento = () =>
   import("../departamento/DepartamentoExperience").then((mod) => mod.DepartamentoExperience);
@@ -204,6 +209,12 @@ export function SelectorExperience({
   const [vista, setVista] = useState<"edificio" | "departamento">("edificio");
   const [fading, setFading] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  /** The listing card (3D view + info card), which can go full screen. */
+  const {
+    ref: frameRef,
+    expanded: frameExpanded,
+    toggle: toggleFrame,
+  } = useFullscreenFrame<HTMLDivElement>();
   const fadeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const unitsRef = useRef<Unidad[]>([]);
 
@@ -755,6 +766,10 @@ export function SelectorExperience({
         </>
       ) : null}
 
+      {!embedded && !capturing ? (
+        <FullscreenButton expanded={frameExpanded} onToggle={toggleFrame} />
+      ) : null}
+
       {children}
     </div>
   );
@@ -775,21 +790,36 @@ export function SelectorExperience({
   if (vista === "departamento") {
     return (
       <div ref={wrapperRef} className="relative">
-        <DepartamentoExperience>
-          <div className="absolute top-4 left-4 z-30 flex flex-col items-start gap-2 sm:top-6 sm:left-6">
-            <button
-              type="button"
-              onClick={() => switchVista("edificio")}
-              className="inline-flex items-center gap-2 rounded-full border border-border-subtle bg-background/85 px-4 py-2 text-xs font-medium backdrop-blur-md transition-colors duration-200 hover:border-accent hover:text-accent-strong sm:text-sm"
-            >
-              ← Volver al edificio
-            </button>
-            <p className="rounded-full bg-background/80 px-3 py-1 font-mono text-[9px] uppercase tracking-[0.15em] text-foreground-muted backdrop-blur-md sm:text-[10px]">
-              Interior de ejemplo · Cataluña II, unidad 103
-            </p>
-          </div>
-        </DepartamentoExperience>
-        {fade}
+        <div ref={frameRef} className={fullscreenFrameClass(frameExpanded)}>
+          <DepartamentoExperience
+            className={
+              frameExpanded
+                ? "flex h-full flex-col overflow-y-auto lg:flex-row lg:overflow-hidden"
+                : "flex flex-col lg:h-[80svh] lg:flex-row"
+            }
+          >
+            <div className="absolute top-4 left-4 z-30 flex flex-col items-start gap-2 sm:top-6 sm:left-6">
+              <button
+                type="button"
+                onClick={() => switchVista("edificio")}
+                className="inline-flex items-center gap-2 rounded-full border border-border-subtle bg-background/85 px-4 py-2 text-xs font-medium backdrop-blur-md transition-colors duration-200 hover:border-accent hover:text-accent-strong sm:text-sm"
+              >
+                ← Volver al edificio
+              </button>
+              <p className="rounded-full bg-background/80 px-3 py-1 font-mono text-[9px] uppercase tracking-[0.15em] text-foreground-muted backdrop-blur-md sm:text-[10px]">
+                Interior de ejemplo · Cataluña II, unidad 103
+              </p>
+            </div>
+            {frameExpanded ? (
+              <FullscreenButton
+                expanded
+                onToggle={toggleFrame}
+                className="top-4 right-4 left-auto sm:top-6 sm:right-6"
+              />
+            ) : null}
+          </DepartamentoExperience>
+          {fade}
+        </div>
       </div>
     );
   }
@@ -797,17 +827,20 @@ export function SelectorExperience({
   return (
     <div ref={wrapperRef} className="relative">
       <div
+        ref={embedded ? undefined : frameRef}
         className={
           embedded
             ? "grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]"
-            : "flex flex-col lg:h-[100svh] lg:flex-row"
+            : fullscreenFrameClass(frameExpanded, "flex flex-col lg:h-[80svh] lg:flex-row")
         }
       >
         <div
           className={
             embedded
               ? "relative h-[65vh] w-full overflow-hidden rounded-2xl border border-border-subtle bg-background-elevated lg:h-[70vh]"
-              : "relative h-[70svh] w-full lg:h-full lg:flex-1"
+              : frameExpanded
+                ? "relative min-h-0 w-full flex-1 lg:h-full"
+                : "relative h-[65svh] w-full lg:h-full lg:flex-1"
           }
         >
           {stage}
@@ -837,11 +870,14 @@ export function SelectorExperience({
           className={
             embedded
               ? "h-[70vh] rounded-2xl border border-border-subtle"
-              : "border-t border-border-subtle lg:h-full lg:w-[400px] lg:border-t-0 lg:border-l"
+              : frameExpanded
+                ? "max-h-[40dvh] border-t border-border-subtle lg:h-full lg:max-h-none lg:w-[400px] lg:border-t-0 lg:border-l"
+                : "border-t border-border-subtle lg:h-full lg:w-[400px] lg:border-t-0 lg:border-l"
           }
         />
+        {embedded ? null : fade}
       </div>
-      {fade}
+      {embedded ? fade : null}
     </div>
   );
 }

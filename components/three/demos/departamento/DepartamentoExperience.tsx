@@ -25,7 +25,14 @@ function roomViewpoint(id: RoomId): Viewpoint {
   return { position: [x + 1.6, 8.2, z + 3.6], target: [x, 0.2, z] };
 }
 
-export function DepartamentoExperience({ children }: { children?: ReactNode }) {
+export function DepartamentoExperience({
+  children,
+  className,
+}: {
+  children?: ReactNode;
+  /** Outer layout; defaults to a full-screen-height page section. */
+  className?: string;
+}) {
   const isMobile = useIsMobile();
   const prefersReducedMotion = usePrefersReducedMotion();
   const maxDpr = isMobile ? 1.5 : 2;
@@ -59,7 +66,7 @@ export function DepartamentoExperience({ children }: { children?: ReactNode }) {
     : `overview-${aspect < 1 ? "narrow" : "wide"}`;
 
   return (
-    <div className="flex flex-col lg:h-[100svh] lg:flex-row">
+    <div className={className ?? "flex flex-col lg:h-[100svh] lg:flex-row"}>
       <div className="relative h-[70svh] w-full lg:h-full lg:flex-1">
         <div
           ref={stageRef}

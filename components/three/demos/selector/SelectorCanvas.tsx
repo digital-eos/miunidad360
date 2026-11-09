@@ -10,7 +10,11 @@ const SelectorExperience = dynamic(
   { ssr: false, loading: () => <SelectorFallback /> },
 );
 
-function SelectorFallback({ className = "h-[100svh]" }: { className?: string }) {
+function SelectorFallback({
+  className = "h-[65svh] rounded-2xl lg:h-[80svh]",
+}: {
+  className?: string;
+}) {
   return (
     <div className={`flex w-full items-center justify-center bg-background bg-grid ${className}`}>
       <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent-strong">

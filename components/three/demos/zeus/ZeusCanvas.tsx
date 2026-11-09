@@ -6,6 +6,11 @@ import { useWebGLSupport } from "@/lib/hooks/use-webgl-support";
 import { zeusData } from "@/lib/zeus/dataset";
 import { ZeusInfoPanel } from "./ZeusInfoPanel";
 import { useZeusViewer } from "./use-zeus-viewer";
+import {
+  FullscreenButton,
+  fullscreenFrameClass,
+  useFullscreenFrame,
+} from "@/components/listing/use-fullscreen-frame";
 
 const ZeusExperience = dynamic(
   () => import("./ZeusExperience").then((mod) => mod.ZeusExperience),
@@ -23,12 +28,18 @@ function ZeusFallback() {
 }
 
 /**
- * Zeus III demo: the 3D building with the info card beside it (below it on mobile).
- * `children` are overlays drawn on the 3D view (back link, scroll cue).
+ * Zeus III demo: the 3D building with the info card beside it (below it on mobile), framed
+ * as the main card of the listing page, with a full-screen button.
+ * `children` are extra overlays drawn on the 3D view.
  */
 export function ZeusCanvas({ children }: { children?: ReactNode }) {
   const supportsWebGL = useWebGLSupport();
   const viewer = useZeusViewer({ syncUrl: true });
+  const {
+    ref: frameRef,
+    expanded: frameExpanded,
+    toggle: toggleFrame,
+  } = useFullscreenFrame<HTMLDivElement>();
 
   let stage: ReactNode;
   if (supportsWebGL === false) {
@@ -52,14 +63,31 @@ export function ZeusCanvas({ children }: { children?: ReactNode }) {
   }
 
   return (
-    <div className="flex flex-col lg:h-[100svh] lg:flex-row">
-      <div className="relative h-[70svh] w-full lg:h-full lg:flex-1">
+    <div
+      ref={frameRef}
+      className={fullscreenFrameClass(
+        frameExpanded,
+        "flex flex-col lg:h-[80svh] lg:flex-row"
+      )}
+    >
+      <div
+        className={
+          frameExpanded
+            ? "relative min-h-0 w-full flex-1 lg:h-full"
+            : "relative h-[65svh] w-full lg:h-full lg:flex-1"
+        }
+      >
         {stage}
+        <FullscreenButton expanded={frameExpanded} onToggle={toggleFrame} />
         {children}
       </div>
       <ZeusInfoPanel
         viewer={viewer}
-        className="border-t border-border-subtle lg:h-full lg:w-[380px] lg:border-t-0 lg:border-l"
+        className={
+          frameExpanded
+            ? "max-h-[40dvh] border-t border-border-subtle lg:h-full lg:max-h-none lg:w-[380px] lg:border-t-0 lg:border-l"
+            : "border-t border-border-subtle lg:h-full lg:w-[380px] lg:border-t-0 lg:border-l"
+        }
       />
     </div>
   );
