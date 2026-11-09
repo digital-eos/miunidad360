@@ -178,6 +178,16 @@ export function SelectorExperience({
   // The adaptive resolution never drops below 1: under it the facade lines turn soft.
   const minDpr = Math.min(1, maxDpr);
   const [dpr, setDpr] = useState(maxDpr);
+  /**
+   * On a slow GPU the effects step down before the resolution: 1 drops the ambient occlusion
+   * (2–4 ms a frame on an integrated GPU), 2 halves the antialiasing samples. Never raised
+   * again during the visit: each change recompiles shaders, which would stutter back and forth.
+   */
+  const [effectsLevel, setEffectsLevel] = useState<0 | 1 | 2>(0);
+  /** Bumped to mount a fresh WebGL canvas after the GPU dropped the context. */
+  const [glRun, setGlRun] = useState(0);
+  const contextLosses = useRef(0);
+  const [gpuFailed, setGpuFailed] = useState(false);
   const stageRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
   const [aspect, setAspect] = useState(1.6);
@@ -546,6 +556,23 @@ export function SelectorExperience({
     );
   }
 
+  // The GPU dropped the context (driver reset, too many tabs, a tab left for long): mount a
+  // fresh canvas, gentler on the GPU. After two losses in a visit, ask for a reload instead:
+  // browsers block WebGL for a page that keeps losing it.
+  function handleContextLost(event: Event) {
+    event.preventDefault();
+    contextLosses.current += 1;
+    console.warn("[selector] WebGL context lost:", contextLosses.current);
+    if (contextLosses.current > 2) {
+      setGpuFailed(true);
+      return;
+    }
+    setEffectsLevel(2);
+    setDpr(minDpr);
+    setSceneReady(false);
+    setTimeout(() => setGlRun((r) => r + 1), 400);
+  }
+
   const ready = state.status === "ready";
   const span = Math.max(config.buildingWidth, config.buildingDepth);
 
@@ -558,7 +585,7 @@ export function SelectorExperience({
       onWheel={skipIntro}
     >
       <Canvas
-        key={geo ? "geo" : map ? "map" : "classic"}
+        key={`${geo ? "geo" : map ? "map" : "classic"}-${glRun}`}
         camera={{
           position: overview.position,
           fov: 40,
@@ -579,10 +606,21 @@ export function SelectorExperience({
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 1.05,
         }}
+        onCreated={({ gl }) => {
+          gl.domElement.addEventListener("webglcontextlost", handleContextLost, { once: true });
+        }}
       >
         <PerformanceMonitor
           bounds={() => [50, 58]}
-          onDecline={() => setDpr((d) => Math.max(minDpr, d - 0.25))}
+          onDecline={() => {
+            // Effects first (desktop composer only), then the resolution.
+            if (!isMobile && !geo && effectsLevel < 2) {
+              setEffectsLevel((l) => (l < 2 ? ((l + 1) as 1 | 2) : l));
+            } else {
+              setDpr((d) => Math.max(minDpr, d - 0.25));
+            }
+          }}
+          // Back up only in resolution: effects stay down for the visit.
           onIncline={() => setDpr((d) => Math.min(maxDpr, d + 0.25))}
         />
         <SelectorScene
@@ -609,8 +647,28 @@ export function SelectorExperience({
           onReady={() => setSceneReady(true)}
           geo={geo}
           map={map}
+          effectsLevel={effectsLevel}
         />
       </Canvas>
+
+      {gpuFailed ? (
+        <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-4 bg-background px-6 text-center">
+          <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent-strong">
+            La vista 3D se interrumpió
+          </p>
+          <p className="max-w-sm text-sm text-foreground-muted">
+            La placa de video de este dispositivo dejó de responder. Cerrá otras pestañas con
+            mucho contenido y volvé a cargar.
+          </p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="rounded-full bg-foreground px-5 py-2 text-sm text-background"
+          >
+            Volver a cargar
+          </button>
+        </div>
+      ) : null}
 
       {map && sceneReady ? <MapAttribution text={mapAttribution} /> : null}
 

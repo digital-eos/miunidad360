@@ -1,6 +1,6 @@
 "use client";
 
-import { lazy, Suspense, useRef, useState } from "react";
+import { lazy, Suspense, useRef, useState, type RefObject } from "react";
 import { ContactShadows } from "@react-three/drei";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import type { BuildingConfig } from "@/lib/three/building-config";
@@ -68,7 +68,35 @@ export type SelectorSceneProps = {
   geo?: SelectorGeoOptions | null;
   /** Real street map (2D) under the tower instead of the procedural city. Ignored with `geo`. */
   map?: SelectorMapOptions | null;
+  /**
+   * Effects stepped down on a slow GPU, before the resolution: 0 everything, 1 no ambient
+   * occlusion, 2 also half the antialiasing samples.
+   */
+  effectsLevel?: 0 | 1 | 2;
 };
+
+/**
+ * Fires `onSettled` once the entrance descent is over and the city has finished rising (the
+ * map blend has reached the street plan): from then on the ground under the tower is still.
+ */
+function BlendSettled({
+  active,
+  blendRef,
+  onSettled,
+}: {
+  active: boolean;
+  blendRef: RefObject<MapBlend>;
+  onSettled: () => void;
+}) {
+  const done = useRef(false);
+  useFrame(() => {
+    const { value, target } = blendRef.current;
+    if (done.current || active || target !== 1 || value !== 1) return;
+    done.current = true;
+    onSettled();
+  });
+  return null;
+}
 
 /** Fires `onReady` after a couple of rendered frames (shaders compiled, environment loaded). */
 function ReadySignal({ onReady }: { onReady?: () => void }) {
@@ -96,12 +124,15 @@ export function SelectorScene({
   onReady,
   geo = null,
   map = null,
+  effectsLevel = 0,
   ...model
 }: SelectorSceneProps) {
   const building = <EdificioModel config={config} castShadow={!isMobile} {...model} />;
   const { introActive: geoIntro = false, ...geoProps } = geo ?? {};
   const introActive = geo ? geoIntro : Boolean(map?.introActive);
   const [mapReady, setMapReady] = useState(false);
+  /** The ground under the tower no longer changes: its contact shadow is drawn once. */
+  const [groundSettled, setGroundSettled] = useState(false);
   // Satellite (0) → plan with 3D buildings (1). Without an intro, straight to the plan.
   const mapBlend = useRef<MapBlend>(
     map?.introActive ? { target: 0, value: 0 } : { target: 1, value: 1 },
@@ -171,7 +202,15 @@ export function SelectorScene({
             <EdificioCity castShadow={!isMobile} />
           )}
 
+          <BlendSettled
+            active={introActive}
+            blendRef={mapBlend}
+            onSettled={() => setGroundSettled(true)}
+          />
+          {/* Re-drawn every frame only while the city rises around the tower, then once
+              (and again whenever this scene re-renders: a hover, a floor picked). */}
           <ContactShadows
+            frames={groundSettled ? 1 : Infinity}
             position={[0, map ? 0.03 : 0.17, 0]}
             opacity={0.35}
             scale={Math.max(config.buildingWidth, config.buildingDepth) * 1.6}
@@ -181,7 +220,13 @@ export function SelectorScene({
           />
 
           {/* Desktop only: mobile keeps the plain renderer (ACES set on gl). */}
-          {!isMobile ? <PostFX aoRadius={1.4} /> : null}
+          {!isMobile ? (
+            <PostFX
+              aoRadius={1.4}
+              ssao={effectsLevel < 1}
+              multisampling={effectsLevel >= 2 ? 2 : 4}
+            />
+          ) : null}
         </>
       )}
 

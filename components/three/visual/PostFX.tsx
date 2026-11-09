@@ -18,6 +18,10 @@ type PostFXProps = {
    * colors fade a little, so that point stands out ("focus mode").
    */
   focus?: [number, number, number] | null;
+  /** Ambient occlusion (and the normal pass it needs: the scene drawn a second time). */
+  ssao?: boolean;
+  /** MSAA samples of the composer's target (the canvas itself is not antialiased). */
+  multisampling?: number;
 };
 
 /**
@@ -29,24 +33,33 @@ type PostFXProps = {
  * - N8AO: n8ao 2.0.1 crashes on three r187.
  * - BrightnessContrast and daytime Bloom: both washed the image out.
  */
-export function PostFX({ aoRadius = 1.2, focus = null }: PostFXProps) {
+export function PostFX({
+  aoRadius = 1.2,
+  focus = null,
+  ssao = true,
+  multisampling = 4,
+}: PostFXProps) {
   return (
-    <EffectComposer multisampling={4} enableNormalPass>
-      <SSAO
-        blendFunction={BlendFunction.MULTIPLY}
-        worldDistanceThreshold={40}
-        worldDistanceFalloff={10}
-        worldProximityThreshold={aoRadius}
-        worldProximityFalloff={aoRadius * 0.6}
-        radius={0.08}
-        intensity={2.2}
-        luminanceInfluence={0.6}
-        samples={16}
-        rings={4}
-        bias={0.02}
-        fade={0.02}
-        resolutionScale={0.5}
-      />
+    <EffectComposer multisampling={multisampling} enableNormalPass={ssao}>
+      {ssao ? (
+        <SSAO
+          blendFunction={BlendFunction.MULTIPLY}
+          worldDistanceThreshold={40}
+          worldDistanceFalloff={10}
+          worldProximityThreshold={aoRadius}
+          worldProximityFalloff={aoRadius * 0.6}
+          radius={0.08}
+          intensity={2.2}
+          luminanceInfluence={0.6}
+          samples={16}
+          rings={4}
+          bias={0.02}
+          fade={0.02}
+          resolutionScale={0.5}
+        />
+      ) : (
+        <></>
+      )}
       {focus ? (
         <DepthOfField target={focus} worldFocusRange={8} bokehScale={3} />
       ) : (
