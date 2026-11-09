@@ -13,6 +13,8 @@ import { EdificioLighting } from "./EdificioLighting";
 import type { GeoEnvironmentProps } from "@/components/three/geo/GeoEnvironment";
 import { MapGround, type MapBlend, type MapGroundProps } from "@/components/three/geo/MapGround";
 import { MapBuildings } from "@/components/three/geo/MapBuildings";
+import { MapStreets } from "@/components/three/geo/MapStreets";
+import { MapVegetation } from "@/components/three/geo/MapVegetation";
 import { MapIntro } from "@/components/three/geo/MapIntro";
 import { MapClouds } from "@/components/three/geo/MapClouds";
 import type { FlyoverCaption } from "@/components/three/geo/AerialFlyover";
@@ -147,6 +149,8 @@ export function SelectorScene({
                 }}
               />
               <MapBuildings blendRef={mapBlend} footprint={footprint} isMobile={isMobile} />
+              <MapStreets blendRef={mapBlend} isMobile={isMobile} />
+              <MapVegetation blendRef={mapBlend} footprint={footprint} isMobile={isMobile} />
               <Suspense fallback={null}>
                 <MapClouds isMobile={isMobile} />
               </Suspense>

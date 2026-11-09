@@ -181,8 +181,8 @@ export function MapClouds({ isMobile }: { isMobile: boolean }) {
         ))}
       </Clouds>
 
-      {/* Cloud shadows sliding over the map, under the tower's contact shadow. */}
-      <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]} renderOrder={2}>
+      {/* Cloud shadows sliding over the map and its streets (roads sit 15 cm up). */}
+      <mesh position={[0, 0.2, 0]} rotation={[-Math.PI / 2, 0, 0]} renderOrder={2}>
         <planeGeometry args={[SHADOW_SIZE, SHADOW_SIZE]} />
         <meshBasicMaterial
           ref={shadeRef}
