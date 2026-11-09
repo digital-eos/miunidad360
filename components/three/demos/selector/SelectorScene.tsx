@@ -1,6 +1,6 @@
 "use client";
 
-import { lazy, Suspense, useRef } from "react";
+import { lazy, Suspense, useRef, useState } from "react";
 import { ContactShadows } from "@react-three/drei";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
 import type { BuildingConfig } from "@/lib/three/building-config";
@@ -12,6 +12,8 @@ import { EdificioCity } from "./EdificioCity";
 import { EdificioLighting } from "./EdificioLighting";
 import type { GeoEnvironmentProps } from "@/components/three/geo/GeoEnvironment";
 import { MapGround, type MapGroundProps } from "@/components/three/geo/MapGround";
+import { MapIntro } from "@/components/three/geo/MapIntro";
+import type { FlyoverCaption } from "@/components/three/geo/AerialFlyover";
 
 /** Real-location environment (Google 3D tiles, atmosphere, flyover): loaded only when used. */
 const GeoEnvironment = lazy(() => import("@/components/three/geo/GeoEnvironment"));
@@ -24,8 +26,15 @@ export type SelectorGeoOptions = Omit<
   introActive: boolean;
 };
 
-/** Real location as a flat street map under the tower. */
-export type SelectorMapOptions = Pick<MapGroundProps, "apiKey" | "onFallback" | "onAttribution">;
+/** Real location as a flat street map under the tower, with its entrance descent. */
+export type SelectorMapOptions = Pick<MapGroundProps, "apiKey" | "onFallback" | "onAttribution"> & {
+  /** The entrance descent is running: the orbit controls wait for it. */
+  introActive: boolean;
+  endView: Viewpoint;
+  skipToken: number;
+  onCaption: (caption: FlyoverCaption) => void;
+  onIntroDone: () => void;
+};
 
 export type SelectorSceneProps = {
   config: BuildingConfig;
@@ -85,7 +94,9 @@ export function SelectorScene({
   ...model
 }: SelectorSceneProps) {
   const building = <EdificioModel config={config} castShadow={!isMobile} {...model} />;
-  const { introActive = false, ...geoProps } = geo ?? {};
+  const { introActive: geoIntro = false, ...geoProps } = geo ?? {};
+  const introActive = geo ? geoIntro : Boolean(map?.introActive);
+  const [mapReady, setMapReady] = useState(false);
 
   return (
     <>
@@ -113,7 +124,27 @@ export function SelectorScene({
 
           {building}
           {map ? (
-            <MapGround {...map} isMobile={isMobile} onReady={() => onReady?.()} />
+            <>
+              <MapGround
+                apiKey={map.apiKey}
+                onFallback={map.onFallback}
+                onAttribution={map.onAttribution}
+                isMobile={isMobile}
+                onReady={() => {
+                  setMapReady(true);
+                  onReady?.();
+                }}
+              />
+              {map.introActive ? (
+                <MapIntro
+                  ready={mapReady}
+                  endView={map.endView}
+                  skipToken={map.skipToken}
+                  onCaption={map.onCaption}
+                  onComplete={map.onIntroDone}
+                />
+              ) : null}
+            </>
           ) : (
             <EdificioCity castShadow={!isMobile} />
           )}
@@ -141,7 +172,7 @@ export function SelectorScene({
           autoRotateSpeed={0.55}
           minDistance={minDistance}
           maxDistance={maxDistance}
-          startFromCurrent={Boolean(geo)}
+          startFromCurrent={Boolean(geo || map)}
           onInteractionChange={(interacting) => {
             if (interacting) onInteraction?.();
           }}

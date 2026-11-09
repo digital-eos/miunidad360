@@ -202,7 +202,7 @@ export function SelectorExperience({
   );
   const [skipToken, setSkipToken] = useState(0);
   const [caption, setCaption] = useState<FlyoverCaption | null>(null);
-  const flying = geoEnabled && introActive;
+  const flying = realLocation && introActive;
   const flyingRef = useRef(flying);
   useEffect(() => {
     flyingRef.current = flying;
@@ -468,14 +468,25 @@ export function SelectorExperience({
     setMapFailed(true);
     setSceneReady(false);
   }, []);
+  const overview = useMemo(() => overviewViewpoint(aspect), [aspect]);
   const map = useMemo<SelectorMapOptions | null>(
     () =>
       mapEnabled && mapKey
-        ? { apiKey: mapKey, onFallback: handleMapFallback, onAttribution: setMapAttribution }
+        ? {
+            apiKey: mapKey,
+            onFallback: handleMapFallback,
+            onAttribution: setMapAttribution,
+            introActive,
+            endView: overview,
+            skipToken,
+            onCaption: setCaption,
+            onIntroDone: handleIntroDone,
+          }
         : null,
-    [mapEnabled, mapKey, handleMapFallback],
+    // The descent's landing shot is fixed when it starts; a resize mid-flight doesn't move it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [mapEnabled, mapKey, handleMapFallback, introActive, skipToken, handleIntroDone],
   );
-  const overview = useMemo(() => overviewViewpoint(aspect), [aspect]);
   const geo = useMemo<SelectorGeoOptions | null>(
     () =>
       geoEnabled && geoKey
