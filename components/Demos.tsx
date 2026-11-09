@@ -39,6 +39,13 @@ const BLOQUES: Bloque[] = [
         title: "Edificio demo",
         description: "Filtrá por ambientes, precio y piso, y abrí la ficha de cada departamento.",
       },
+      {
+        kind: "zeus",
+        href: "/demos/zeus3",
+        title: "Zeus III · Pinamar",
+        description:
+          "Un edificio real armado en 3D desde sus planos: elegí un piso, tocá una unidad y mirá su plano, superficie y precio.",
+      },
     ],
   },
   {
