@@ -1,9 +1,14 @@
 "use client";
 
-import { Environment, SoftShadows } from "@react-three/drei";
+import { SoftShadows } from "@react-three/drei";
 import { SkyDome } from "@/components/three/visual/SkyDome";
+import { SunSkyEnvironment } from "@/components/three/visual/SunSkyEnvironment";
 
 const HORIZON = "#e2eaee";
+const ZENITH = "#7fa9cf";
+/** Where the sun is: the directional light, and the sun disc in the environment. */
+const SUN: [number, number, number] = [38, 62, 46];
+const SUN_COLOR = "#fff0d8";
 
 /**
  * Afternoon light over Buenos Aires: the sun high in the north-east, so the north faces
@@ -20,14 +25,14 @@ export function EdificioLighting({
   return (
     <>
       <color attach="background" args={[HORIZON]} />
-      <SkyDome zenith="#7fa9cf" horizon={HORIZON} ground="#d9e2e6" />
+      <SkyDome zenith={ZENITH} horizon={HORIZON} ground="#d9e2e6" />
       <fog attach="fog" args={[HORIZON, fogRange[0], fogRange[1]]} />
       <ambientLight intensity={0.12} />
       <hemisphereLight args={["#d3e3f0", "#5c4c3c", 0.55]} />
       <directionalLight
-        position={[38, 62, 46]}
+        position={SUN}
         intensity={highQuality ? 3.1 : 2.3}
-        color="#fff0d8"
+        color={SUN_COLOR}
         castShadow
         // Shadows cover ±40 m around the tower: its own shadow (~22 m at this sun height) and
         // the nearest blocks. At 2048² that is 3.9 cm a texel, about what ±70 m at 4096² gave
@@ -44,7 +49,18 @@ export function EdificioLighting({
       />
       {/* Penumbra in texels: 16 keeps the same softness in meters as 18 did at ±70 m / 4096². */}
       {highQuality ? <SoftShadows size={16} samples={12} focus={0.7} /> : null}
-      <Environment preset="city" environmentIntensity={0.55} />
+      {/* Image-based light from this sky and sun (was drei's "city" preset: a photo of a
+          Berlin square, downloaded from a third-party CDN on every visit). */}
+      <SunSkyEnvironment
+        sun={SUN}
+        zenith={ZENITH}
+        // Warmer than the visible sky: afternoon haze, and sunlit pavement bouncing back.
+        horizon="#efe4d2"
+        ground="#b8a78d"
+        sunColor={SUN_COLOR}
+        sunIntensity={60}
+        environmentIntensity={0.7}
+      />
     </>
   );
 }
