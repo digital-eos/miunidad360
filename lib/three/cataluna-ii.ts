@@ -1,7 +1,6 @@
 import type { BuildingConfig } from "./building-config";
 import type { ApartmentLayout, ExteriorSide } from "./building-layout";
 import type { Unidad } from "@/lib/unidades/types";
-import type { UnitStatus } from "@/lib/units/demo-data";
 
 /**
  * Cataluña II (Buenos Aires 2771, Mar del Plata) as built in the developer's brochure,
@@ -202,23 +201,7 @@ export function streetRailings(floor: number): { x: [number, number]; framed: bo
 // ---------------------------------------------------------------------------------------
 // Unit data (served by the API until the project is seeded in the database)
 
-/** Illustrative prices and statuses, like the rest of the demo. */
-const STATUS: Record<string, UnitStatus> = {
-  "102": "vendida",
-  "201": "vendida",
-  "302": "vendida",
-  "501": "vendida",
-  "203": "reservada",
-  "602": "reservada",
-};
-
-/** Mar del Plata new-build ballpark: USD/m² rising with the floor, rear units a bit dearer (more sun). */
-function unitPrice(unit: UnitProgram) {
-  const rear = unit.zone.startsWith("rear");
-  const perM2 = 2050 * (1 + 0.015 * (unit.floor - 1)) * (rear ? 1.03 : 1);
-  return Math.round(((unit.areaM2 + unit.balconyM2 * 0.5) * perM2) / 1000) * 1000;
-}
-
+/** Every unit is for sale; prices are given on request ("Consultar"). */
 export function catalunaUnidades(): Unidad[] {
   return CATALUNA_UNITS.map((unit, i) => ({
     id: i + 1,
@@ -230,9 +213,9 @@ export function catalunaUnidades(): Unidad[] {
     superficieTerrenoM2: null,
     // Street facade faces bearing 123° (≈ SE), the rear 303° (≈ NO).
     orientacion: unit.zone.startsWith("rear") ? "NO" : "SE",
-    precio: unitPrice(unit),
+    precio: null,
     moneda: "USD",
-    estado: STATUS[unit.code] ?? "disponible",
+    estado: "disponible",
     objeto3d: unit.code,
     atributos: {
       piso: unit.floor,
@@ -253,5 +236,5 @@ export const CATALUNA_PROJECT = {
   latitude: -38.010459,
   longitude: -57.548978,
   description:
-    "Cataluña II, de Cataluña Desarrollos Inmobiliarios. 15 unidades de 1, 2 y 3 ambientes. Precios y estados ilustrativos.",
+    "Cataluña II, de Cataluña Desarrollos Inmobiliarios. 15 unidades de 1, 2 y 3 ambientes. Todas disponibles, precios a consultar.",
 };

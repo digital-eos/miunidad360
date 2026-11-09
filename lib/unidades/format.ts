@@ -10,7 +10,7 @@ const twoDecimals = new Intl.NumberFormat("es-AR", {
 });
 
 export function formatPrecio(precio: number | null, moneda: Moneda): string {
-  if (precio == null) return "Consultar precio";
+  if (precio == null) return "Consultar";
   return `${moneda === "USD" ? "USD" : "$"} ${integer.format(precio)}`;
 }
 

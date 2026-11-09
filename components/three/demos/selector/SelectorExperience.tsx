@@ -686,8 +686,8 @@ export function SelectorExperience({
           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex justify-center bg-gradient-to-t from-background/90 to-transparent px-3 pb-2 pt-6">
             <p className="text-center font-mono text-[9px] uppercase tracking-[0.1em] text-foreground-muted/80 sm:text-[10px]">
               {geo || map
-                ? `Ubicación real: ${SITE.address}, ${SITE.city} · edificio, precios y estados ilustrativos`
-                : `${PROJECT_NAME} · modelo 3D, precios y estados ilustrativos`}
+                ? `Ubicación real: ${SITE.address}, ${SITE.city} · modelo 3D ilustrativo`
+                : `${PROJECT_NAME} · modelo 3D ilustrativo`}
             </p>
           </div>
         </>

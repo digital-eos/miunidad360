@@ -96,8 +96,10 @@ export function EdificioInfoPanel({
   const matching = inScope
     .filter((u) => unitMatchesFilters(u, filters))
     .sort((a, b) => unitFloor(b) - unitFloor(a) || a.codigo.localeCompare(b.codigo));
-  const available = inScope.filter((u) => u.estado === "disponible" && u.precio != null);
-  const minPrice = available.length ? Math.min(...available.map((u) => u.precio as number)) : null;
+  const available = inScope.filter((u) => u.estado === "disponible");
+  const priced = available.filter((u) => u.precio != null);
+  const minPrice = priced.length ? Math.min(...priced.map((u) => u.precio as number)) : null;
+  const hasPrices = units.some((u) => u.precio != null);
   const filtering = hasActiveFilters(filters);
   const scopeLabel = focusFloor === null ? "Todo el edificio" : `Piso ${focusFloor}`;
 
@@ -137,7 +139,7 @@ export function EdificioInfoPanel({
             source="selector-unidad"
             onClose={() => onSelectUnit(null)}
             backLabel={focusFloor === null ? "Todas las unidades" : `Unidades del piso ${focusFloor}`}
-            nota="Modelo 3D, precios y estados ilustrativos."
+            nota="Modelo 3D ilustrativo."
             media={
               <div className="rounded-xl border border-border-subtle bg-background-elevated p-3">
                 <FloorPlanSvg
@@ -230,24 +232,26 @@ export function EdificioInfoPanel({
                 </div>
               ) : null}
               <div className="flex flex-wrap items-center gap-2">
-                <select
-                  aria-label="Precio máximo"
-                  value={filters.maxPriceUsd ?? ""}
-                  onChange={(e) =>
-                    onFiltersChange({
-                      ...filters,
-                      maxPriceUsd: e.target.value ? Number(e.target.value) : null,
-                    })
-                  }
-                  className="min-w-0 flex-1 rounded-full border border-border-subtle bg-background px-3 py-1 text-xs font-medium text-foreground focus:border-accent focus:outline-none"
-                >
-                  <option value="">Cualquier precio</option>
-                  {PRICE_OPTIONS.map((p) => (
-                    <option key={p} value={p}>
-                      Hasta USD {p.toLocaleString("es-AR")}
-                    </option>
-                  ))}
-                </select>
+                {hasPrices ? (
+                  <select
+                    aria-label="Precio máximo"
+                    value={filters.maxPriceUsd ?? ""}
+                    onChange={(e) =>
+                      onFiltersChange({
+                        ...filters,
+                        maxPriceUsd: e.target.value ? Number(e.target.value) : null,
+                      })
+                    }
+                    className="min-w-0 flex-1 rounded-full border border-border-subtle bg-background px-3 py-1 text-xs font-medium text-foreground focus:border-accent focus:outline-none"
+                  >
+                    <option value="">Cualquier precio</option>
+                    {PRICE_OPTIONS.map((p) => (
+                      <option key={p} value={p}>
+                        Hasta USD {p.toLocaleString("es-AR")}
+                      </option>
+                    ))}
+                  </select>
+                ) : null}
                 <Chip
                   active={filters.onlyAvailable}
                   onClick={() =>

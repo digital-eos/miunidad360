@@ -130,7 +130,9 @@ export function FichaUnidad({
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="font-display text-2xl">{formatPrecio(unidad.precio, unidad.moneda)}</p>
-            <p className="text-xs text-foreground-muted">Precio ilustrativo, no es una oferta real.</p>
+            {unidad.precio != null ? (
+              <p className="text-xs text-foreground-muted">Precio ilustrativo, no es una oferta real.</p>
+            ) : null}
           </div>
           <span
             className="shrink-0 rounded-full px-3 py-1 text-xs font-medium"
