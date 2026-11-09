@@ -1,0 +1,712 @@
+{
+  "_version": 1,
+  "_nota": "Superficies tomadas de los planos (Febrero 2023). Dormitorios y baños leídos de los planos. Precios, estados y orientación: FICTICIOS, a confirmar por el desarrollador.",
+  "proyecto": {
+    "slug": "zeus3",
+    "nombre": "Zeus III",
+    "ubicacion": "Pinamar, Buenos Aires",
+    "estudio": "Cangiano Capparelli Arq.",
+    "descripcion": "Edificio de 6 niveles entre los pinos de Pinamar: 21 departamentos de 1 a 3 dormitorios, con patio en planta baja o balcón, 21 cocheras y amenities en terraza.",
+    "moneda": "USD",
+    "entrega": null
+  },
+  "niveles": [
+    {
+      "piso": 0,
+      "nombre": "Planta baja"
+    },
+    {
+      "piso": 1,
+      "nombre": "1er piso"
+    },
+    {
+      "piso": 2,
+      "nombre": "2do piso"
+    },
+    {
+      "piso": 3,
+      "nombre": "3er piso"
+    },
+    {
+      "piso": 4,
+      "nombre": "4to piso"
+    },
+    {
+      "piso": 5,
+      "nombre": "5to piso"
+    }
+  ],
+  "unidades": [
+    {
+      "codigo": "PB A",
+      "objeto3d": "APT-0A",
+      "tipo": "departamento",
+      "piso": 0,
+      "letra": "A",
+      "superficie_cubierta_m2": 88.8,
+      "balcon_m2": null,
+      "patio_m2": 184.1,
+      "ambientes": 3,
+      "dormitorios": 2,
+      "banos": 2,
+      "orientacion": null,
+      "precio": 340500,
+      "moneda": "USD",
+      "estado": "disponible",
+      "plano": "/demos/zeus3/planos/0-a.webp"
+    },
+    {
+      "codigo": "PB B",
+      "objeto3d": "APT-0B",
+      "tipo": "departamento",
+      "piso": 0,
+      "letra": "B",
+      "superficie_cubierta_m2": 45.9,
+      "balcon_m2": null,
+      "patio_m2": 18.6,
+      "ambientes": 2,
+      "dormitorios": 1,
+      "banos": 1,
+      "orientacion": null,
+      "precio": 141500,
+      "moneda": "USD",
+      "estado": "vendida",
+      "plano": "/demos/zeus3/planos/0-b.webp"
+    },
+    {
+      "codigo": "PB C",
+      "objeto3d": "APT-0C",
+      "tipo": "departamento",
+      "piso": 0,
+      "letra": "C",
+      "superficie_cubierta_m2": 84.5,
+      "balcon_m2": null,
+      "patio_m2": 164.1,
+      "ambientes": 3,
+      "dormitorios": 2,
+      "banos": 2,
+      "orientacion": null,
+      "precio": 319000,
+      "moneda": "USD",
+      "estado": "disponible",
+      "plano": "/demos/zeus3/planos/0-c.webp"
+    },
+    {
+      "codigo": "PB D",
+      "objeto3d": "APT-0D",
+      "tipo": "departamento",
+      "piso": 0,
+      "letra": "D",
+      "superficie_cubierta_m2": 83.7,
+      "balcon_m2": null,
+      "patio_m2": 122.3,
+      "ambientes": 3,
+      "dormitorios": 2,
+      "banos": 2,
+      "orientacion": null,
+      "precio": 298000,
+      "moneda": "USD",
+      "estado": "reservada",
+      "plano": "/demos/zeus3/planos/0-d.webp"
+    },
+    {
+      "codigo": "1° A",
+      "objeto3d": "APT-1A",
+      "tipo": "departamento",
+      "piso": 1,
+      "letra": "A",
+      "superficie_cubierta_m2": 88.8,
+      "balcon_m2": 44.5,
+      "patio_m2": null,
+      "ambientes": 3,
+      "dormitorios": 2,
+      "banos": 2,
+      "orientacion": null,
+      "precio": 308500,
+      "moneda": "USD",
+      "estado": "disponible",
+      "plano": "/demos/zeus3/planos/1-a.webp"
+    },
+    {
+      "codigo": "1° B",
+      "objeto3d": "APT-1B",
+      "tipo": "departamento",
+      "piso": 1,
+      "letra": "B",
+      "superficie_cubierta_m2": 77.2,
+      "balcon_m2": 40.8,
+      "patio_m2": null,
+      "ambientes": 3,
+      "dormitorios": 2,
+      "banos": 2,
+      "orientacion": null,
+      "precio": 270500,
+      "moneda": "USD",
+      "estado": "vendida",
+      "plano": "/demos/zeus3/planos/1-b.webp"
+    },
+    {
+      "codigo": "1° C",
+      "objeto3d": "APT-1C",
+      "tipo": "departamento",
+      "piso": 1,
+      "letra": "C",
+      "superficie_cubierta_m2": 74.2,
+      "balcon_m2": 40.8,
+      "patio_m2": null,
+      "ambientes": 3,
+      "dormitorios": 2,
+      "banos": 2,
+      "orientacion": null,
+      "precio": 261500,
+      "moneda": "USD",
+      "estado": "disponible",
+      "plano": "/demos/zeus3/planos/1-c.webp"
+    },
+    {
+      "codigo": "2° A",
+      "objeto3d": "APT-2A",
+      "tipo": "departamento",
+      "piso": 2,
+      "letra": "A",
+      "superficie_cubierta_m2": 88.8,
+      "balcon_m2": 44.5,
+      "patio_m2": null,
+      "ambientes": 3,
+      "dormitorios": 2,
+      "banos": 2,
+      "orientacion": null,
+      "precio": 315000,
+      "moneda": "USD",
+      "estado": "reservada",
+      "plano": "/demos/zeus3/planos/2-a.webp"
+    },
+    {
+      "codigo": "2° B",
+      "objeto3d": "APT-2B",
+      "tipo": "departamento",
+      "piso": 2,
+      "letra": "B",
+      "superficie_cubierta_m2": 77.2,
+      "balcon_m2": 40.8,
+      "patio_m2": null,
+      "ambientes": 3,
+      "dormitorios": 2,
+      "banos": 2,
+      "orientacion": null,
+      "precio": 276000,
+      "moneda": "USD",
+      "estado": "disponible",
+      "plano": "/demos/zeus3/planos/2-b.webp"
+    },
+    {
+      "codigo": "2° C",
+      "objeto3d": "APT-2C",
+      "tipo": "departamento",
+      "piso": 2,
+      "letra": "C",
+      "superficie_cubierta_m2": 74.2,
+      "balcon_m2": 40.8,
+      "patio_m2": null,
+      "ambientes": 3,
+      "dormitorios": 2,
+      "banos": 2,
+      "orientacion": null,
+      "precio": 266500,
+      "moneda": "USD",
+      "estado": "disponible",
+      "plano": "/demos/zeus3/planos/2-c.webp"
+    },
+    {
+      "codigo": "2° D",
+      "objeto3d": "APT-2D",
+      "tipo": "departamento",
+      "piso": 2,
+      "letra": "D",
+      "superficie_cubierta_m2": 59.8,
+      "balcon_m2": 30.5,
+      "patio_m2": null,
+      "ambientes": 3,
+      "dormitorios": 2,
+      "banos": 2,
+      "orientacion": null,
+      "precio": 212500,
+      "moneda": "USD",
+      "estado": "vendida",
+      "plano": "/demos/zeus3/planos/2-d.webp"
+    },
+    {
+      "codigo": "3° A",
+      "objeto3d": "APT-3A",
+      "tipo": "departamento",
+      "piso": 3,
+      "letra": "A",
+      "superficie_cubierta_m2": 69.8,
+      "balcon_m2": 22.8,
+      "patio_m2": null,
+      "ambientes": 3,
+      "dormitorios": 2,
+      "banos": 2,
+      "orientacion": null,
+      "precio": 240500,
+      "moneda": "USD",
+      "estado": "disponible",
+      "plano": "/demos/zeus3/planos/3-a.webp"
+    },
+    {
+      "codigo": "3° B",
+      "objeto3d": "APT-3B",
+      "tipo": "departamento",
+      "piso": 3,
+      "letra": "B",
+      "superficie_cubierta_m2": 77.3,
+      "balcon_m2": 44.5,
+      "patio_m2": null,
+      "ambientes": 3,
+      "dormitorios": 2,
+      "banos": 2,
+      "orientacion": null,
+      "precio": 285500,
+      "moneda": "USD",
+      "estado": "reservada",
+      "plano": "/demos/zeus3/planos/3-b.webp"
+    },
+    {
+      "codigo": "3° C",
+      "objeto3d": "APT-3C",
+      "tipo": "departamento",
+      "piso": 3,
+      "letra": "C",
+      "superficie_cubierta_m2": 53.6,
+      "balcon_m2": 40.8,
+      "patio_m2": null,
+      "ambientes": 2,
+      "dormitorios": 1,
+      "banos": 1,
+      "orientacion": null,
+      "precio": 208000,
+      "moneda": "USD",
+      "estado": "disponible",
+      "plano": "/demos/zeus3/planos/3-c.webp"
+    },
+    {
+      "codigo": "3° D",
+      "objeto3d": "APT-3D",
+      "tipo": "departamento",
+      "piso": 3,
+      "letra": "D",
+      "superficie_cubierta_m2": 74.2,
+      "balcon_m2": 40.8,
+      "patio_m2": null,
+      "ambientes": 3,
+      "dormitorios": 2,
+      "banos": 2,
+      "orientacion": null,
+      "precio": 272000,
+      "moneda": "USD",
+      "estado": "vendida",
+      "plano": "/demos/zeus3/planos/3-d.webp"
+    },
+    {
+      "codigo": "4° A",
+      "objeto3d": "APT-4A",
+      "tipo": "departamento",
+      "piso": 4,
+      "letra": "A",
+      "superficie_cubierta_m2": 83.2,
+      "balcon_m2": 44.5,
+      "patio_m2": null,
+      "ambientes": 3,
+      "dormitorios": 2,
+      "banos": 2,
+      "orientacion": null,
+      "precio": 310000,
+      "moneda": "USD",
+      "estado": "disponible",
+      "plano": "/demos/zeus3/planos/4-a.webp"
+    },
+    {
+      "codigo": "4° B",
+      "objeto3d": "APT-4B",
+      "tipo": "departamento",
+      "piso": 4,
+      "letra": "B",
+      "superficie_cubierta_m2": 53.6,
+      "balcon_m2": 40.8,
+      "patio_m2": null,
+      "ambientes": 2,
+      "dormitorios": 1,
+      "banos": 1,
+      "orientacion": null,
+      "precio": 212000,
+      "moneda": "USD",
+      "estado": "disponible",
+      "plano": "/demos/zeus3/planos/4-b.webp"
+    },
+    {
+      "codigo": "4° C",
+      "objeto3d": "APT-4C",
+      "tipo": "departamento",
+      "piso": 4,
+      "letra": "C",
+      "superficie_cubierta_m2": 74.2,
+      "balcon_m2": 40.8,
+      "patio_m2": null,
+      "ambientes": 3,
+      "dormitorios": 2,
+      "banos": 2,
+      "orientacion": null,
+      "precio": 277500,
+      "moneda": "USD",
+      "estado": "disponible",
+      "plano": "/demos/zeus3/planos/4-c.webp"
+    },
+    {
+      "codigo": "4° D",
+      "objeto3d": "APT-4D",
+      "tipo": "departamento",
+      "piso": 4,
+      "letra": "D",
+      "superficie_cubierta_m2": 59.8,
+      "balcon_m2": 30.5,
+      "patio_m2": null,
+      "ambientes": 3,
+      "dormitorios": 2,
+      "banos": 2,
+      "orientacion": null,
+      "precio": 221500,
+      "moneda": "USD",
+      "estado": "reservada",
+      "plano": "/demos/zeus3/planos/4-d.webp"
+    },
+    {
+      "codigo": "5° A",
+      "objeto3d": "APT-5A",
+      "tipo": "departamento",
+      "piso": 5,
+      "letra": "A",
+      "superficie_cubierta_m2": 112.4,
+      "balcon_m2": 41.5,
+      "patio_m2": null,
+      "ambientes": 4,
+      "dormitorios": 3,
+      "banos": 2,
+      "orientacion": null,
+      "precio": 408000,
+      "moneda": "USD",
+      "estado": "disponible",
+      "plano": "/demos/zeus3/planos/5-a.webp"
+    },
+    {
+      "codigo": "5° B",
+      "objeto3d": "APT-5B",
+      "tipo": "departamento",
+      "piso": 5,
+      "letra": "B",
+      "superficie_cubierta_m2": 115.4,
+      "balcon_m2": 37.2,
+      "patio_m2": null,
+      "ambientes": 4,
+      "dormitorios": 3,
+      "banos": 2,
+      "orientacion": null,
+      "precio": 413500,
+      "moneda": "USD",
+      "estado": "vendida",
+      "plano": "/demos/zeus3/planos/5-b.webp"
+    }
+  ],
+  "cocheras": [
+    {
+      "codigo": "Cochera 01",
+      "tipo": "cochera",
+      "nivel": "Subsuelo",
+      "cubierta": true,
+      "precio": 28000,
+      "moneda": "USD",
+      "estado": "disponible"
+    },
+    {
+      "codigo": "Cochera 02",
+      "tipo": "cochera",
+      "nivel": "Subsuelo",
+      "cubierta": true,
+      "precio": 28000,
+      "moneda": "USD",
+      "estado": "vendida"
+    },
+    {
+      "codigo": "Cochera 03",
+      "tipo": "cochera",
+      "nivel": "Subsuelo",
+      "cubierta": true,
+      "precio": 28000,
+      "moneda": "USD",
+      "estado": "disponible"
+    },
+    {
+      "codigo": "Cochera 04",
+      "tipo": "cochera",
+      "nivel": "Subsuelo",
+      "cubierta": true,
+      "precio": 28000,
+      "moneda": "USD",
+      "estado": "disponible"
+    },
+    {
+      "codigo": "Cochera 05",
+      "tipo": "cochera",
+      "nivel": "Subsuelo",
+      "cubierta": true,
+      "precio": 28000,
+      "moneda": "USD",
+      "estado": "disponible"
+    },
+    {
+      "codigo": "Cochera 06",
+      "tipo": "cochera",
+      "nivel": "Subsuelo",
+      "cubierta": true,
+      "precio": 28000,
+      "moneda": "USD",
+      "estado": "reservada"
+    },
+    {
+      "codigo": "Cochera 07",
+      "tipo": "cochera",
+      "nivel": "Subsuelo",
+      "cubierta": true,
+      "precio": 28000,
+      "moneda": "USD",
+      "estado": "vendida"
+    },
+    {
+      "codigo": "Cochera 08",
+      "tipo": "cochera",
+      "nivel": "Subsuelo",
+      "cubierta": true,
+      "precio": 28000,
+      "moneda": "USD",
+      "estado": "disponible"
+    },
+    {
+      "codigo": "Cochera 09",
+      "tipo": "cochera",
+      "nivel": "Subsuelo",
+      "cubierta": true,
+      "precio": 28000,
+      "moneda": "USD",
+      "estado": "disponible"
+    },
+    {
+      "codigo": "Cochera 10",
+      "tipo": "cochera",
+      "nivel": "Subsuelo",
+      "cubierta": true,
+      "precio": 28000,
+      "moneda": "USD",
+      "estado": "vendida"
+    },
+    {
+      "codigo": "Cochera 11",
+      "tipo": "cochera",
+      "nivel": "Subsuelo",
+      "cubierta": true,
+      "precio": 28000,
+      "moneda": "USD",
+      "estado": "disponible"
+    },
+    {
+      "codigo": "Cochera 12",
+      "tipo": "cochera",
+      "nivel": "Subsuelo",
+      "cubierta": true,
+      "precio": 28000,
+      "moneda": "USD",
+      "estado": "disponible"
+    },
+    {
+      "codigo": "Cochera 13",
+      "tipo": "cochera",
+      "nivel": "Subsuelo",
+      "cubierta": true,
+      "precio": 28000,
+      "moneda": "USD",
+      "estado": "disponible"
+    },
+    {
+      "codigo": "Cochera 14",
+      "tipo": "cochera",
+      "nivel": "Subsuelo",
+      "cubierta": true,
+      "precio": 28000,
+      "moneda": "USD",
+      "estado": "vendida"
+    },
+    {
+      "codigo": "Cochera 15",
+      "tipo": "cochera",
+      "nivel": "Subsuelo",
+      "cubierta": true,
+      "precio": 28000,
+      "moneda": "USD",
+      "estado": "disponible"
+    },
+    {
+      "codigo": "Cochera 16",
+      "tipo": "cochera",
+      "nivel": "Subsuelo",
+      "cubierta": true,
+      "precio": 28000,
+      "moneda": "USD",
+      "estado": "disponible"
+    },
+    {
+      "codigo": "Cochera 17",
+      "tipo": "cochera",
+      "nivel": "Subsuelo",
+      "cubierta": true,
+      "precio": 28000,
+      "moneda": "USD",
+      "estado": "reservada"
+    },
+    {
+      "codigo": "Cochera 18",
+      "tipo": "cochera",
+      "nivel": "Subsuelo",
+      "cubierta": true,
+      "precio": 28000,
+      "moneda": "USD",
+      "estado": "disponible"
+    },
+    {
+      "codigo": "Cochera 19",
+      "tipo": "cochera",
+      "nivel": "Subsuelo",
+      "cubierta": true,
+      "precio": 28000,
+      "moneda": "USD",
+      "estado": "disponible"
+    },
+    {
+      "codigo": "Cochera 20",
+      "tipo": "cochera",
+      "nivel": "Subsuelo",
+      "cubierta": true,
+      "precio": 28000,
+      "moneda": "USD",
+      "estado": "disponible"
+    },
+    {
+      "codigo": "Cochera 21",
+      "tipo": "cochera",
+      "nivel": "Subsuelo",
+      "cubierta": true,
+      "precio": 28000,
+      "moneda": "USD",
+      "estado": "vendida"
+    }
+  ],
+  "galeria": [
+    {
+      "src": "/demos/zeus3/galeria/render-01.webp",
+      "miniatura": "/demos/zeus3/galeria/render-01-640.webp",
+      "alt": "Fachada principal"
+    },
+    {
+      "src": "/demos/zeus3/galeria/render-02.webp",
+      "miniatura": "/demos/zeus3/galeria/render-02-640.webp",
+      "alt": "Fachada desde la calle"
+    },
+    {
+      "src": "/demos/zeus3/galeria/render-03.webp",
+      "miniatura": "/demos/zeus3/galeria/render-03-640.webp",
+      "alt": "Fachada con jardín"
+    },
+    {
+      "src": "/demos/zeus3/galeria/render-04.webp",
+      "miniatura": "/demos/zeus3/galeria/render-04-640.webp",
+      "alt": "Acceso y fachada"
+    },
+    {
+      "src": "/demos/zeus3/galeria/render-05.webp",
+      "miniatura": "/demos/zeus3/galeria/render-05-640.webp",
+      "alt": "Balcón con sillones colgantes"
+    },
+    {
+      "src": "/demos/zeus3/galeria/render-06.webp",
+      "miniatura": "/demos/zeus3/galeria/render-06-640.webp",
+      "alt": "Vista aérea del conjunto"
+    },
+    {
+      "src": "/demos/zeus3/galeria/render-07.webp",
+      "miniatura": "/demos/zeus3/galeria/render-07-640.webp",
+      "alt": "Galería de planta baja"
+    },
+    {
+      "src": "/demos/zeus3/galeria/render-08.webp",
+      "miniatura": "/demos/zeus3/galeria/render-08-640.webp",
+      "alt": "Piscina y edificio"
+    },
+    {
+      "src": "/demos/zeus3/galeria/render-09.webp",
+      "miniatura": "/demos/zeus3/galeria/render-09-640.webp",
+      "alt": "Piscina con solárium"
+    },
+    {
+      "src": "/demos/zeus3/galeria/render-10.webp",
+      "miniatura": "/demos/zeus3/galeria/render-10-640.webp",
+      "alt": "Vista aérea entre los pinos"
+    },
+    {
+      "src": "/demos/zeus3/galeria/render-11.webp",
+      "miniatura": "/demos/zeus3/galeria/render-11-640.webp",
+      "alt": "Piscina frente al edificio"
+    },
+    {
+      "src": "/demos/zeus3/galeria/render-12.webp",
+      "miniatura": "/demos/zeus3/galeria/render-12-640.webp",
+      "alt": "Edificio desde la galería"
+    },
+    {
+      "src": "/demos/zeus3/galeria/render-13.webp",
+      "miniatura": "/demos/zeus3/galeria/render-13-640.webp",
+      "alt": "Terraza con jacuzzi"
+    },
+    {
+      "src": "/demos/zeus3/galeria/render-14.webp",
+      "miniatura": "/demos/zeus3/galeria/render-14-640.webp",
+      "alt": "Terraza con jacuzzi de noche"
+    },
+    {
+      "src": "/demos/zeus3/galeria/render-15.webp",
+      "miniatura": "/demos/zeus3/galeria/render-15-640.webp",
+      "alt": "Balcón con vista al bosque"
+    },
+    {
+      "src": "/demos/zeus3/galeria/render-16.webp",
+      "miniatura": "/demos/zeus3/galeria/render-16-640.webp",
+      "alt": "Quincho en la terraza"
+    },
+    {
+      "src": "/demos/zeus3/galeria/render-17.webp",
+      "miniatura": "/demos/zeus3/galeria/render-17-640.webp",
+      "alt": "Terraza con piscina"
+    },
+    {
+      "src": "/demos/zeus3/galeria/render-18.webp",
+      "miniatura": "/demos/zeus3/galeria/render-18-640.webp",
+      "alt": "Quincho con parrilla"
+    },
+    {
+      "src": "/demos/zeus3/galeria/render-19.webp",
+      "miniatura": "/demos/zeus3/galeria/render-19-640.webp",
+      "alt": "Terraza con sillones"
+    },
+    {
+      "src": "/demos/zeus3/galeria/render-20.webp",
+      "miniatura": "/demos/zeus3/galeria/render-20-640.webp",
+      "alt": "Balcón esquinero"
+    }
+  ]
+}

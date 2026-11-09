@@ -50,6 +50,7 @@ export const TIPOS: Record<UnidadTipo, TipoConfig> = {
       { clave: "dormitorios", etiqueta: "Dormitorios", formato: "entero" },
       { clave: "banos", etiqueta: "Baños", formato: "entero" },
       { clave: "balcon_m2", etiqueta: "Balcón", formato: "m2" },
+      { clave: "patio_m2", etiqueta: "Patio", formato: "m2" },
       { clave: "tipologia", etiqueta: "Tipología", formato: "texto", prefijo: "Tipo " },
     ],
   },

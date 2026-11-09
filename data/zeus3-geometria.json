@@ -1,0 +1,273 @@
+{
+ "niveles": [
+  {
+   "piso": 0,
+   "nombre": "Planta baja",
+   "cota_m": 0.0
+  },
+  {
+   "piso": 1,
+   "nombre": "1er piso",
+   "cota_m": 3.0
+  },
+  {
+   "piso": 2,
+   "nombre": "2do piso",
+   "cota_m": 6.0
+  },
+  {
+   "piso": 3,
+   "nombre": "3er piso",
+   "cota_m": 9.0
+  },
+  {
+   "piso": 4,
+   "nombre": "4to piso",
+   "cota_m": 12.0
+  },
+  {
+   "piso": 5,
+   "nombre": "5to piso",
+   "cota_m": 15.0
+  }
+ ],
+ "unidades": [
+  {
+   "objeto3d": "APT-0A",
+   "piso": 0,
+   "letra": "A",
+   "contorno_m2": 97.8,
+   "centro_m": [
+    7.77,
+    1.38,
+    -4.02
+   ]
+  },
+  {
+   "objeto3d": "APT-0B",
+   "piso": 0,
+   "letra": "B",
+   "contorno_m2": 53.7,
+   "centro_m": [
+    -0.22,
+    1.38,
+    -4.87
+   ]
+  },
+  {
+   "objeto3d": "APT-0C",
+   "piso": 0,
+   "letra": "C",
+   "contorno_m2": 82.9,
+   "centro_m": [
+    -8.29,
+    1.38,
+    -4.87
+   ]
+  },
+  {
+   "objeto3d": "APT-0D",
+   "piso": 0,
+   "letra": "D",
+   "contorno_m2": 83.4,
+   "centro_m": [
+    -8.29,
+    1.38,
+    5.32
+   ]
+  },
+  {
+   "objeto3d": "APT-1A",
+   "piso": 1,
+   "letra": "A",
+   "contorno_m2": 138.1,
+   "centro_m": [
+    7.16,
+    4.38,
+    -4.88
+   ]
+  },
+  {
+   "objeto3d": "APT-1B",
+   "piso": 1,
+   "letra": "B",
+   "contorno_m2": 130.6,
+   "centro_m": [
+    -6.95,
+    4.38,
+    -5.2
+   ]
+  },
+  {
+   "objeto3d": "APT-1C",
+   "piso": 1,
+   "letra": "C",
+   "contorno_m2": 116.2,
+   "centro_m": [
+    -7.47,
+    4.38,
+    5.58
+   ]
+  },
+  {
+   "objeto3d": "APT-2A",
+   "piso": 2,
+   "letra": "A",
+   "contorno_m2": 138.1,
+   "centro_m": [
+    7.16,
+    7.38,
+    -4.88
+   ]
+  },
+  {
+   "objeto3d": "APT-2B",
+   "piso": 2,
+   "letra": "B",
+   "contorno_m2": 130.6,
+   "centro_m": [
+    -6.95,
+    7.38,
+    -5.2
+   ]
+  },
+  {
+   "objeto3d": "APT-2C",
+   "piso": 2,
+   "letra": "C",
+   "contorno_m2": 116.2,
+   "centro_m": [
+    -7.47,
+    7.38,
+    5.58
+   ]
+  },
+  {
+   "objeto3d": "APT-2D",
+   "piso": 2,
+   "letra": "D",
+   "contorno_m2": 91.7,
+   "centro_m": [
+    5.11,
+    7.38,
+    5.47
+   ]
+  },
+  {
+   "objeto3d": "APT-3A",
+   "piso": 3,
+   "letra": "A",
+   "contorno_m2": 102.1,
+   "centro_m": [
+    5.21,
+    10.38,
+    4.99
+   ]
+  },
+  {
+   "objeto3d": "APT-3B",
+   "piso": 3,
+   "letra": "B",
+   "contorno_m2": 126.5,
+   "centro_m": [
+    3.49,
+    10.38,
+    -5.34
+   ]
+  },
+  {
+   "objeto3d": "APT-3C",
+   "piso": 3,
+   "letra": "C",
+   "contorno_m2": 98.1,
+   "centro_m": [
+    -8.66,
+    10.38,
+    -5.16
+   ]
+  },
+  {
+   "objeto3d": "APT-3D",
+   "piso": 3,
+   "letra": "D",
+   "contorno_m2": 115.5,
+   "centro_m": [
+    -7.52,
+    10.38,
+    5.57
+   ]
+  },
+  {
+   "objeto3d": "APT-4A",
+   "piso": 4,
+   "letra": "A",
+   "contorno_m2": 136.6,
+   "centro_m": [
+    3.65,
+    13.38,
+    -4.95
+   ]
+  },
+  {
+   "objeto3d": "APT-4B",
+   "piso": 4,
+   "letra": "B",
+   "contorno_m2": 98.8,
+   "centro_m": [
+    -8.63,
+    13.38,
+    -5.13
+   ]
+  },
+  {
+   "objeto3d": "APT-4C",
+   "piso": 4,
+   "letra": "C",
+   "contorno_m2": 116.2,
+   "centro_m": [
+    -7.47,
+    13.38,
+    5.58
+   ]
+  },
+  {
+   "objeto3d": "APT-4D",
+   "piso": 4,
+   "letra": "D",
+   "contorno_m2": 93.2,
+   "centro_m": [
+    5.11,
+    13.38,
+    5.4
+   ]
+  },
+  {
+   "objeto3d": "APT-5A",
+   "piso": 5,
+   "letra": "A",
+   "contorno_m2": 148.1,
+   "centro_m": [
+    -1.54,
+    16.38,
+    -5.53
+   ]
+  },
+  {
+   "objeto3d": "APT-5B",
+   "piso": 5,
+   "letra": "B",
+   "contorno_m2": 148.3,
+   "centro_m": [
+    -1.53,
+    16.38,
+    5.37
+   ]
+  }
+ ],
+ "tamano_m": [
+  27.4,
+  19.6,
+  20.01
+ ],
+ "altura_piso_m": 3.0
+}
