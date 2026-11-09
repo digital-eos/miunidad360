@@ -1,4 +1,4 @@
-import { defaultBuildingConfig } from "@/lib/three/building-config";
+import { CATALUNA_CONFIG } from "@/lib/three/cataluna-ii";
 import { buildFacadePoints } from "./facade-points";
 import { buildSceneOccluders } from "./scene-occluders";
 import { rayIntersectsAABB, SUN_RAY_MAX_DISTANCE } from "./occlusion";
@@ -17,8 +17,9 @@ export function computeSunHours(
   lng: number,
   facadeBearing?: number,
 ): SunHoursResult {
-  const facades = buildFacadePoints(defaultBuildingConfig);
-  const occluders = buildSceneOccluders(defaultBuildingConfig);
+  // The selector shows Cataluña II: its street and rear facades.
+  const facades = buildFacadePoints(CATALUNA_CONFIG);
+  const occluders = buildSceneOccluders(CATALUNA_CONFIG);
 
   const hours: SunHoursResult = {};
   for (const facade of facades) hours[facade.unitId] = 0;

@@ -30,11 +30,12 @@ export const SITE = {
   /** Compass bearing the street facade faces (degrees clockwise from north). */
   facadeBearing: 123.1,
   /**
-   * Where the address point sits in the scene. The tower's street facade (+Z, 17 m deep tower
-   * → z = 8.5) is placed on the estimated lot line: 16.9 m to the street centerline minus
-   * ~4.5 m of half road and ~3 m of sidewalk ≈ 9.4 m in front of the address point.
+   * Where the address point sits in the scene. The building's street facade (+Z, 22 m deep
+   * → z = 11) is placed on the estimated lot line: 16.9 m to the street centerline minus
+   * ~4.5 m of half road and ~3 m of sidewalk = 9.4 m from the centerline, so ≈ 7.5 m in
+   * front of the address point.
    */
-  addressOffset: new THREE.Vector3(0, 0, 0.9),
+  addressOffset: new THREE.Vector3(0, 0, 3.5),
 } as const;
 
 /** Paseo Aldrey mall (vertex centroid of OSM way 389391724), for the flyover's waypoint. */

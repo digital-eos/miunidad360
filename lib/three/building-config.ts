@@ -2,6 +2,8 @@ export const APARTMENT_LETTERS = ["A", "B", "C", "D"] as const;
 export type ApartmentLetter = (typeof APARTMENT_LETTERS)[number];
 
 export type BuildingConfig = {
+  /** A specific real building with its own unit layout (default: the procedural 2x2 grid). */
+  kind?: "cataluna-ii";
   /** Number of residential floors stacked above the glazed ground floor. */
   floors: number;
   /** Apartments per floor. The procedural layout assumes a 2x2 grid (4). */

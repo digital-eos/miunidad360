@@ -6,6 +6,7 @@ import { trackDemoClick } from "@/lib/analytics";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { SelectorCanvas } from "@/components/three/demos/selector/SelectorCanvas";
+import { CATALUNA_SLUG } from "@/lib/three/cataluna-ii";
 
 export function ResultSection() {
   // The 3D bundle only loads once the frame is close to the viewport (useInView uses a
@@ -27,7 +28,7 @@ export function ResultSection() {
       <div className="mx-auto mt-10 w-full max-w-[1200px] px-4 sm:px-8">
         <div ref={ref} className="min-h-[65vh] lg:min-h-[70vh]">
           {inView ? (
-            <SelectorCanvas projectSlug="edificio-demo" embedded />
+            <SelectorCanvas projectSlug={CATALUNA_SLUG} embedded />
           ) : (
             <div className="h-[65vh] rounded-2xl border border-border-subtle bg-background-elevated lg:h-[70vh]" />
           )}

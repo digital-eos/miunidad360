@@ -5,6 +5,7 @@ import { BackToHomeLink } from "@/components/capture/BackToHomeLink";
 import { ScrollCue } from "@/components/ScrollCue";
 import { DemoCTA } from "@/components/DemoCTA";
 import { Footer } from "@/components/Footer";
+import { CATALUNA_SLUG } from "@/lib/three/cataluna-ii";
 
 export const metadata: Metadata = {
   title: "Cataluña II · Mar del Plata",
@@ -16,7 +17,7 @@ export default function SelectorDemoPage() {
   return (
     <main className="relative bg-background">
       <Suspense fallback={null}>
-        <SelectorCanvas projectSlug="edificio-demo">
+        <SelectorCanvas projectSlug={CATALUNA_SLUG}>
           <BackToHomeLink />
           <ScrollCue targetId="demo-cta" />
         </SelectorCanvas>

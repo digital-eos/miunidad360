@@ -3,161 +3,23 @@
 import { useMemo, useRef, type RefObject } from "react";
 import * as THREE from "three";
 import { useFrame, type ThreeEvent } from "@react-three/fiber";
-import { Edges, Instance, Instances } from "@react-three/drei";
-import {
-  type BuildingConfig,
-  defaultBuildingConfig,
-  seededRandom,
-  totalBuildingHeight,
-} from "@/lib/three/building-config";
-import {
-  generateApartmentLayout,
-  type ApartmentLayout,
-  type ExteriorSide,
-} from "@/lib/three/building-layout";
+import { Edges } from "@react-three/drei";
+import { type BuildingConfig, totalBuildingHeight } from "@/lib/three/building-config";
+import { generateApartmentLayout, type ApartmentLayout } from "@/lib/three/building-layout";
+import { CATALUNA_CONFIG } from "@/lib/three/cataluna-ii";
 import type { FloorPlan, FloorPlanRoom } from "@/lib/units/floor-plan";
+import { CATALUNA_PALETTE, CatalunaArchitecture } from "./CatalunaArchitecture";
 
 /**
- * The "Edificio Demo" tower drawn as architecture: floor-to-ceiling glazing between white
- * slab bands, glass balconies on the north and south, vertical fins on the east and west,
- * a glazed lobby with a canopy and a rooftop terrace with a pool.
+ * Cataluña II (Buenos Aires 2771, Mar del Plata) as in its brochure: the street facade with
+ * its staggered grey frames, black railings and aluminium windows, the raised entrance between
+ * two slatted gates, and the roof terrace with its black pergola (see `CatalunaArchitecture`).
  *
- * Units keep the procedural layout (same ids as the database: "P04-B"). Each one gets an
- * invisible hit box and a tinted "status" shell drawn over its glazing.
+ * Units follow the brochure's numbering (101 … 602, same ids as the unit data). Each one is
+ * a solid volume behind the facade (the click target), with a tinted "status" shell over it.
  */
 
-export const EDIFICIO_PALETTE = {
-  stone: "#ece7de",
-  stoneShade: "#ddd6ca",
-  slab: "#f4f1ea",
-  frame: "#2a2c30",
-  deck: "#a5805c",
-  water: "#3aa6c2",
-  railing: "#b4d0db",
-};
-
-const SLAB = 0.34;
-const SLAB_OVERHANG = 0.28;
-const MODULE = 1.5;
 const GHOST_COLOR = "#ffffff";
-
-type FaceSlot = {
-  position: [number, number, number];
-  rotationY: number;
-  width: number;
-  floor: number;
-};
-
-type GlassSlot = FaceSlot & { tint: string };
-
-const SIDE_ROTATION: Record<ExteriorSide, number> = {
-  north: 0,
-  south: Math.PI,
-  east: Math.PI / 2,
-  west: -Math.PI / 2,
-};
-
-const GLASS_TINTS = ["#25323a", "#2c3a43", "#334550", "#3b4d58", "#22303a"];
-const CURTAIN_TINTS = ["#6b5a49", "#7d7466", "#55606a"];
-
-function glassTint(seed: number) {
-  const r = seededRandom(seed);
-  if (r > 0.88) return CURTAIN_TINTS[Math.floor(seededRandom(seed + 1) * CURTAIN_TINTS.length)];
-  return GLASS_TINTS[Math.floor(r * GLASS_TINTS.length) % GLASS_TINTS.length];
-}
-
-/** Point on an apartment's exterior face, `along` meters from its center, `out` meters outside. */
-function facePoint(
-  apt: ApartmentLayout,
-  side: ExteriorSide,
-  along: number,
-  out: number,
-  y: number,
-): [number, number, number] {
-  const [x, , z] = apt.position;
-  const [w, , d] = apt.size;
-  switch (side) {
-    case "north":
-      return [x + along, y, z + d / 2 + out];
-    case "south":
-      return [x - along, y, z - d / 2 - out];
-    case "east":
-      return [x + w / 2 + out, y, z - along];
-    case "west":
-      return [x - w / 2 - out, y, z + along];
-  }
-}
-
-function faceLength(apt: ApartmentLayout, side: ExteriorSide) {
-  return side === "north" || side === "south" ? apt.size[0] : apt.size[2];
-}
-
-type FacadeParts = {
-  glass: GlassSlot[];
-  mullions: FaceSlot[];
-  fins: FaceSlot[];
-  balconies: FaceSlot[];
-};
-
-function buildFacade(layouts: ApartmentLayout[], config: BuildingConfig): FacadeParts {
-  const glass: GlassSlot[] = [];
-  const mullions: FaceSlot[] = [];
-  const fins: FaceSlot[] = [];
-  const balconies: FaceSlot[] = [];
-  const clear = config.floorHeight - SLAB;
-
-  for (const apt of layouts) {
-    const y0 = apt.position[1] - config.floorHeight / 2;
-    const yMid = y0 + clear / 2;
-    for (const side of apt.exteriorSides) {
-      const len = faceLength(apt, side);
-      const count = Math.max(2, Math.round(len / MODULE));
-      const step = len / count;
-      const rot = SIDE_ROTATION[side];
-      for (let i = 0; i < count; i++) {
-        const along = -len / 2 + step * (i + 0.5);
-        const seed = apt.floor * 131 + apt.letter.charCodeAt(0) * 17 + side.length * 7 + i;
-        glass.push({
-          position: facePoint(apt, side, along, 0.04, yMid),
-          rotationY: rot,
-          width: step - 0.06,
-          floor: apt.floor,
-          tint: glassTint(seed),
-        });
-      }
-      for (let i = 0; i <= count; i++) {
-        const along = -len / 2 + step * i;
-        mullions.push({
-          position: facePoint(apt, side, along, 0.06, yMid),
-          rotationY: rot,
-          width: 0.07,
-          floor: apt.floor,
-        });
-      }
-      if (side === "east" || side === "west") {
-        // Vertical fins every other module: the east and west faces get the low sun.
-        for (let i = 2; i < count; i += 2) {
-          const along = -len / 2 + step * i;
-          fins.push({
-            position: facePoint(apt, side, along, 0.26, yMid),
-            rotationY: rot,
-            width: 0.12,
-            floor: apt.floor,
-          });
-        }
-      }
-      if (side === apt.balconySide) {
-        balconies.push({
-          position: facePoint(apt, side, 0, config.balconyDepth / 2 + SLAB_OVERHANG * 0.2, y0),
-          rotationY: rot,
-          width: len - 0.6,
-          floor: apt.floor,
-        });
-      }
-    }
-  }
-  return { glass, mullions, fins, balconies };
-}
 
 const projected = new THREE.Vector3();
 
@@ -244,9 +106,6 @@ function placePin(el: HTMLElement, at: [number, number] | null) {
   el.style.visibility = "visible";
 }
 
-function visibleUpTo<T extends { floor: number }>(items: T[], focusFloor: number | null) {
-  return focusFloor == null ? items : items.filter((item) => item.floor <= focusFloor);
-}
 
 export type EdificioModelProps = {
   config?: BuildingConfig;
@@ -273,7 +132,7 @@ export type EdificioModelProps = {
 };
 
 export function EdificioModel({
-  config = defaultBuildingConfig,
+  config = CATALUNA_CONFIG,
   castShadow = true,
   apartmentColors,
   dimmedIds,
@@ -289,17 +148,10 @@ export function EdificioModel({
   onApartmentPointerOut,
 }: EdificioModelProps) {
   const layouts = useMemo(() => generateApartmentLayout(config), [config]);
-  const facade = useMemo(() => buildFacade(layouts, config), [layouts, config]);
-
-  const glass = useMemo(() => visibleUpTo(facade.glass, focusFloor), [facade, focusFloor]);
-  const mullions = useMemo(() => visibleUpTo(facade.mullions, focusFloor), [facade, focusFloor]);
-  const fins = useMemo(() => visibleUpTo(facade.fins, focusFloor), [facade, focusFloor]);
-  const balconies = useMemo(() => visibleUpTo(facade.balconies, focusFloor), [facade, focusFloor]);
 
   const { floors, floorHeight, groundFloorHeight: G, buildingWidth: W, buildingDepth: D } = config;
-  const clear = floorHeight - SLAB;
+  const clear = floorHeight - config.slabThickness;
   const lastSolidFloor = focusFloor ?? floors;
-  const roofY = G + floors * floorHeight;
   const roofVisible = focusFloor == null || focusFloor >= floors;
   const height = totalBuildingHeight(config);
   // Corners of each unit's box: its card is placed around their on-screen outline.
@@ -333,26 +185,16 @@ export function EdificioModel({
     <group>
       {pins?.length ? <ScreenPins pins={pins} cornersFor={cornersFor} /> : null}
 
-      <Lobby config={config} castShadow={castShadow} />
+      {/* Facade, ground floor, slabs, core and roof. With a floor isolated, its ceiling goes
+          too: the units read from above. */}
+      <CatalunaArchitecture
+        config={config}
+        topFloor={lastSolidFloor}
+        roofVisible={roofVisible}
+        castShadow={castShadow}
+      />
 
-      {/* Floor slabs: white bands that read the floors from afar. */}
-      {/* With a floor isolated, its ceiling goes too: the units read from above. */}
-      {Array.from({ length: focusFloor != null && focusFloor < floors ? focusFloor : floors + 1 }, (_, i) => (
-        <mesh
-          key={`slab-${i}`}
-          position={[0, G + i * floorHeight - SLAB / 2, 0]}
-          castShadow={castShadow}
-          receiveShadow
-        >
-          <boxGeometry args={[W + SLAB_OVERHANG * 2, SLAB, D + SLAB_OVERHANG * 2]} />
-          <meshStandardMaterial color={EDIFICIO_PALETTE.slab} roughness={0.85} />
-        </mesh>
-      ))}
-
-      {/* Core piers: the stair and lift core shows between the units on every face. */}
-      <CorePiers config={config} topFloor={lastSolidFloor} castShadow={castShadow} />
-
-      {/* Units: body behind the glass (and the click target), then the status shell. */}
+      {/* Units: the volume behind the facade (and the click target), then the status shell. */}
       {layouts.map((apt) => {
         if (apt.floor > lastSolidFloor) return null;
         const y = apt.position[1] - floorHeight / 2 + clear / 2;
@@ -380,11 +222,7 @@ export function EdificioModel({
             >
               <boxGeometry args={[apt.size[0], clear, apt.size[2]]} />
               {/* Opened unit: the box stays as the click target but is not drawn. */}
-              <meshStandardMaterial
-                color={EDIFICIO_PALETTE.stoneShade}
-                roughness={0.9}
-                visible={!open}
-              />
+              <meshStandardMaterial color={CATALUNA_PALETTE.wall} roughness={0.92} visible={!open} />
             </mesh>
             <StatusShell
               position={[apt.position[0], y, apt.position[2]]}
@@ -411,52 +249,6 @@ export function EdificioModel({
           </group>
         );
       })}
-
-      {/* Glazing: dark, smooth glass; each pane a slightly different shade (rooms, curtains). */}
-      <Instances limit={Math.max(1, glass.length)} range={glass.length}>
-        <planeGeometry args={[1, clear - 0.08]} />
-        <meshPhysicalMaterial
-          color="#ffffff"
-          roughness={0.05}
-          metalness={0}
-          ior={1.5}
-          specularIntensity={1}
-          envMapIntensity={1.7}
-        />
-        {glass.map((g, i) => (
-          <Instance
-            key={i}
-            position={g.position}
-            rotation={[0, g.rotationY, 0]}
-            scale={[g.width, 1, 1]}
-            color={g.tint}
-          />
-        ))}
-      </Instances>
-
-      {/* Window frames */}
-      <Instances limit={Math.max(1, mullions.length)} range={mullions.length}>
-        <boxGeometry args={[1, clear, 0.08]} />
-        <meshStandardMaterial color={EDIFICIO_PALETTE.frame} roughness={0.45} metalness={0.5} />
-        {mullions.map((m, i) => (
-          <Instance key={i} position={m.position} rotation={[0, m.rotationY, 0]} scale={[m.width, 1, 1]} />
-        ))}
-      </Instances>
-
-      {/* Vertical fins on the east and west faces */}
-      <Instances limit={Math.max(1, fins.length)} range={fins.length} castShadow={castShadow}>
-        <boxGeometry args={[1, clear, 0.5]} />
-        <meshStandardMaterial color={EDIFICIO_PALETTE.stone} roughness={0.8} />
-        {fins.map((f, i) => (
-          <Instance key={i} position={f.position} rotation={[0, f.rotationY, 0]} scale={[f.width, 1, 1]} />
-        ))}
-      </Instances>
-
-      <Balconies slots={balconies} depth={config.balconyDepth} castShadow={castShadow} />
-
-      {roofVisible ? (
-        <Rooftop config={config} roofY={roofY} castShadow={castShadow} />
-      ) : null}
 
       {/* Floors above the focused one: a light ghost of the volume, outlined. */}
       {focusFloor != null && focusFloor < floors ? (
@@ -682,300 +474,5 @@ function StatusShell({
       />
       {mode === "selected" ? <Edges color="#ffffff" lineWidth={2} /> : null}
     </mesh>
-  );
-}
-
-function Balconies({
-  slots,
-  depth,
-  castShadow,
-}: {
-  slots: FaceSlot[];
-  depth: number;
-  castShadow: boolean;
-}) {
-  const count = Math.max(1, slots.length);
-  return (
-    <group>
-      {/* Slab, flush with the floor */}
-      <Instances limit={count} range={slots.length} castShadow={castShadow} receiveShadow>
-        <boxGeometry args={[1, 0.22, depth]} />
-        <meshStandardMaterial color={EDIFICIO_PALETTE.slab} roughness={0.85} />
-        {slots.map((b, i) => (
-          <Instance
-            key={i}
-            position={[b.position[0], b.position[1] - 0.11, b.position[2]]}
-            rotation={[0, b.rotationY, 0]}
-            scale={[b.width, 1, 1]}
-          />
-        ))}
-      </Instances>
-      {/* Wood deck */}
-      <Instances limit={count} range={slots.length} receiveShadow>
-        <boxGeometry args={[1, 0.03, depth - 0.1]} />
-        <meshStandardMaterial color={EDIFICIO_PALETTE.deck} roughness={0.75} />
-        {slots.map((b, i) => (
-          <Instance
-            key={i}
-            position={[b.position[0], b.position[1] + 0.015, b.position[2]]}
-            rotation={[0, b.rotationY, 0]}
-            scale={[b.width - 0.1, 1, 1]}
-          />
-        ))}
-      </Instances>
-      {/* Glass railing (front) */}
-      <Instances limit={count} range={slots.length}>
-        <boxGeometry args={[1, 1.05, 0.03]} />
-        <meshStandardMaterial
-          color={EDIFICIO_PALETTE.railing}
-          roughness={0.1}
-          metalness={0.2}
-          transparent
-          opacity={0.5}
-          depthWrite={false}
-          side={THREE.DoubleSide}
-        />
-        {slots.map((b, i) => {
-          const [nx, nz] = [Math.sin(b.rotationY), Math.cos(b.rotationY)];
-          return (
-            <Instance
-              key={i}
-              position={[
-                b.position[0] + nx * (depth / 2 - 0.03),
-                b.position[1] + 0.55,
-                b.position[2] + nz * (depth / 2 - 0.03),
-              ]}
-              rotation={[0, b.rotationY, 0]}
-              scale={[b.width, 1, 1]}
-            />
-          );
-        })}
-      </Instances>
-      {/* Handrail */}
-      <Instances limit={count} range={slots.length}>
-        <boxGeometry args={[1, 0.05, 0.07]} />
-        <meshStandardMaterial color={EDIFICIO_PALETTE.frame} roughness={0.4} metalness={0.6} />
-        {slots.map((b, i) => {
-          const [nx, nz] = [Math.sin(b.rotationY), Math.cos(b.rotationY)];
-          return (
-            <Instance
-              key={i}
-              position={[
-                b.position[0] + nx * (depth / 2 - 0.03),
-                b.position[1] + 1.1,
-                b.position[2] + nz * (depth / 2 - 0.03),
-              ]}
-              rotation={[0, b.rotationY, 0]}
-              scale={[b.width, 1, 1]}
-            />
-          );
-        })}
-      </Instances>
-    </group>
-  );
-}
-
-function CorePiers({
-  config,
-  topFloor,
-  castShadow,
-}: {
-  config: BuildingConfig;
-  topFloor: number;
-  castShadow: boolean;
-}) {
-  const { groundFloorHeight: G, floorHeight, buildingWidth: W, buildingDepth: D, corridorGap } =
-    config;
-  const top = G + topFloor * floorHeight;
-  const h = top - G;
-  const y = G + h / 2;
-  const pierW = corridorGap + 0.5;
-  const out = 0.32;
-  if (h <= 0) return null;
-  const piers: { pos: [number, number, number]; size: [number, number, number] }[] = [
-    { pos: [0, y, D / 2 + out / 2 - 0.1], size: [pierW, h, out + 0.2] },
-    { pos: [0, y, -D / 2 - out / 2 + 0.1], size: [pierW, h, out + 0.2] },
-    { pos: [W / 2 + out / 2 - 0.1, y, 0], size: [out + 0.2, h, pierW] },
-    { pos: [-W / 2 - out / 2 + 0.1, y, 0], size: [out + 0.2, h, pierW] },
-  ];
-  // Corner columns
-  for (const sx of [-1, 1]) {
-    for (const sz of [-1, 1]) {
-      piers.push({ pos: [sx * (W / 2 + 0.05), y, sz * (D / 2 + 0.05)], size: [0.55, h, 0.55] });
-    }
-  }
-  return (
-    <group>
-      {piers.map((p, i) => (
-        <mesh key={i} position={p.pos} castShadow={castShadow} receiveShadow>
-          <boxGeometry args={p.size} />
-          <meshStandardMaterial color={EDIFICIO_PALETTE.stone} roughness={0.85} />
-        </mesh>
-      ))}
-    </group>
-  );
-}
-
-function Lobby({ config, castShadow }: { config: BuildingConfig; castShadow: boolean }) {
-  const { groundFloorHeight: G, buildingWidth: W, buildingDepth: D } = config;
-  const h = G - SLAB;
-  const columns = useMemo(() => {
-    const list: [number, number, number][] = [];
-    const nx = 6;
-    const nz = 4;
-    for (let i = 0; i <= nx; i++) {
-      const x = -W / 2 + 0.35 + ((W - 0.7) * i) / nx;
-      list.push([x, h / 2, D / 2 - 0.35], [x, h / 2, -D / 2 + 0.35]);
-    }
-    for (let i = 1; i < nz; i++) {
-      const z = -D / 2 + 0.35 + ((D - 0.7) * i) / nz;
-      list.push([W / 2 - 0.35, h / 2, z], [-W / 2 + 0.35, h / 2, z]);
-    }
-    return list;
-  }, [W, D, h]);
-
-  return (
-    <group>
-      {/* Recessed glazed lobby, warm inside */}
-      <mesh position={[0, h / 2, 0]} receiveShadow>
-        <boxGeometry args={[W - 2.2, h, D - 2.2]} />
-        <meshPhysicalMaterial
-          color="#3a3d3c"
-          roughness={0.06}
-          envMapIntensity={1.5}
-          emissive="#f2c27a"
-          emissiveIntensity={0.08}
-        />
-      </mesh>
-      <Instances limit={columns.length} range={columns.length} castShadow={castShadow}>
-        <boxGeometry args={[0.5, h, 0.5]} />
-        <meshStandardMaterial color={EDIFICIO_PALETTE.stone} roughness={0.85} />
-        {columns.map((p, i) => (
-          <Instance key={i} position={p} />
-        ))}
-      </Instances>
-      {/* Entrance canopy, facing the avenue (north) */}
-      <mesh position={[0, h - 0.6, D / 2 + 1.6]} castShadow={castShadow} receiveShadow>
-        <boxGeometry args={[8, 0.22, 3.4]} />
-        <meshStandardMaterial color={EDIFICIO_PALETTE.frame} roughness={0.5} metalness={0.4} />
-      </mesh>
-      <mesh position={[0, h - 0.74, D / 2 + 1.6]}>
-        <boxGeometry args={[7.6, 0.04, 3.1]} />
-        <meshStandardMaterial
-          color="#fff1d6"
-          emissive="#ffd9a0"
-          emissiveIntensity={0.5}
-          roughness={0.6}
-        />
-      </mesh>
-      {/* Entrance steps */}
-      <mesh position={[0, 0.08, D / 2 + 1.6]} receiveShadow>
-        <boxGeometry args={[6, 0.16, 3]} />
-        <meshStandardMaterial color="#cfc9bd" roughness={0.9} />
-      </mesh>
-    </group>
-  );
-}
-
-function Rooftop({
-  config,
-  roofY,
-  castShadow,
-}: {
-  config: BuildingConfig;
-  roofY: number;
-  castShadow: boolean;
-}) {
-  const { buildingWidth: W, buildingDepth: D } = config;
-  const railH = 1.1;
-  const railing: { pos: [number, number, number]; size: [number, number, number] }[] = [
-    { pos: [0, roofY + railH / 2, D / 2 + 0.2], size: [W + 0.4, railH, 0.04] },
-    { pos: [0, roofY + railH / 2, -D / 2 - 0.2], size: [W + 0.4, railH, 0.04] },
-    { pos: [W / 2 + 0.2, roofY + railH / 2, 0], size: [0.04, railH, D + 0.4] },
-    { pos: [-W / 2 - 0.2, roofY + railH / 2, 0], size: [0.04, railH, D + 0.4] },
-  ];
-  const loungers = [-8.5, -7, -5.5, -4].map((x) => [x, roofY + 0.2, 7.3] as [number, number, number]);
-  const slats = Array.from({ length: 9 }, (_, i) => -8.8 + i * 0.85);
-
-  return (
-    <group>
-      {/* Wood deck on the west half */}
-      <mesh position={[-5.6, roofY + 0.04, 0]} receiveShadow>
-        <boxGeometry args={[11.6, 0.08, D - 0.6]} />
-        <meshStandardMaterial color={EDIFICIO_PALETTE.deck} roughness={0.75} />
-      </mesh>
-      {/* Light roofing on the east half */}
-      <mesh position={[6, roofY + 0.02, 0]} receiveShadow>
-        <boxGeometry args={[W / 2 - 0.4, 0.04, D - 0.6]} />
-        <meshStandardMaterial color="#d6d8d6" roughness={0.95} />
-      </mesh>
-
-      {/* Pool */}
-      <mesh position={[-5.6, roofY + 0.32, 3.4]} castShadow={castShadow} receiveShadow>
-        <boxGeometry args={[9.6, 0.56, 4.4]} />
-        <meshStandardMaterial color={EDIFICIO_PALETTE.slab} roughness={0.8} />
-      </mesh>
-      <mesh position={[-5.6, roofY + 0.61, 3.4]}>
-        <boxGeometry args={[9, 0.02, 3.8]} />
-        <meshPhysicalMaterial
-          color={EDIFICIO_PALETTE.water}
-          roughness={0.04}
-          emissive="#0e5a70"
-          emissiveIntensity={0.35}
-          envMapIntensity={1.6}
-        />
-      </mesh>
-      {loungers.map((p, i) => (
-        <mesh key={i} position={p} castShadow={castShadow}>
-          <boxGeometry args={[0.7, 0.28, 1.8]} />
-          <meshStandardMaterial color="#f7f5f0" roughness={0.7} />
-        </mesh>
-      ))}
-
-      {/* Pergola */}
-      {[
-        [-9.4, -6.6],
-        [-9.4, -1.8],
-        [-1.8, -6.6],
-        [-1.8, -1.8],
-      ].map(([x, z], i) => (
-        <mesh key={i} position={[x, roofY + 1.3, z]} castShadow={castShadow}>
-          <boxGeometry args={[0.16, 2.6, 0.16]} />
-          <meshStandardMaterial color={EDIFICIO_PALETTE.frame} roughness={0.5} metalness={0.4} />
-        </mesh>
-      ))}
-      {slats.map((x, i) => (
-        <mesh key={i} position={[x, roofY + 2.62, -4.2]} castShadow={castShadow}>
-          <boxGeometry args={[0.12, 0.18, 5.2]} />
-          <meshStandardMaterial color="#8a6a4c" roughness={0.7} />
-        </mesh>
-      ))}
-
-      {/* Machine room / lift overrun */}
-      <mesh position={[6.4, roofY + 1.6, -1]} castShadow={castShadow} receiveShadow>
-        <boxGeometry args={[6.2, 3.2, 7]} />
-        <meshStandardMaterial color={EDIFICIO_PALETTE.stone} roughness={0.85} />
-      </mesh>
-      <mesh position={[6.4, roofY + 3.25, -1]}>
-        <boxGeometry args={[6.5, 0.12, 7.3]} />
-        <meshStandardMaterial color={EDIFICIO_PALETTE.slab} roughness={0.85} />
-      </mesh>
-
-      {/* Glass guard rail around the terrace */}
-      {railing.map((r, i) => (
-        <mesh key={i} position={r.pos}>
-          <boxGeometry args={r.size} />
-          <meshStandardMaterial
-            color={EDIFICIO_PALETTE.railing}
-            roughness={0.1}
-            metalness={0.2}
-            transparent
-            opacity={0.45}
-            depthWrite={false}
-            side={THREE.DoubleSide}
-          />
-        </mesh>
-      ))}
-    </group>
   );
 }

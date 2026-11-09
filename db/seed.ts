@@ -9,9 +9,10 @@ import { UNIT_PLAN_PROFILES, computeUnitPrice, assignUnitStatuses } from "@/lib/
 import { BIM_PROJECT_SLUG, bimFallbackUnidades } from "@/lib/bim/dataset";
 import { LOTES_PROJECT_NAME, LOTES_PROJECT_SLUG, buildLotesUnidades } from "@/lib/lotes/data";
 import type { Unidad } from "@/lib/unidades/types";
+import { CATALUNA_PROJECT, CATALUNA_SLUG, catalunaUnidades } from "@/lib/three/cataluna-ii";
 
 /**
- * Seeds the three demo projects. Existing units are left untouched (so prices and statuses
+ * Seeds the demo projects. Existing units are left untouched (so prices and statuses
  * edited in /admin survive a re-seed); pass --reset to rewrite every unit from scratch.
  *
  *   npm run db:seed
@@ -32,6 +33,7 @@ const PROJECTS: ProjectSeed[] = [
     description:
       "Proyecto 100% ficticio, creado únicamente para mostrar el selector de unidades de MiUnidad360.",
   },
+  CATALUNA_PROJECT,
   {
     slug: BIM_PROJECT_SLUG,
     name: "Schependomlaan",
@@ -95,6 +97,7 @@ function edificioDemoUnidades(): Unidad[] {
 
 const UNIDADES_BY_PROJECT: Record<string, () => Unidad[]> = {
   "edificio-demo": edificioDemoUnidades,
+  [CATALUNA_SLUG]: catalunaUnidades,
   [BIM_PROJECT_SLUG]: () => bimFallbackUnidades,
   [LOTES_PROJECT_SLUG]: () => buildLotesUnidades(),
 };

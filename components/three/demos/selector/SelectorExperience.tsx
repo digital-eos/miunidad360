@@ -14,7 +14,9 @@ import { usePrefersReducedMotion } from "@/lib/hooks/use-prefers-reduced-motion"
 import { fetchUnidades } from "@/lib/unidades/fetch";
 import { attrNumber, findUnidad, type Unidad } from "@/lib/unidades/types";
 import { generateFloorPlan } from "@/lib/units/floor-plan";
-import { defaultBuildingConfig, totalBuildingHeight } from "@/lib/three/building-config";
+import { totalBuildingHeight } from "@/lib/three/building-config";
+import { generateApartmentLayout } from "@/lib/three/building-layout";
+import { CATALUNA_CONFIG } from "@/lib/three/cataluna-ii";
 import type { Viewpoint } from "@/components/three/CameraRig";
 import { EMPTY_FILTERS, unitMatchesFilters, type UnitFilters } from "@/lib/units/filters";
 import { STATUS_COLORS } from "@/lib/units/status-colors";
@@ -46,7 +48,8 @@ const DepartamentoExperience = dynamic(loadDepartamento, {
 /** Length of the fade between the building and the apartment. */
 const FADE_MS = 400;
 
-const config = defaultBuildingConfig;
+const config = CATALUNA_CONFIG;
+const layoutById = new Map(generateApartmentLayout(config).map((apt) => [apt.id, apt]));
 
 /** Interior renders shown in the pinned card, picked by the unit's room count. */
 const PHOTOS_BY_TYPE = {
@@ -89,6 +92,19 @@ function overviewViewpoint(aspect: number, city = false): Viewpoint {
   };
 }
 
+/**
+ * Straight-on street elevation, close to the brochure render (page 1 of the PDF): eye about a
+ * third of the way up, the whole front in view. Opened with ?vista=frente for comparisons.
+ */
+function frontViewpoint(aspect: number): Viewpoint {
+  const height = totalBuildingHeight(config);
+  const distance = aspect < 1 ? 78 : 46;
+  return {
+    position: [0, height * 0.42, config.buildingDepth / 2 + distance],
+    target: [0, height * 0.47, config.buildingDepth / 2],
+  };
+}
+
 function floorViewpoint(floor: number): Viewpoint {
   const y = floorCenterY(floor);
   return {
@@ -97,13 +113,6 @@ function floorViewpoint(floor: number): Viewpoint {
   };
 }
 
-const LETTER_QUADRANT: Record<string, [number, number]> = {
-  A: [-1, -1],
-  B: [1, -1],
-  C: [-1, 1],
-  D: [1, 1],
-};
-
 /**
  * Looks down into a unit from its own corner, steep enough to see its open plan over the
  * cut walls. The camera aims above the unit so it sits in the lower part of the view,
@@ -111,13 +120,15 @@ const LETTER_QUADRANT: Record<string, [number, number]> = {
  */
 function unitViewpoint(unit: Unidad): Viewpoint {
   const y = floorCenterY(unitFloor(unit));
-  const letter = (unit.objeto3d ?? unit.codigo).slice(-1);
-  const [sx, sz] = LETTER_QUADRANT[letter] ?? [1, 1];
-  const tx = sx * config.buildingWidth * 0.22;
-  const tz = sz * config.buildingDepth * 0.22;
+  const apt = layoutById.get(meshId(unit));
+  if (!apt) return floorViewpoint(unitFloor(unit));
+  const [x, , z] = apt.position;
+  // From the unit's own facade (street or rear), off to its side of the building.
+  const sz = z >= 0 ? 1 : -1;
+  const sx = x > 0.5 ? 1 : x < -0.5 ? -1 : 0.5;
   return {
-    position: [sx * config.buildingWidth * 1.05, y + config.floorHeight * 9, sz * config.buildingDepth * 1.45],
-    target: [tx, y + config.floorHeight * 1.5, tz],
+    position: [sx * config.buildingWidth * 1.6, y + config.floorHeight * 6, z + sz * config.buildingDepth * 0.95],
+    target: [x * 0.6, y + config.floorHeight * 1.2, z],
   };
 }
 
@@ -474,7 +485,11 @@ export function SelectorExperience({
     setMapFailed(true);
     setSceneReady(false);
   }, []);
-  const overview = useMemo(() => overviewViewpoint(aspect, mapEnabled), [aspect, mapEnabled]);
+  const frontal = !embedded && searchParams.get("vista") === "frente";
+  const overview = useMemo(
+    () => (frontal ? frontViewpoint(aspect) : overviewViewpoint(aspect, mapEnabled)),
+    [frontal, aspect, mapEnabled],
+  );
   const map = useMemo<SelectorMapOptions | null>(
     () =>
       mapEnabled && mapKey
@@ -570,14 +585,15 @@ export function SelectorExperience({
           cameraTarget={cameraTarget}
           cameraTargetKey={cameraTargetKey}
           isMobile={isMobile}
-          autoRotate={!prefersReducedMotion && !isMobile && !selectedUnit && !capturing}
+          autoRotate={!prefersReducedMotion && !isMobile && !selectedUnit && !capturing && !frontal}
           minDistance={span * 0.75}
           // The real neighborhood is worth pulling back for.
           maxDistance={span * (geo ? 9 : map ? 16 : 5.5)}
           apartmentColors={apartmentColors}
           dimmedIds={dimmedIds}
           showStatus={false}
-          availableIds={availableIds}
+          // The frontal comparison view shows the bare facade (hover still tints a unit).
+          availableIds={frontal ? undefined : availableIds}
           focusFloor={focusFloor}
           hoveredId={hovered ?? listHoverMeshId}
           selectedId={selectedUnit ? meshId(selectedUnit) : null}

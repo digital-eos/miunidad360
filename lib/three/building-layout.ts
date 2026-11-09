@@ -5,13 +5,15 @@ import {
   apartmentId,
   defaultBuildingConfig,
 } from "./building-config";
+import { catalunaLayout } from "./cataluna-ii";
 
 export type ExteriorSide = "north" | "south" | "east" | "west";
 
 export type ApartmentLayout = {
   id: string;
   floor: number;
-  letter: ApartmentLetter;
+  /** Last character of the unit code ("B" in P04-B, "3" in 103). */
+  letter: string;
   /** Center position of the apartment volume. */
   position: [number, number, number];
   /** Full size of the apartment volume [width, height, depth]. */
@@ -35,6 +37,7 @@ const QUADRANTS: Record<
 export function generateApartmentLayout(
   config: BuildingConfig = defaultBuildingConfig,
 ): ApartmentLayout[] {
+  if (config.kind === "cataluna-ii") return catalunaLayout(config);
   const quadWidth = (config.buildingWidth - config.corridorGap) / 2;
   const quadDepth = (config.buildingDepth - config.corridorGap) / 2;
 
