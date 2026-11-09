@@ -29,7 +29,7 @@ export default async function OpengraphImage() {
             color: "#f0a63b",
           }}
         >
-          MiUnidad360 · Selector de unidades
+          MiUnidad360 · Cataluña II
         </div>
         <div style={{ fontSize: 76, marginTop: 24, lineHeight: 1.1 }}>
           Elegí tu unidad al instante

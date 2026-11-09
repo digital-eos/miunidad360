@@ -3,7 +3,7 @@
  *
  * The browser streams the tiles straight from tile.googleapis.com, so this key is public by
  * design (NEXT_PUBLIC_). Protect it in Google Cloud Console instead:
- * - Application restriction: HTTP referrers → https://miunidad360.com/*, http://localhost:3000/*
+ * - Application restriction: HTTP referrers → https://miunidad360.com.ar/*, http://localhost:3000/*
  * - API restriction: Map Tiles API only
  * - A daily quota cap on "Map Tiles API: root tileset requests" to bound the bill.
  * Without a key the selector shows its classic procedural city.

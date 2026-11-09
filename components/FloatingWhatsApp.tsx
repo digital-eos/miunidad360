@@ -7,13 +7,13 @@ import { useCaptureMode } from "@/lib/hooks/use-capture-mode";
 
 const PAGE_MESSAGES: Record<string, string> = {
   "/": "¡Hola! Quiero pedir una demo de MiUnidad360 para mi desarrollo.",
-  "/demos/selector":
+  "/demos/cataluna-ii":
     "¡Hola! Estaba probando el selector de unidades de MiUnidad360 y quiero saber más para mi proyecto.",
 };
 
 // Mobile bottom offset per route, clearing each demo's own bottom controls.
 const MOBILE_BOTTOM_OFFSET: Record<string, string> = {
-  "/demos/selector": "bottom-6",
+  "/demos/cataluna-ii": "bottom-6",
 };
 
 const DEFAULT_MESSAGE = "¡Hola! Quiero pedir una demo de MiUnidad360 para mi desarrollo.";

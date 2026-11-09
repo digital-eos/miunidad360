@@ -22,6 +22,10 @@ import { civilDateKey, solsticeDates, todayInBuenosAires } from "@/lib/sun/sun-p
 import { useSunHours } from "@/lib/sun/use-sun-hours";
 import { trackFilterUsed, trackUnitOpened } from "@/lib/analytics";
 import { SITE } from "@/lib/geo/site";
+
+// Shown name and address. The database row (edificio-demo) keeps its old demo values.
+const PROJECT_NAME = "Cataluña II";
+const PROJECT_ADDRESS = `${SITE.address}, ${SITE.city}`;
 import { GEO_PREVIEW_KEY, geoApiKey, geoPreviewAllowed, supportsGeo } from "@/lib/geo/config";
 import type { FlyoverCaption } from "@/components/three/geo/AerialFlyover";
 import { SelectorScene, type SelectorGeoOptions } from "./SelectorScene";
@@ -604,7 +608,7 @@ export function SelectorExperience({
         )}
       >
         <p className="px-6 text-center font-mono text-xs uppercase tracking-[0.3em] text-accent-strong">
-          {geo ? `${SITE.address} · ${SITE.city}` : "Edificio Demo"}
+          {geo ? `${SITE.address} · ${SITE.city}` : PROJECT_NAME}
         </p>
         <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-foreground-muted">
           {!ready
@@ -626,7 +630,7 @@ export function SelectorExperience({
             <p className="text-center font-mono text-[9px] uppercase tracking-[0.1em] text-foreground-muted/80 sm:text-[10px]">
               {geo
                 ? `Ubicación real: ${SITE.address}, ${SITE.city} · edificio, precios y estados ilustrativos`
-                : "Edificio Demo: proyecto ficticio · modelo 3D, precios y estados ilustrativos"}
+                : `${PROJECT_NAME} · modelo 3D, precios y estados ilustrativos`}
             </p>
           </div>
         </>
@@ -690,8 +694,8 @@ export function SelectorExperience({
           {stage}
         </div>
         <EdificioInfoPanel
-          projectName={ready ? state.project.name : "Edificio Demo"}
-          projectAddress={ready ? state.project.address : null}
+          projectName={PROJECT_NAME}
+          projectAddress={PROJECT_ADDRESS}
           projectSlug={projectSlug}
           units={units}
           filters={filters}

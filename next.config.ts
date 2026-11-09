@@ -6,7 +6,11 @@ const nextConfig: NextConfig = {
   partialPrefetching: true,
   // The BIM demo moved to its project slug; keep old shared links working.
   async redirects() {
-    return [{ source: "/demos/bim", destination: "/demos/schependomlaan", permanent: true }];
+    return [
+      { source: "/demos/bim", destination: "/demos/schependomlaan", permanent: true },
+      // The selector now lives under its project name (Cataluña II, Cataluña Edificios).
+      { source: "/demos/selector", destination: "/demos/cataluna-ii", permanent: true },
+    ];
   },
   // Atmosphere tables, cloud and noise textures, Draco decoder (~12 MB, pinned to library
   // versions): cache them so the real-location selector loads fast on return visits.

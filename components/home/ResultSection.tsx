@@ -35,7 +35,7 @@ export function ResultSection() {
 
         <div className="mt-4 flex justify-end">
           <Link
-            href="/demos/selector"
+            href="/demos/cataluna-ii"
             onClick={() => trackDemoClick("selector")}
             className="text-sm font-medium text-foreground transition-colors duration-200 hover:text-accent-strong"
           >

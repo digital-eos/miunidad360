@@ -137,7 +137,7 @@ export function EdificioInfoPanel({
             source="selector-unidad"
             onClose={() => onSelectUnit(null)}
             backLabel={focusFloor === null ? "Todas las unidades" : `Unidades del piso ${focusFloor}`}
-            nota="Edificio Demo es un proyecto ficticio, creado solo para esta demo."
+            nota="Modelo 3D, precios y estados ilustrativos."
             media={
               <div className="rounded-xl border border-border-subtle bg-background-elevated p-3">
                 <FloorPlanSvg

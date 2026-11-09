@@ -35,9 +35,10 @@ const BLOQUES: Bloque[] = [
       },
       {
         kind: "selector",
-        href: "/demos/selector",
-        title: "Edificio demo",
-        description: "Filtrá por ambientes, precio y piso, y abrí la ficha de cada departamento.",
+        href: "/demos/cataluna-ii",
+        title: "Cataluña II · Mar del Plata",
+        description:
+          "El edificio en su ubicación real: filtrá por ambientes, precio y piso, y abrí la ficha de cada departamento.",
       },
       {
         kind: "zeus",

@@ -7,8 +7,9 @@ import { DemoCTA } from "@/components/DemoCTA";
 import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Selector de unidades",
-  description: "Elegí una unidad y mirá al instante su disponibilidad y precio.",
+  title: "Cataluña II · Mar del Plata",
+  description:
+    "Cataluña II en Buenos Aires 2771, Mar del Plata: elegí una unidad y mirá al instante su disponibilidad y precio.",
 };
 
 export default function SelectorDemoPage() {

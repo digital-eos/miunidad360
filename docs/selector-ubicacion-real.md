@@ -1,13 +1,13 @@
 # Selector: real location (Google Photorealistic 3D Tiles)
 
-`/demos/selector` can show the tower at its real address, **Buenos Aires 2771, Mar del Plata**,
+`/demos/cataluna-ii` can show the tower at its real address, **Buenos Aires 2771, Mar del Plata**,
 inside Google's photorealistic city, with an aerial approach, a physical sky and clouds.
 Everything else (floors, units, cards, filters, interior view) is the existing selector.
 
 ## Turning it on
 
 1. Google Cloud Console → enable **Map Tiles API** → create an API key.
-2. Restrict the key: *HTTP referrers* `https://miunidad360.com/*`, `http://localhost:3000/*`;
+2. Restrict the key: *HTTP referrers* `https://miunidad360.com.ar/*`, `http://localhost:3000/*`;
    *API restrictions*: Map Tiles API only. Set a daily quota cap.
 3. `.env.local` (and Vercel env): `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY="…"`.
 
