@@ -172,7 +172,12 @@ export function SelectorExperience({
   const prefersReducedMotion = usePrefersReducedMotion();
   const captureMode = useCaptureMode();
   const capturing = captureMode.active && !embedded;
-  const maxDpr = isMobile ? 1.5 : 2;
+  // Never render above the screen's own density: a fixed 2 on a 1× monitor drew 4× the
+  // pixels (≈80 ms vs ≈43 ms a frame on an integrated GPU) for edges MSAA already smooths.
+  const screenDpr = typeof window === "undefined" ? 1 : window.devicePixelRatio || 1;
+  const maxDpr = Math.min(screenDpr, isMobile ? 1.5 : 2);
+  // The adaptive resolution never drops below 1: under it the facade lines turn soft.
+  const minDpr = Math.min(1, maxDpr);
   const [dpr, setDpr] = useState(maxDpr);
   const stageRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
@@ -567,17 +572,23 @@ export function SelectorExperience({
           far: geo ? 8000 : map ? 2000 : 600,
         }}
         dpr={dpr}
-        shadows={!isMobile}
+        // PCF: three r187 removed PCFSoftShadowMap (what `shadows={true}` asks for) and
+        // fell back to PCF with a warning. drei's SoftShadows still swaps in its own on desktop.
+        shadows={isMobile ? false : "percentage"}
         gl={{
-          antialias: !isMobile,
+          // A post-processing composer (desktop, or the 3D-tiles view) renders into its own
+          // multisampled target, so canvas MSAA there only costs memory. Without one
+          // (mobile), the canvas antialiases itself.
+          antialias: !(geo || !isMobile),
           powerPreference: "high-performance",
+          outputColorSpace: THREE.SRGBColorSpace,
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 1.05,
         }}
       >
         <PerformanceMonitor
           bounds={() => [50, 58]}
-          onDecline={() => setDpr((d) => Math.max(0.75, d - 0.25))}
+          onDecline={() => setDpr((d) => Math.max(minDpr, d - 0.25))}
           onIncline={() => setDpr((d) => Math.min(maxDpr, d + 0.25))}
         />
         <SelectorScene
