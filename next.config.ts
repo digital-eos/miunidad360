@@ -8,6 +8,16 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [{ source: "/demos/bim", destination: "/demos/schependomlaan", permanent: true }];
   },
+  // Atmosphere tables, cloud and noise textures, Draco decoder (~12 MB, pinned to library
+  // versions): cache them so the real-location selector loads fast on return visits.
+  async headers() {
+    return [
+      {
+        source: "/geo/:path*",
+        headers: [{ key: "Cache-Control", value: "public, max-age=2592000, stale-while-revalidate=86400" }],
+      },
+    ];
+  },
   turbopack: {
     rules: {
       "*.css": {

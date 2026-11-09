@@ -65,13 +65,22 @@ export function getSunTimes(civilDate: CivilDate, lat: number, lng: number): Sun
  * where +X = east, +Z = north, +Y = up — matching the building's own layout
  * convention (see lib/three/building-layout.ts).
  */
-export function sunDirectionVector(position: SunPosition): [number, number, number] {
+export function sunDirectionVector(
+  position: SunPosition,
+  /**
+   * Real-site frame (lib/geo/site.ts): +Z faces this compass bearing (degrees) and
+   * +X = +Y × +Z. Omitted: the classic layout convention above.
+   */
+  facadeBearing?: number,
+): [number, number, number] {
   const { altitude, azimuth } = position;
   const horizontal = Math.cos(altitude);
-  const x = -Math.sin(azimuth) * horizontal;
-  const z = -Math.cos(azimuth) * horizontal;
+  const east = -Math.sin(azimuth) * horizontal;
+  const north = -Math.cos(azimuth) * horizontal;
   const y = Math.sin(altitude);
-  return [x, y, z];
+  if (facadeBearing == null) return [east, y, north];
+  const b = (facadeBearing * Math.PI) / 180;
+  return [-Math.cos(b) * east + Math.sin(b) * north, y, Math.sin(b) * east + Math.cos(b) * north];
 }
 
 export function formatHour(hour: number): string {

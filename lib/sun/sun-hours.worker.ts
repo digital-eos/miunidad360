@@ -6,6 +6,8 @@ export type SunHoursRequest = {
   date: CivilDate;
   lat: number;
   lng: number;
+  /** Real-site orientation (see sunDirectionVector). */
+  facadeBearing?: number;
 };
 
 export type SunHoursResponse = {
@@ -18,8 +20,8 @@ export type SunHoursResponse = {
 const ctx = self as unknown as Worker;
 
 ctx.onmessage = (event: MessageEvent<SunHoursRequest>) => {
-  const { dateKey, date, lat, lng } = event.data;
-  const hours = computeSunHours(date, lat, lng);
+  const { dateKey, date, lat, lng, facadeBearing } = event.data;
+  const hours = computeSunHours(date, lat, lng, facadeBearing);
   const response: SunHoursResponse = { dateKey, hours };
   ctx.postMessage(response);
 };

@@ -21,7 +21,10 @@ import { STATUS_COLORS } from "@/lib/units/status-colors";
 import { civilDateKey, solsticeDates, todayInBuenosAires } from "@/lib/sun/sun-position";
 import { useSunHours } from "@/lib/sun/use-sun-hours";
 import { trackFilterUsed, trackUnitOpened } from "@/lib/analytics";
-import { SelectorScene } from "./SelectorScene";
+import { SITE } from "@/lib/geo/site";
+import { GEO_PREVIEW_KEY, geoApiKey, geoPreviewAllowed, supportsGeo } from "@/lib/geo/config";
+import type { FlyoverCaption } from "@/components/three/geo/AerialFlyover";
+import { SelectorScene, type SelectorGeoOptions } from "./SelectorScene";
 import { FloorSelector } from "./FloorSelector";
 import { UnitPin } from "./UnitPin";
 import { EdificioInfoPanel } from "./EdificioInfoPanel";
@@ -168,6 +171,37 @@ export function SelectorExperience({
   const fadeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const unitsRef = useRef<Unidad[]>([]);
 
+  // Real location (Google 3D tiles + aerial intro). Off when embedded, capturing, without an
+  // API key, with ?geo=0, or after the tiles failed (then the classic city comes back).
+  const [geoFailed, setGeoFailed] = useState(false);
+  const geoKey =
+    geoPreviewAllowed() && searchParams.get("geo") === "preview" ? GEO_PREVIEW_KEY : geoApiKey();
+  const geoEnabled =
+    !embedded &&
+    !capturing &&
+    !geoFailed &&
+    geoKey != null &&
+    searchParams.get("geo") !== "0" &&
+    supportsGeo();
+  // Skip the flight for deep links to a unit and for reduced motion.
+  const [introActive, setIntroActive] = useState(
+    () => !prefersReducedMotion && !searchParams.get("unidad"),
+  );
+  const [skipToken, setSkipToken] = useState(0);
+  const [caption, setCaption] = useState<FlyoverCaption | null>(null);
+  const flying = geoEnabled && introActive;
+  const flyingRef = useRef(flying);
+  useEffect(() => {
+    flyingRef.current = flying;
+  }, [flying]);
+  const skipIntro = useCallback(() => {
+    if (flyingRef.current) setSkipToken((t) => t + 1);
+  }, []);
+  // The reduced-motion preference resolves after mount: cut the flight if it's set.
+  useEffect(() => {
+    if (prefersReducedMotion) skipIntro();
+  }, [prefersReducedMotion, skipIntro]);
+
   useEffect(() => {
     const el = stageRef.current;
     if (!el) return;
@@ -217,22 +251,24 @@ export function SelectorExperience({
     (code: string | null) => {
       const unit = code ? unitsRef.current.find((u) => u.codigo === code) : null;
       if (unit && !isForSale(unit)) return;
+      skipIntro();
       setSelectedCode(code);
       updateUrl(code);
       if (!code) return;
       if (unit) setFocusFloor(unitFloor(unit));
       trackUnitOpened("selector", code);
     },
-    [updateUrl],
+    [updateUrl, skipIntro],
   );
 
   const handleSelectFloor = useCallback(
     (floor: number | null) => {
+      skipIntro();
       setFocusFloor(floor);
       const current = unitsRef.current.find((u) => u.codigo === selectedCode);
       if (current && floor !== unitFloor(current)) handleSelectUnit(null);
     },
-    [selectedCode, handleSelectUnit],
+    [selectedCode, handleSelectUnit, skipIntro],
   );
 
   const handleFiltersChange = useCallback((next: UnitFilters) => {
@@ -328,7 +364,11 @@ export function SelectorExperience({
 
   const lat = state.status === "ready" ? (state.project.latitude ?? -34.5755) : -34.5755;
   const lng = state.status === "ready" ? (state.project.longitude ?? -58.4338) : -58.4338;
-  const { cache: sunHoursCache, requestDate } = useSunHours(lat, lng);
+  const { cache: sunHoursCache, requestDate } = useSunHours(
+    geoEnabled ? SITE.lat : lat,
+    geoEnabled ? SITE.lon : lng,
+    geoEnabled ? SITE.facadeBearing : undefined,
+  );
   const { verano, invierno } = useMemo(() => solsticeDates(todayInBuenosAires().year), []);
 
   useEffect(() => {
@@ -400,6 +440,36 @@ export function SelectorExperience({
     return unit && isForSale(unit) ? meshId(unit) : null;
   }, [units, listHover]);
 
+  const handleIntroDone = useCallback(() => {
+    setIntroActive(false);
+    setCaption(null);
+  }, []);
+  const handleGeoFallback = useCallback((reason: string) => {
+    console.warn("[selector] Google 3D tiles unavailable, using the classic scene:", reason);
+    setGeoFailed(true);
+    setSceneReady(false);
+    setCaption(null);
+  }, []);
+  const overview = useMemo(() => overviewViewpoint(aspect), [aspect]);
+  const geo = useMemo<SelectorGeoOptions | null>(
+    () =>
+      geoEnabled && geoKey
+        ? {
+            apiKey: geoKey,
+            intro: introActive,
+            introActive,
+            endView: overview,
+            skipToken,
+            onCaption: setCaption,
+            onIntroDone: handleIntroDone,
+            onFallback: handleGeoFallback,
+          }
+        : null,
+    // The flight's landing shot is fixed when it starts; a resize mid-flight doesn't move it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [geoEnabled, geoKey, introActive, skipToken, handleIntroDone, handleGeoFallback],
+  );
+
   const cameraTarget = selectedUnit
     ? unitViewpoint(selectedUnit)
     : focusFloor != null
@@ -429,9 +499,18 @@ export function SelectorExperience({
     <div
       ref={stageRef}
       className={cn("relative h-full w-full", hovered ? "cursor-pointer" : "")}
+      // Grabbing the view during the flight hands control over right away.
+      onPointerDown={skipIntro}
+      onWheel={skipIntro}
     >
       <Canvas
-        camera={{ position: overviewViewpoint(aspect).position, fov: 40, near: 0.5, far: 600 }}
+        key={geo ? "geo" : "classic"}
+        camera={{
+          position: overviewViewpoint(aspect).position,
+          fov: 40,
+          near: 0.5,
+          far: geo ? 8000 : 600,
+        }}
         dpr={dpr}
         shadows={!isMobile}
         gl={{
@@ -453,7 +532,8 @@ export function SelectorExperience({
           isMobile={isMobile}
           autoRotate={!prefersReducedMotion && !isMobile && !selectedUnit && !capturing}
           minDistance={span * 0.75}
-          maxDistance={span * 5.5}
+          // The real neighborhood is worth pulling back for.
+          maxDistance={span * (geo ? 9 : 5.5)}
           apartmentColors={apartmentColors}
           dimmedIds={dimmedIds}
           showStatus={false}
@@ -467,8 +547,30 @@ export function SelectorExperience({
           onApartmentPointerOver={handleApartmentPointerOver}
           onApartmentPointerOut={handleApartmentPointerOut}
           onReady={() => setSceneReady(true)}
+          geo={geo}
         />
       </Canvas>
+
+      {/* Aerial intro: where we are, and a way out. */}
+      {flying && sceneReady ? (
+        <>
+          <div className="pointer-events-none absolute inset-x-0 top-20 z-20 flex justify-center px-4 md:top-8">
+            <p
+              key={caption ?? "none"}
+              className="animate-caption-in rounded-full bg-background/70 px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.3em] text-foreground backdrop-blur-md sm:text-xs"
+            >
+              {caption ?? SITE.city}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={skipIntro}
+            className="absolute right-4 bottom-12 z-30 rounded-full border border-border-subtle bg-background/80 px-4 py-2 text-xs font-medium backdrop-blur-md transition-colors duration-200 hover:border-accent hover:text-accent-strong md:right-6"
+          >
+            Saltar vuelo →
+          </button>
+        </>
+      ) : null}
 
       {/* Selected unit's card: docked top right so it never covers the opened unit. */}
       {selectedUnit && sceneReady ? (
@@ -501,11 +603,15 @@ export function SelectorExperience({
           ready && sceneReady ? "opacity-0" : "opacity-100",
         )}
       >
-        <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent-strong">
-          Edificio Demo
+        <p className="px-6 text-center font-mono text-xs uppercase tracking-[0.3em] text-accent-strong">
+          {geo ? `${SITE.address} · ${SITE.city}` : "Edificio Demo"}
         </p>
         <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-foreground-muted">
-          {ready ? "Preparando el modelo 3D…" : "Cargando unidades…"}
+          {!ready
+            ? "Cargando unidades…"
+            : geo
+              ? "Cargando la ciudad en 3D…"
+              : "Preparando el modelo 3D…"}
         </p>
       </div>
 
@@ -518,7 +624,9 @@ export function SelectorExperience({
           />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex justify-center bg-gradient-to-t from-background/90 to-transparent px-3 pb-2 pt-6">
             <p className="text-center font-mono text-[9px] uppercase tracking-[0.1em] text-foreground-muted/80 sm:text-[10px]">
-              Edificio Demo: proyecto ficticio · modelo 3D, precios y estados ilustrativos
+              {geo
+                ? `Ubicación real: ${SITE.address}, ${SITE.city} · edificio, precios y estados ilustrativos`
+                : "Edificio Demo: proyecto ficticio · modelo 3D, precios y estados ilustrativos"}
             </p>
           </div>
         </>

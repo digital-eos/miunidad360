@@ -6,7 +6,7 @@ import type { SunHoursRequest, SunHoursResponse } from "./sun-hours.worker";
 
 export type SunHoursCache = Record<string, Record<string, number>>;
 
-export function useSunHours(lat: number, lng: number) {
+export function useSunHours(lat: number, lng: number, facadeBearing?: number) {
   const workerRef = useRef<Worker | null>(null);
   const pendingRef = useRef<Set<string>>(new Set());
   const [cache, setCache] = useState<SunHoursCache>({});
@@ -36,10 +36,10 @@ export function useSunHours(lat: number, lng: number) {
       const key = civilDateKey(date);
       if (cache[key] || pendingRef.current.has(key) || !workerRef.current) return;
       pendingRef.current.add(key);
-      const request: SunHoursRequest = { dateKey: key, date, lat, lng };
+      const request: SunHoursRequest = { dateKey: key, date, lat, lng, facadeBearing };
       workerRef.current.postMessage(request);
     },
-    [cache, lat, lng],
+    [cache, lat, lng, facadeBearing],
   );
 
   return { cache, requestDate };

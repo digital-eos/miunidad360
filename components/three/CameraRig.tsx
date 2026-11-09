@@ -25,6 +25,13 @@ type CameraRigProps = {
   minDistance: number;
   maxDistance: number;
   onInteractionChange?: (interacting: boolean) => void;
+  /**
+   * Take over from wherever the camera already is (e.g. after an aerial intro) and glide to
+   * `target`, instead of jumping there on mount.
+   */
+  startFromCurrent?: boolean;
+  /** Length of a transition; defaults to TRANSITION_MS. */
+  transitionMs?: number;
 };
 
 const TRANSITION_MS = 1300;
@@ -42,6 +49,8 @@ export function CameraRig({
   minDistance,
   maxDistance,
   onInteractionChange,
+  startFromCurrent = false,
+  transitionMs = TRANSITION_MS,
 }: CameraRigProps) {
   const { camera, invalidate } = useThree();
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
@@ -60,10 +69,36 @@ export function CameraRig({
   const isDraggingRef = useRef(false);
 
   useEffect(() => {
-    camera.position.set(...target.position);
-    controlsRef.current?.target.set(...target.target);
-    controlsRef.current?.update();
     lastKeyRef.current = targetKey;
+    const controls = controlsRef.current;
+    if (startFromCurrent) {
+      // Orbit pivot in front of the camera, as far away as the destination's pivot.
+      const toPos = new THREE.Vector3(...target.position);
+      const toTarget = new THREE.Vector3(...target.target);
+      const forward = camera.getWorldDirection(new THREE.Vector3());
+      const reach = camera.position.distanceTo(toTarget);
+      const fromTarget = camera.position.clone().addScaledVector(forward, reach);
+      controls?.target.copy(fromTarget);
+      if (camera.position.distanceTo(toPos) > 0.05) {
+        transitionRef.current = {
+          active: true,
+          start: performance.now(),
+          fromPos: camera.position.clone(),
+          toPos,
+          fromTarget,
+          toTarget,
+        };
+        lastInteractionRef.current = performance.now();
+      } else {
+        controls?.target.copy(toTarget);
+      }
+      controls?.update();
+      invalidate();
+      return;
+    }
+    camera.position.set(...target.position);
+    controls?.target.set(...target.target);
+    controls?.update();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -90,7 +125,7 @@ export function CameraRig({
     const transition = transitionRef.current;
     if (transition?.active) {
       const elapsed = performance.now() - transition.start;
-      const progress = THREE.MathUtils.clamp(elapsed / TRANSITION_MS, 0, 1);
+      const progress = THREE.MathUtils.clamp(elapsed / transitionMs, 0, 1);
       const eased = easeInOutCubic(progress);
       camera.position.lerpVectors(transition.fromPos, transition.toPos, eased);
       controls.target.lerpVectors(transition.fromTarget, transition.toTarget, eased);

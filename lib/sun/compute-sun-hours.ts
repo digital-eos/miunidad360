@@ -11,7 +11,12 @@ export const SAMPLE_STEP_HOURS = 0.25; // 15 minutes
 export type SunHoursResult = Record<string, number>;
 
 /** Direct-sun hours per apartment (by unit id/code) for one Buenos Aires calendar day. */
-export function computeSunHours(civilDate: CivilDate, lat: number, lng: number): SunHoursResult {
+export function computeSunHours(
+  civilDate: CivilDate,
+  lat: number,
+  lng: number,
+  facadeBearing?: number,
+): SunHoursResult {
   const facades = buildFacadePoints(defaultBuildingConfig);
   const occluders = buildSceneOccluders(defaultBuildingConfig);
 
@@ -23,7 +28,7 @@ export function computeSunHours(civilDate: CivilDate, lat: number, lng: number):
     const sunPos = getSunPosition(date, lat, lng);
     if (sunPos.altitude <= 0) continue;
 
-    const dir = sunDirectionVector(sunPos);
+    const dir = sunDirectionVector(sunPos, facadeBearing);
 
     for (const facade of facades) {
       const facingSun = facade.normal[0] * dir[0] + facade.normal[1] * dir[2] > 0.05;
