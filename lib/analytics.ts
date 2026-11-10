@@ -1,6 +1,6 @@
 import { track } from "@vercel/analytics";
 
-export type DemoKind = "selector" | "bim" | "lotes" | "departamento" | "zeus";
+export type DemoKind = "selector" | "bim" | "lotes" | "departamento";
 
 export function trackDemoClick(demo: DemoKind) {
   track("demo_click", { demo });
@@ -19,7 +19,7 @@ export function trackFilterUsed(demo: "selector" | "lotes") {
 }
 
 export function trackUnitOpened(
-  demo: "selector" | "bim" | "lotes" | "departamento" | "zeus",
+  demo: "selector" | "bim" | "lotes" | "departamento",
   unitCode: string,
 ) {
   track("unit_opened", { demo, unitCode });

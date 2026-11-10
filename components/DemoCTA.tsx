@@ -13,7 +13,6 @@ const DEMO_LABELS: Record<string, string> = {
   bim: "el modelo BIM",
   lotes: "el barrio demo",
   departamento: "la demo del departamento",
-  zeus: "la demo de Zeus III",
 };
 
 const fieldClasses = "field";
@@ -21,7 +20,7 @@ const fieldClasses = "field";
 export function DemoCTA({
   demo,
 }: {
-  demo: "selector" | "bim" | "lotes" | "departamento" | "zeus";
+  demo: "selector" | "bim" | "lotes" | "departamento";
 }) {
   const [state, formAction, isPending] = useActionState(submitContactForm, initialState);
   const source = `demo-${demo}-end`;
