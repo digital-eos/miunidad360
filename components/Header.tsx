@@ -4,10 +4,9 @@ import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { Logo } from "@/components/brand/Logo";
 
 const NAV_LINKS = [
-  { href: "/#fidelidad", label: "Fidelidad" },
+  { href: "/#como-funciona", label: "Cómo funciona" },
   { href: "/#resultado", label: "El resultado" },
   { href: "/#demos", label: "Demos" },
-  { href: "/#como-lo-recibis", label: "Cómo lo recibís" },
   { href: "/#contacto", label: "Contacto" },
 ];
 

@@ -201,7 +201,24 @@ export function streetRailings(floor: number): { x: [number, number]; framed: bo
 // ---------------------------------------------------------------------------------------
 // Unit data (served by the API until the project is seeded in the database)
 
-/** Every unit is for sale; prices are given on request ("Consultar"). */
+/**
+ * Demo prices (USD) and sale states. Fictional: the brochure gives neither. The selector
+ * says so under its unit list ("Precios y estados ficticios, solo para esta demo").
+ */
+const DEMO_PRICES: Record<string, number> = {
+  "101": 68_000, "102": 82_000, "103": 86_000,
+  "201": 109_000, "202": 107_000, "203": 98_000,
+  "301": 112_000, "302": 110_000, "303": 101_000,
+  "401": 104_000, "402": 152_000,
+  "501": 107_000, "502": 157_000,
+  "601": 111_000, "602": 163_000,
+};
+const DEMO_STATES: Record<string, Unidad["estado"]> = {
+  "203": "reservada",
+  "301": "vendida",
+  "501": "reservada",
+};
+
 export function catalunaUnidades(): Unidad[] {
   return CATALUNA_UNITS.map((unit, i) => ({
     id: i + 1,
@@ -213,9 +230,9 @@ export function catalunaUnidades(): Unidad[] {
     superficieTerrenoM2: null,
     // Street facade faces bearing 123° (≈ SE), the rear 303° (≈ NO).
     orientacion: unit.zone.startsWith("rear") ? "NO" : "SE",
-    precio: null,
+    precio: DEMO_PRICES[unit.code] ?? null,
     moneda: "USD",
-    estado: "disponible",
+    estado: DEMO_STATES[unit.code] ?? "disponible",
     objeto3d: unit.code,
     atributos: {
       piso: unit.floor,
@@ -236,5 +253,5 @@ export const CATALUNA_PROJECT = {
   latitude: -38.010459,
   longitude: -57.548978,
   description:
-    "Cataluña II, de Cataluña Desarrollos Inmobiliarios. 15 unidades de 1, 2 y 3 ambientes. Todas disponibles, precios a consultar.",
+    "Cataluña II, de Cataluña Desarrollos Inmobiliarios. 15 unidades de 1, 2 y 3 ambientes. Precios y estados de esta demo: ficticios.",
 };

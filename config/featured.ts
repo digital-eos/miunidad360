@@ -12,7 +12,7 @@ export type FeaturedProject = {
   modelo: string;
   datos: string;
   fotos: FeaturedPhoto[];
-  /** Credits shown under the Fidelidad section (render, real photo). */
+  /** Credits for the render and the real photo. */
   autores: {
     render: string;
     /** Leave empty to hide the photo credit. */
