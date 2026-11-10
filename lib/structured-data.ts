@@ -1,4 +1,4 @@
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://miunidad360.com.ar";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://miunidad360.com";
 
 export function organizationJsonLd() {
   return {

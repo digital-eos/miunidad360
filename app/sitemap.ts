@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { BIM_DEMO_PATH } from "@/lib/bim/route";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://miunidad360.com.ar";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://miunidad360.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();

@@ -179,7 +179,7 @@ a ningún servidor: todo pasa en el navegador de quien graba.
 - [ ] Conectar el dominio propio en Vercel (Project Settings → Domains) y esperar a que el
       certificado SSL quede activo.
 - [ ] Cargar `NEXT_PUBLIC_SITE_URL` en Vercel con ese dominio final (sin barra final), por
-      ejemplo `https://miunidad360.com.ar`. Se usa en metadatos SEO, Open Graph, el
+      ejemplo `https://miunidad360.com`. Se usa en metadatos SEO, Open Graph, el
       `sitemap.xml` y el `robots.txt`.
 
 **Variables de entorno en Vercel** (Project Settings → Environment Variables, mismos nombres

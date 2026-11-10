@@ -45,7 +45,7 @@ export function RecordButton({
         width,
         height,
         durationMs,
-        branding: withBranding ? { tagline: "Pedí tu demo en miunidad360.com.ar" } : null,
+        branding: withBranding ? { tagline: "Pedí tu demo en miunidad360.com" } : null,
         onProgress: setProgress,
       });
       downloadBlob(result.blob, `miunidad360-${demo}-${format}.${result.extension}`);

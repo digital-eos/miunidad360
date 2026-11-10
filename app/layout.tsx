@@ -20,7 +20,7 @@ const dmSerif = DM_Serif_Display({
   weight: "400",
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://miunidad360.com.ar";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://miunidad360.com";
 
 const HERO_DESCRIPTION =
   "Edificios, departamentos, casas o lotes: convertimos tus planos, renders o modelo BIM en una publicación 3D con su propio link. Tus compradores tocan cada unidad y ven su superficie, precio y disponibilidad desde el navegador.";

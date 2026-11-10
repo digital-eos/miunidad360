@@ -43,7 +43,7 @@ Everything else (floors, units, cards, filters, interior view) is the existing s
 ## Turning it on
 
 1. Google Cloud Console → enable **Map Tiles API** → create an API key.
-2. Restrict the key: *HTTP referrers* `https://miunidad360.com.ar/*`, `http://localhost:3000/*`;
+2. Restrict the key: *HTTP referrers* `https://miunidad360.com/*`, `http://localhost:3000/*`;
    *API restrictions*: Map Tiles API only. Set a daily quota cap.
 3. `.env.local` (and Vercel env): `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY="…"`.
 
