@@ -26,7 +26,7 @@ function InputVisual() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={`${BASE}/plano-103.webp`}
-          alt="Plano de la unidad 103 de Cataluña II"
+          alt="Plano de la unidad 103 de Torre Aldrey"
           width={1091}
           height={1987}
           loading="lazy"
@@ -167,7 +167,7 @@ export function HowItWorksSection() {
         </ol>
 
         <p className="mt-8 text-xs leading-relaxed text-foreground-muted/80">
-          Capturas de la demo Cataluña II. Precios y estados ficticios.
+          Capturas de la demo Torre Aldrey. Precios y estados ficticios.
         </p>
 
         <div className="mt-6">

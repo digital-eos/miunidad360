@@ -404,5 +404,6 @@ export const STREET_NUMBER_PLATE = {
   center: [1.12, 1.25] as [number, number],
   size: [0.5, 1.8] as [number, number],
   z: CATALUNA_CONFIG.buildingDepth / 2 + 0.302,
-  text: "2771",
+  // Left blank: the street number is not shown.
+  text: "",
 };

@@ -16,8 +16,8 @@ type Slide = {
 const SLIDES: Slide[] = [
   {
     file: "edificio",
-    title: "Tu edificio, en su dirección real",
-    alt: "El edificio Cataluña II en 3D sobre el mapa de su barrio, con la lista de unidades y sus precios al costado",
+    title: "Tu edificio, en su barrio real",
+    alt: "El edificio Torre Aldrey en 3D sobre el mapa de su barrio, con la lista de unidades y sus precios al costado",
   },
   {
     file: "unidad-hover",

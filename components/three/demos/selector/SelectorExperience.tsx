@@ -25,9 +25,10 @@ import { useSunHours } from "@/lib/sun/use-sun-hours";
 import { trackFilterUsed, trackUnitOpened } from "@/lib/analytics";
 import { SITE } from "@/lib/geo/site";
 
-// Shown name and address. The database row (edificio-demo) keeps its old demo values.
-const PROJECT_NAME = "Cataluña II";
-const PROJECT_ADDRESS = `${SITE.address}, ${SITE.city}`;
+// Shown name. The address is never displayed: the map under the tower is real, its
+// street and city are not named in the interface.
+const PROJECT_NAME: string = SITE.name;
+const PROJECT_ADDRESS: string | null = null;
 import { GEO_PREVIEW_KEY, geoApiKey, geoPreviewAllowed, supportsGeo } from "@/lib/geo/config";
 import type { FlyoverCaption } from "@/components/three/geo/AerialFlyover";
 import { MapAttribution } from "@/components/three/geo/MapGround";
@@ -691,7 +692,7 @@ export function SelectorExperience({
               key={caption ?? "none"}
               className="animate-caption-in rounded-md bg-surface px-4 py-1.5 label-caps text-foreground sm:text-xs"
             >
-              {caption ?? SITE.city}
+              {PROJECT_NAME}
             </p>
           </div>
           <button
@@ -736,7 +737,7 @@ export function SelectorExperience({
         )}
       >
         <p className="px-6 text-center eyebrow">
-          {realLocation ? `${SITE.address} · ${SITE.city}` : PROJECT_NAME}
+          {PROJECT_NAME}
         </p>
         <p className="label-caps text-foreground-muted">
           {!ready
@@ -758,9 +759,7 @@ export function SelectorExperience({
           />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex justify-center bg-gradient-to-t from-background/90 to-transparent px-3 pb-2 pt-6">
             <p className="text-center text-[11px] text-foreground-subtle">
-              {geo || map
-                ? `Ubicación real: ${SITE.address}, ${SITE.city} · modelo 3D ilustrativo`
-                : `${PROJECT_NAME} · modelo 3D ilustrativo`}
+              {`${PROJECT_NAME} · modelo 3D ilustrativo`}
             </p>
           </div>
         </>
@@ -807,7 +806,7 @@ export function SelectorExperience({
                 ← Volver al edificio
               </button>
               <p className="rounded-md bg-surface px-3 py-1 label-caps text-foreground-muted sm:text-[10px]">
-                Interior de ejemplo · Cataluña II, unidad 103
+                Interior de ejemplo · Torre Aldrey, unidad 103
               </p>
             </div>
             {frameExpanded ? (

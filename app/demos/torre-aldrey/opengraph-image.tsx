@@ -28,7 +28,7 @@ export default async function OpengraphImage() {
             color: "#344b50",
           }}
         >
-          miunidad360 · Cataluña II
+          miunidad360 · Torre Aldrey
         </div>
         <div style={{ fontSize: 76, marginTop: 24, lineHeight: 1.1 }}>
           Elegí tu unidad al instante

@@ -247,11 +247,12 @@ export function catalunaUnidades(): Unidad[] {
 
 export const CATALUNA_PROJECT = {
   slug: CATALUNA_SLUG,
-  name: "Cataluña II",
-  address: "Buenos Aires 2771",
-  city: "Mar del Plata, Argentina",
+  // Shown name: a made-up one. Street and city are left out on purpose.
+  name: "Torre Aldrey",
+  address: "",
+  city: "",
   latitude: -38.010459,
   longitude: -57.548978,
   description:
-    "Cataluña II, de Cataluña Desarrollos Inmobiliarios. 15 unidades de 1, 2 y 3 ambientes. Precios y estados de esta demo: ficticios.",
+    "Torre Aldrey. 15 unidades de 1, 2 y 3 ambientes. Precios y estados de esta demo: ficticios.",
 };

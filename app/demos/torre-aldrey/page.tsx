@@ -9,16 +9,16 @@ import { Footer } from "@/components/Footer";
 import { CATALUNA_SLUG } from "@/lib/three/cataluna-ii";
 
 export const metadata: Metadata = {
-  title: "Cataluña II · Mar del Plata",
+  title: "Torre Aldrey",
   description:
-    "Cataluña II en Buenos Aires 2771, Mar del Plata: elegí una unidad y mirá al instante su disponibilidad y precio.",
+    "Torre Aldrey: elegí una unidad y mirá al instante su disponibilidad y precio.",
 };
 
 const FOTOS = "/projects/cataluna-ii/fotos";
 
 /** Every render of the project from the developer's brochure. */
 const GALERIA: ListingImage[] = [
-  { src: `${FOTOS}/edificio-fachada.webp`, alt: "Fachada de Cataluña II de noche" },
+  { src: `${FOTOS}/edificio-fachada.webp`, alt: "Fachada del edificio de noche" },
   { src: `${FOTOS}/edificio-hall.webp`, alt: "Hall de entrada" },
   { src: `${FOTOS}/edificio-quincho.webp`, alt: "Quincho común" },
   { src: `${FOTOS}/edificio-terraza.webp`, alt: "Terraza con solárium" },
@@ -42,7 +42,7 @@ export default function SelectorDemoPage() {
           <SelectorCanvas projectSlug={CATALUNA_SLUG} />
         </Suspense>
       </Container>
-      <ListingGallery images={GALERIA} title="Cataluña II en imágenes" />
+      <ListingGallery images={GALERIA} title="Torre Aldrey en imágenes" />
       <DemoCTA demo="selector" />
       <Footer />
     </main>

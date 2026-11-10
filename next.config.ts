@@ -10,8 +10,9 @@ const nextConfig: NextConfig = {
       // The demo catalogue lives at /demos, next to the demos themselves.
       { source: "/demo", destination: "/demos", permanent: false },
       { source: "/demos/bim", destination: "/demos/schependomlaan", permanent: true },
-      // The selector now lives under its project name (Cataluña II, Cataluña Edificios).
-      { source: "/demos/selector", destination: "/demos/cataluna-ii", permanent: true },
+      // The selector lives under its project's shown name; keep older links working.
+      { source: "/demos/selector", destination: "/demos/torre-aldrey", permanent: true },
+      { source: "/demos/cataluna-ii", destination: "/demos/torre-aldrey", permanent: false },
     ];
   },
   // Atmosphere tables, cloud and noise textures, Draco decoder (~12 MB, pinned to library

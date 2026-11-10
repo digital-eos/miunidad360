@@ -141,7 +141,6 @@ export function DepartamentoPanel({
       <div className="border-b border-border-subtle px-5 py-4">
         <p className="label-caps text-primary">
           {PROYECTO.nombre}
-          <span className="text-foreground-muted"> · {PROYECTO.direccion}</span>
         </p>
         <div className="mt-2 flex items-baseline justify-between gap-3">
           <h1 className="font-display text-2xl">Unidad {UNIDAD.codigo}</h1>
@@ -253,8 +252,8 @@ export function DepartamentoPanel({
             </div>
 
             <p className="text-xs leading-relaxed text-foreground-muted">
-              Modelo 3D generado a partir del plano del folleto de venta de {PROYECTO.desarrollador}
-              . Alturas y mobiliario aproximados; imágenes: renders del folleto.
+              Modelo 3D generado a partir del plano del folleto de venta del edificio. Alturas y
+              mobiliario aproximados; imágenes: renders del folleto.
             </p>
           </div>
         )}

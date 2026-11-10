@@ -19,7 +19,7 @@ const DEFAULT_FLOOR = 1;
 /** Street render from Cataluña II's brochure, the project the rest of the homepage shows. */
 const RENDER = {
   src: "/projects/cataluna-ii/fotos/edificio-fachada.webp",
-  alt: "Render de la fachada de Cataluña II, de noche",
+  alt: "Render de la fachada del edificio, de noche",
 };
 
 /**
@@ -123,7 +123,7 @@ export function StartingMaterial() {
       <figcaption className="mt-6 sm:mt-8">
         <p className="text-sm font-semibold">Material de partida</p>
         <p className="mt-1 text-xs leading-relaxed text-foreground-subtle">
-          Render: Cataluña II, Cataluña Desarrollos Inmobiliarios · Planos generados por
+          Render: folleto de venta del edificio · Planos generados por
           MiUnidad360 desde el modelo IFC del dataset Schependomlaan (ROOT bv, Hendriks
           Bouw en Ontwikkeling, TU Eindhoven), CC BY 4.0
         </p>

@@ -19,7 +19,8 @@ import { WGS84_ELLIPSOID } from "3d-tiles-renderer/three";
  * - Paseo Aldrey (OSM way 389391724, Sarmiento 2685): ~0.5 km south-east of the lot.
  */
 export const SITE = {
-  name: "Cataluña II",
+  /** Shown name: a made-up one. The real name, street and city are not displayed. */
+  name: "Torre Aldrey",
   address: "Buenos Aires 2771",
   city: "Mar del Plata",
   neighborhood: "Paseo Aldrey",

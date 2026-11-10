@@ -44,16 +44,15 @@ export const UNIDAD = {
   tipo: "Monoambiente",
   piso: 1,
   posicion: "03",
-  frente: "Calle Buenos Aires",
+  frente: "A la calle",
   superficieInterior: 38.7,
   superficieBalcon: 3.4,
   plano: "/projects/cataluna-ii/plano-103.webp",
 };
 
 export const PROYECTO = {
-  nombre: "Cataluña II",
-  desarrollador: "Cataluña Desarrollos Inmobiliarios",
-  direccion: "Buenos Aires 2771, Mar del Plata",
+  // Shown name: a made-up one. The developer and the address are not displayed.
+  nombre: "Torre Aldrey",
   resumen:
     "A 800 m del mar. 15 unidades funcionales de 1, 2 y 3 ambientes, con quincho, terraza con solárium, parrilla y huerta comunitaria.",
   pisos: 7,
@@ -67,7 +66,7 @@ export const PROYECTO = {
   ],
   amenities: ["Solárium común", "Quincho común", "Parrilla", "Huerta comunitaria"],
   fotos: [
-    { src: `${FOTOS}/edificio-fachada.webp`, alt: "Fachada de Cataluña II de noche" },
+    { src: `${FOTOS}/edificio-fachada.webp`, alt: "Fachada del edificio de noche" },
     { src: `${FOTOS}/edificio-hall.webp`, alt: "Hall de entrada" },
     { src: `${FOTOS}/edificio-quincho.webp`, alt: "Quincho común en el piso 1" },
     { src: `${FOTOS}/edificio-terraza.webp`, alt: "Terraza con solárium en el piso 7" },

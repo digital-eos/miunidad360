@@ -33,8 +33,8 @@ const BLOQUES: Bloque[] = [
       },
       {
         kind: "selector",
-        href: "/demos/cataluna-ii",
-        title: "Cataluña II · Mar del Plata",
+        href: "/demos/torre-aldrey",
+        title: "Torre Aldrey",
         description:
           "El edificio en su ubicación real: filtrá por ambientes, precio y piso, y abrí la ficha de cada departamento.",
       },
@@ -53,7 +53,7 @@ const BLOQUES: Bloque[] = [
       {
         kind: "departamento",
         href: "/demos/departamento",
-        title: "Cataluña II · Unidad 103",
+        title: "Torre Aldrey · Unidad 103",
         description:
           "Un departamento real en 3D, generado desde el plano del folleto: tocá un ambiente y mirá sus medidas y renders.",
       },
