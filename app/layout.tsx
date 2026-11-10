@@ -23,7 +23,7 @@ const dmSerif = DM_Serif_Display({
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://miunidad360.com";
 
 const HERO_DESCRIPTION =
-  "Edificios, departamentos, casas o lotes: convertimos tus planos, renders o modelo BIM en una publicación 3D con su propio link. Tus compradores tocan cada unidad y ven su superficie, precio y disponibilidad desde el navegador.";
+  "Edificios, departamentos, casas, lotes o galpones: convertimos tus planos, renders o modelo BIM en una publicación 3D con su propio link. Tus compradores tocan cada unidad y ven su superficie, precio y disponibilidad desde el navegador.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -43,6 +43,7 @@ export const metadata: Metadata = {
     "real estate 3D",
     "selector de unidades",
     "loteo 3D",
+    "galpones en 3D",
     "masterplan interactivo",
     "desarrollos inmobiliarios Argentina",
     "Digital EOS",

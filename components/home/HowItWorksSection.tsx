@@ -124,7 +124,7 @@ const STEPS: { title: string; description: string; visual: ReactNode }[] = [
     visual: <InputVisual />,
   },
   {
-    title: "Armamos tu edificio en 3D",
+    title: "Armamos tu proyecto en 3D",
     description:
       "Cada unidad queda conectada a sus datos: tu cliente la toca y ve su precio, su plano y su disponibilidad.",
     visual: <BuildVisual />,
@@ -144,7 +144,7 @@ export function HowItWorksSection() {
         <SectionHeading
           eyebrow="Cómo funciona"
           title="De tus planos a un link que tus clientes recorren"
-          description="Vos nos pasás los planos y los datos de cada unidad. Nosotros armamos el edificio en 3D y te lo entregamos listo para compartir."
+          description="Vos nos pasás los planos y los datos de cada unidad. Nosotros armamos tu proyecto en 3D, sea un edificio, un loteo o un parque de galpones, y te lo entregamos listo para compartir."
         />
 
         <div className="mt-10">

@@ -15,13 +15,18 @@ type DemoCard = {
 };
 
 type Bloque = {
+  /** Anchor the homepage links to: /demos#edificios. */
+  id: string;
   titulo: string;
   cards: DemoCard[];
   proximamente?: string;
+  /** Picture for the "Próximamente" card. */
+  proximamenteImagen?: { src: string; alt: string };
 };
 
 const BLOQUES: Bloque[] = [
   {
+    id: "edificios",
     titulo: "Edificios",
     cards: [
       {
@@ -48,6 +53,7 @@ const BLOQUES: Bloque[] = [
     ],
   },
   {
+    id: "departamentos",
     titulo: "Departamentos",
     cards: [
       {
@@ -60,6 +66,7 @@ const BLOQUES: Bloque[] = [
     ],
   },
   {
+    id: "lotes",
     titulo: "Lotes",
     cards: [
       {
@@ -72,6 +79,18 @@ const BLOQUES: Bloque[] = [
     ],
   },
   {
+    id: "galpones",
+    titulo: "Galpones",
+    cards: [],
+    proximamente:
+      "Un parque industrial o logístico en 3D: cada nave con su superficie, altura libre, precio y disponibilidad.",
+    proximamenteImagen: {
+      src: "/images/demos/galpones.webp",
+      alt: "Vista 3D de un parque de galpones: cada nave pintada según su disponibilidad",
+    },
+  },
+  {
+    id: "hoteles",
     titulo: "Hoteles & SPA",
     cards: [],
     proximamente:
@@ -98,7 +117,8 @@ export function Demos() {
           {BLOQUES.map((bloque) => (
             <div
               key={bloque.titulo}
-              className="grid gap-5 border-t border-border-subtle py-8 lg:grid-cols-[180px_1fr] lg:gap-10"
+              id={bloque.id}
+              className="grid scroll-mt-20 gap-5 border-t border-border-subtle py-8 lg:grid-cols-[180px_1fr] lg:gap-10"
             >
               <h2 className="text-lg font-semibold">{bloque.titulo}</h2>
 
@@ -134,12 +154,25 @@ export function Demos() {
                 {bloque.proximamente ? (
                   <div
                     aria-disabled="true"
-                    className="flex h-full flex-col rounded-lg border border-dashed border-border-strong p-4 sm:p-5"
+                    className="flex h-full flex-col overflow-hidden rounded-lg border border-dashed border-border-strong"
                   >
-                    <p className="label-caps text-foreground-subtle">Próximamente</p>
-                    <p className="mt-2 text-sm leading-relaxed text-foreground-muted">
-                      {bloque.proximamente}
-                    </p>
+                    {bloque.proximamenteImagen ? (
+                      <div className="relative aspect-[16/10] overflow-hidden border-b border-dashed border-border-strong bg-surface-muted">
+                        <Image
+                          src={bloque.proximamenteImagen.src}
+                          alt={bloque.proximamenteImagen.alt}
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1280px) 45vw, 330px"
+                          className="object-cover"
+                        />
+                      </div>
+                    ) : null}
+                    <div className="p-4 sm:p-5">
+                      <p className="label-caps text-foreground-subtle">Próximamente</p>
+                      <p className="mt-2 text-sm leading-relaxed text-foreground-muted">
+                        {bloque.proximamente}
+                      </p>
+                    </div>
                   </div>
                 ) : null}
               </div>

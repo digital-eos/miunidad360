@@ -14,9 +14,10 @@ export function Hero() {
             Cada unidad de tu proyecto, en 3D y con toda su información.
           </h1>
           <p className="mt-6 max-w-xl text-base leading-relaxed text-foreground-muted sm:text-lg">
-            Edificios, departamentos, casas o lotes: convertimos tus planos, renders o
-            modelo BIM en una publicación 3D con su propio link. Tus compradores tocan
-            cada unidad y ven su superficie, precio y disponibilidad desde el navegador.
+            Edificios, departamentos, casas, lotes o galpones: convertimos tus planos,
+            renders o modelo BIM en una publicación 3D con su propio link. Tus compradores
+            tocan cada unidad y ven su superficie, precio y disponibilidad desde el
+            navegador.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <WhatsAppButton source="hero" />
