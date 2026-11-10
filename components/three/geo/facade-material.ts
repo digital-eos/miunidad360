@@ -29,6 +29,8 @@ uniform vec3 uTints[${TINTS.length}];
 uniform vec3 uGlass;
 uniform vec3 uBlind;
 uniform vec3 uRoof;
+uniform vec3 uMuteColor;
+uniform float uMute;
 float facadeGlass = 0.0;
 
 float facadeHash(vec2 p) {
@@ -109,6 +111,9 @@ const FRAGMENT_MAIN = /* glsl */ `
   float roof = step(0.5, vUp);
   diffuseColor.rgb = mix(wall, mix(base, uRoof, 0.55), roof);
   facadeGlass = glass * (1.0 - roof);
+  // Muted toward a pale model white, so the project carries the color and contrast.
+  diffuseColor.rgb = mix(diffuseColor.rgb, uMuteColor, uMute);
+  facadeGlass *= 1.0 - uMute;
 }
 `;
 
@@ -119,6 +124,8 @@ export function createFacadeMaterial(): THREE.MeshStandardMaterial {
     uGlass: { value: new THREE.Color("#606a71") },
     uBlind: { value: new THREE.Color("#d6d0c3") },
     uRoof: { value: new THREE.Color("#9c9890") },
+    uMuteColor: { value: new THREE.Color("#eceae5") },
+    uMute: { value: 0.45 },
   };
   material.onBeforeCompile = (shader) => {
     Object.assign(shader.uniforms, uniforms);
@@ -136,7 +143,7 @@ export function createFacadeMaterial(): THREE.MeshStandardMaterial {
         "#include <roughnessmap_fragment>\nroughnessFactor = mix(roughnessFactor, 0.18, facadeGlass);",
       );
   };
-  material.customProgramCacheKey = () => "facade-v2";
+  material.customProgramCacheKey = () => "facade-v3";
   return material;
 }
 

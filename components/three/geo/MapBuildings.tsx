@@ -19,6 +19,22 @@ const DATA_URL = "/geo/buildings/cataluna-ii.json";
 const FLOOR_HEIGHT = FACADE_FLOOR_HEIGHT;
 const DEG = Math.PI / 180;
 
+/** Footprints under this (m²) are dropped: the detection's sheds, awnings and false positives. */
+const MIN_AREA = 30;
+/** Under this (m²) a footprint is an annex: one floor. */
+const SMALL_AREA = 60;
+
+/**
+ * The project has to read first: neighbors stay low around it and only reach their own height
+ * further out. Max floors 2 up to NEAR meters from the tower, rising to 5 at FAR.
+ */
+const NEAR = 60;
+const FAR = 220;
+function maxFloorsAt(distance: number) {
+  const t = THREE.MathUtils.clamp((distance - NEAR) / (FAR - NEAR), 0, 1);
+  return distance > FAR ? Infinity : 2 + Math.floor(t * 3);
+}
+
 type BuildingsFile = { buildings: { r: [number, number][]; f?: number }[] };
 
 /** Stable pseudo-random in [0, 1) from a position, so heights don't change between visits. */
@@ -42,6 +58,7 @@ function ringArea(ring: [number, number][]) {
  * mid-rise and some towers on the larger ones.
  */
 function estimateFloors(area: number, r: number) {
+  if (area < SMALL_AREA) return 1; // sheds, garages, back-of-lot annexes
   if (area < 90) return 1 + Math.floor(r * 2);
   if (area < 220) return 1 + Math.floor(r * 3);
   if (area < 500) return r > 0.82 ? 6 + Math.floor((r - 0.82) * 40) : 2 + Math.floor(r * 4);
@@ -95,7 +112,12 @@ export function MapBuildings({
           toScene.set(cx, 0, -cy).applyAxisAngle(up, rotationY).add(SITE.addressOffset);
           if (Math.abs(toScene.x) < halfX + 3 && Math.abs(toScene.z) < halfZ + 3) continue;
 
-          const floors = b.f ?? estimateFloors(ringArea(ring), hash(cx, cy));
+          const area = ringArea(ring);
+          if (b.f === undefined && area < MIN_AREA) continue;
+          const floors = Math.min(
+            b.f ?? estimateFloors(area, hash(cx, cy)),
+            maxFloorsAt(Math.hypot(toScene.x, toScene.z)),
+          );
           const top = floors * FLOOR_HEIGHT + 0.4;
           const shape = new THREE.Shape(ring.map(([x, y]) => new THREE.Vector2(x, y)));
           const geo = new THREE.ExtrudeGeometry(shape, { depth: top, bevelEnabled: false });
