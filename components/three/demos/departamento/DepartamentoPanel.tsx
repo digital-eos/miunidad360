@@ -22,7 +22,7 @@ function Gallery({ fotos, sizes }: { fotos: Foto[]; sizes: string }) {
   if (!current) return null;
   return (
     <div>
-      <div className="relative aspect-[16/10] overflow-hidden rounded-xl bg-background-elevated">
+      <div className="relative aspect-[16/10] overflow-hidden rounded-lg bg-surface-muted">
         <Image src={current.src} alt={current.alt} fill sizes={sizes} className="object-cover" />
       </div>
       {fotos.length > 1 ? (
@@ -36,7 +36,7 @@ function Gallery({ fotos, sizes }: { fotos: Foto[]; sizes: string }) {
               aria-pressed={i === index}
               className={cn(
                 "relative aspect-[4/3] overflow-hidden rounded-md border-2 transition-colors duration-200",
-                i === index ? "border-accent" : "border-transparent hover:border-border-subtle",
+                i === index ? "border-primary" : "border-transparent hover:border-border-subtle",
               )}
             >
               <Image src={foto.src} alt="" fill sizes="96px" className="object-cover" />
@@ -58,16 +58,16 @@ function Ubicacion() {
           <div
             key={f}
             className={cn(
-              "flex h-4 items-center justify-center rounded-[3px] font-mono text-[9px]",
+              "flex h-4 items-center justify-center rounded-[3px] tabular-nums text-[9px]",
               f === UNIDAD.piso
-                ? "bg-accent text-accent-foreground"
-                : "bg-background-elevated text-foreground-muted",
+                ? "bg-primary text-primary-foreground"
+                : "bg-surface-muted text-foreground-muted",
             )}
           >
             {f === PROYECTO.pisos ? "Terraza" : f}
           </div>
         ))}
-        <div className="flex h-4 items-center justify-center rounded-[3px] border border-border-subtle font-mono text-[9px] text-foreground-muted">
+        <div className="flex h-4 items-center justify-center rounded-[3px] border border-border-subtle tabular-nums text-[9px] text-foreground-muted">
           PB
         </div>
       </div>
@@ -85,7 +85,7 @@ function Ubicacion() {
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-foreground-muted">
+    <p className="label-caps text-foreground-muted">
       {children}
     </p>
   );
@@ -101,7 +101,7 @@ function RoomDetail({ room, onBack }: { room: Room; onBack: () => void }) {
       >
         ← Todo el departamento
       </button>
-      <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.2em] text-accent-strong">
+      <p className="mt-4 label-caps text-primary">
         Ambiente
       </p>
       <h2 className="mt-1 font-display text-3xl">{room.nombre}</h2>
@@ -139,7 +139,7 @@ export function DepartamentoPanel({
   return (
     <div className={cn("flex flex-col overflow-hidden bg-background", className)}>
       <div className="border-b border-border-subtle px-5 py-4">
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent-strong">
+        <p className="label-caps text-primary">
           {PROYECTO.nombre}
           <span className="text-foreground-muted"> · {PROYECTO.direccion}</span>
         </p>
@@ -164,7 +164,7 @@ export function DepartamentoPanel({
               ].map(([label, value]) => (
                 <div
                   key={label}
-                  className="rounded-xl border border-border-subtle bg-background-elevated px-2 py-3"
+                  className="rounded-lg border border-border-subtle bg-surface-muted px-2 py-3"
                 >
                   <p className="text-xs text-foreground-muted">{label}</p>
                   <p className="mt-0.5 font-display text-lg">{formatM2(value as number)}</p>
@@ -181,13 +181,13 @@ export function DepartamentoPanel({
                       type="button"
                       onClick={() => onSelectRoom(r.id)}
                       onMouseEnter={() => onHoverRoom(r.id)}
-                      className="flex w-full items-center justify-between gap-3 border-t border-border-subtle py-2.5 text-left transition-colors duration-200 hover:bg-background-elevated"
+                      className="flex w-full items-center justify-between gap-3 border-t border-border-subtle py-2.5 text-left transition-colors duration-200 hover:bg-surface-muted"
                     >
                       <span className="text-sm font-medium">{r.nombre}</span>
                       <span className="flex items-center gap-3 text-xs text-foreground-muted">
                         {r.medidas}
                         {r.fotos.length ? (
-                          <span className="rounded-full border border-border-subtle px-2 py-0.5">
+                          <span className="rounded-md border border-border-subtle px-2 py-0.5">
                             {r.fotos.length} {r.fotos.length === 1 ? "foto" : "fotos"}
                           </span>
                         ) : null}
@@ -201,7 +201,7 @@ export function DepartamentoPanel({
 
             <div>
               <SectionTitle>Plano</SectionTitle>
-              <div className="mt-2 rounded-xl border border-border-subtle bg-[#efede8] p-3">
+              <div className="mt-2 rounded-lg border border-border-subtle bg-surface-muted p-3">
                 <Image
                   src={UNIDAD.plano}
                   alt={`Plano de la unidad ${UNIDAD.codigo}, con cotas`}
@@ -226,7 +226,7 @@ export function DepartamentoPanel({
                 {PROYECTO.caracteristicas.map((c) => (
                   <span
                     key={c}
-                    className="rounded-full border border-border-subtle px-3 py-1 text-xs text-foreground-muted"
+                    className="rounded-md border border-border-subtle px-3 py-1 text-xs text-foreground-muted"
                   >
                     {c}
                   </span>
@@ -244,7 +244,7 @@ export function DepartamentoPanel({
                 {PROYECTO.amenities.map((a) => (
                   <span
                     key={a}
-                    className="rounded-full bg-background-elevated px-3 py-1 text-xs text-foreground-muted"
+                    className="rounded-md bg-surface-muted px-3 py-1 text-xs text-foreground-muted"
                   >
                     {a}
                   </span>

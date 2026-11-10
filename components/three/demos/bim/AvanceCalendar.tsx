@@ -117,7 +117,7 @@ export function AvanceCalendar({
           "w-full",
           embedded
             ? "px-5 py-5"
-            : "pointer-events-auto max-h-[44vh] max-w-xl overflow-y-auto rounded-2xl border border-border-subtle bg-background/90 p-4 backdrop-blur-md sm:max-h-none"
+            : "pointer-events-auto max-h-[44vh] max-w-xl overflow-y-auto rounded-lg border border-border-subtle bg-surface p-4 sm:max-h-none"
         )}
       >
         <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
@@ -125,7 +125,7 @@ export function AvanceCalendar({
             <p className="font-display text-base">
               Semana {currentWeek} de {LAST_WEEK}
             </p>
-            <p className="font-mono text-xs text-foreground-muted">
+            <p className="tabular-nums text-xs text-foreground-muted">
               {formatCalendarDate(currentDate)}
             </p>
           </div>
@@ -134,14 +134,14 @@ export function AvanceCalendar({
               type="button"
               onClick={onTogglePlay}
               aria-label={isPlaying ? "Pausar" : "Reproducir"}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground transition-colors duration-200 hover:bg-[#ffb84f]"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition-colors duration-200 hover:bg-primary-hover"
             >
               {isPlaying ? "❚❚" : "▶"}
             </button>
             <button
               type="button"
               onClick={onCompleteBuild}
-              className="rounded-full border border-border-subtle px-3 py-1.5 text-xs font-medium transition-colors duration-200 hover:border-accent hover:text-accent-strong"
+              className="rounded-md border border-border-subtle px-3 py-1.5 text-xs font-medium transition-colors duration-200 hover:border-primary hover:text-primary"
             >
               Obra completa
             </button>
@@ -150,7 +150,7 @@ export function AvanceCalendar({
 
         <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-border-subtle">
           <div
-            className="h-full bg-accent transition-[width] duration-300"
+            className="h-full bg-primary transition-[width] duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -164,7 +164,7 @@ export function AvanceCalendar({
             }
             disabled={!canGoPrev}
             aria-label="Mes anterior"
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-border-subtle text-xs transition-colors duration-200 hover:border-accent hover:text-accent-strong disabled:opacity-30"
+            className="flex h-7 w-7 items-center justify-center rounded-full border border-border-subtle text-xs transition-colors duration-200 hover:border-primary hover:text-primary disabled:opacity-30"
           >
             ‹
           </button>
@@ -177,13 +177,13 @@ export function AvanceCalendar({
             }
             disabled={!canGoNext}
             aria-label="Mes siguiente"
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-border-subtle text-xs transition-colors duration-200 hover:border-accent hover:text-accent-strong disabled:opacity-30"
+            className="flex h-7 w-7 items-center justify-center rounded-full border border-border-subtle text-xs transition-colors duration-200 hover:border-primary hover:text-primary disabled:opacity-30"
           >
             ›
           </button>
         </div>
 
-        <div className="mt-2 grid grid-cols-7 gap-1 text-center font-mono text-[10px] uppercase tracking-wide text-foreground-muted">
+        <div className="mt-2 grid grid-cols-7 gap-1 text-center label-caps text-foreground-muted">
           {WEEKDAY_LABELS.map((label) => (
             <span key={label}>{label}</span>
           ))}
@@ -204,9 +204,9 @@ export function AvanceCalendar({
                 type="button"
                 onClick={() => onChangeWeek(weekForDate(date))}
                 className={cn(
-                  "flex flex-col items-center gap-0.5 rounded-lg py-1 text-[11px] transition-colors duration-200 hover:bg-background-elevated",
+                  "flex flex-col items-center gap-0.5 rounded-lg py-1 text-[11px] transition-colors duration-200 hover:bg-surface-muted",
                   isCurrent
-                    ? "bg-accent-soft font-medium text-accent-strong ring-1 ring-accent"
+                    ? "bg-primary-soft font-medium text-primary ring-1 ring-primary"
                     : "text-foreground"
                 )}
               >
@@ -249,7 +249,7 @@ export function AvanceCalendar({
               {translateTasks(activeEntry.tasks).map((task) => (
                 <li
                   key={task}
-                  className="rounded-full border border-border-subtle px-2.5 py-1 text-[11px] text-foreground-muted"
+                  className="rounded-md border border-border-subtle px-2.5 py-1 text-[11px] text-foreground-muted"
                 >
                   {task}
                 </li>

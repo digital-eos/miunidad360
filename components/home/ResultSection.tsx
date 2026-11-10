@@ -16,7 +16,7 @@ export function ResultSection() {
   return (
     <section
       id="resultado"
-      className="scroll-mt-6 border-t border-border-subtle py-20 sm:py-24"
+      className="border-t border-border-subtle py-20 sm:py-24"
     >
       <Container>
         <SectionHeading
@@ -30,7 +30,7 @@ export function ResultSection() {
           {inView ? (
             <SelectorCanvas projectSlug={CATALUNA_SLUG} embedded />
           ) : (
-            <div className="h-[65vh] rounded-2xl border border-border-subtle bg-background-elevated lg:h-[70vh]" />
+            <div className="h-[65vh] rounded-lg border border-border-subtle bg-surface-muted lg:h-[70vh]" />
           )}
         </div>
 
@@ -38,7 +38,7 @@ export function ResultSection() {
           <Link
             href="/demos/cataluna-ii"
             onClick={() => trackDemoClick("selector")}
-            className="text-sm font-medium text-foreground transition-colors duration-200 hover:text-accent-strong"
+            className="text-sm font-medium text-foreground transition-colors duration-200 hover:text-primary"
           >
             Abrir en pantalla completa →
           </Link>

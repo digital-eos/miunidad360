@@ -41,10 +41,10 @@ function Chip({
       onClick={onClick}
       aria-pressed={active}
       className={cn(
-        "rounded-full border px-3 py-1 text-xs font-medium transition-colors duration-200",
+        "rounded-md border px-3 py-1 text-xs font-medium transition-colors duration-200",
         active
-          ? "border-accent bg-accent text-accent-foreground"
-          : "border-border-subtle text-foreground-muted hover:border-accent hover:text-foreground",
+          ? "border-primary bg-primary text-primary-foreground"
+          : "border-border-subtle text-foreground-muted hover:border-primary hover:text-foreground",
       )}
     >
       {children}
@@ -121,7 +121,7 @@ export function EdificioInfoPanel({
       className={cn("flex scroll-mt-4 flex-col overflow-hidden bg-background", className)}
     >
       <div className="border-b border-border-subtle px-5 py-4">
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent-strong">
+        <p className="label-caps text-primary">
           {projectName}
           {projectAddress ? (
             <span className="text-foreground-muted"> · {projectAddress}</span>
@@ -141,7 +141,7 @@ export function EdificioInfoPanel({
             backLabel={focusFloor === null ? "Todas las unidades" : `Unidades del piso ${focusFloor}`}
             nota="Modelo 3D ilustrativo."
             media={
-              <div className="rounded-xl border border-border-subtle bg-background-elevated p-3">
+              <div className="rounded-lg border border-border-subtle bg-surface-muted p-3">
                 <FloorPlanSvg
                   bedrooms={attrNumber(selectedUnit, "dormitorios") ?? 1}
                   areaM2={selectedUnit.superficieM2}
@@ -152,7 +152,7 @@ export function EdificioInfoPanel({
             }
           >
             {sunHoursVerano != null || sunHoursInvierno != null ? (
-              <div className="rounded-xl border border-border-subtle bg-background-elevated p-3">
+              <div className="rounded-lg border border-border-subtle bg-surface-muted p-3">
                 <p className="text-xs font-medium text-foreground-muted">
                   Sol directo en la fachada
                 </p>
@@ -197,7 +197,7 @@ export function EdificioInfoPanel({
             </div>
 
             {/* Filters */}
-            <div className="mt-5 space-y-3 rounded-xl border border-border-subtle bg-background-elevated/60 p-3">
+            <div className="mt-5 space-y-3 rounded-lg border border-border-subtle bg-surface-muted/60 p-3">
               <div className="flex flex-wrap items-center gap-1.5">
                 <span className="mr-1 text-xs font-medium text-foreground-muted">Ambientes</span>
                 {ROOMS_OPTIONS.map((n) => (
@@ -242,7 +242,7 @@ export function EdificioInfoPanel({
                         maxPriceUsd: e.target.value ? Number(e.target.value) : null,
                       })
                     }
-                    className="min-w-0 flex-1 rounded-full border border-border-subtle bg-background px-3 py-1 text-xs font-medium text-foreground focus:border-accent focus:outline-none"
+                    className="min-w-0 flex-1 rounded-md border border-border-subtle bg-background px-3 py-1 text-xs font-medium text-foreground focus:border-primary focus:outline-none"
                   >
                     <option value="">Cualquier precio</option>
                     {PRICE_OPTIONS.map((p) => (
@@ -269,7 +269,7 @@ export function EdificioInfoPanel({
                   <button
                     type="button"
                     onClick={() => onFiltersChange(EMPTY_FILTERS)}
-                    className="font-medium text-accent-strong hover:underline"
+                    className="font-medium text-primary hover:underline"
                   >
                     Limpiar filtros
                   </button>
@@ -288,7 +288,7 @@ export function EdificioInfoPanel({
                 return (
                   <li key={u.codigo}>
                     {header ? (
-                      <p className="border-t border-border-subtle pt-3 pb-1 font-mono text-[10px] uppercase tracking-[0.2em] text-foreground-muted">
+                      <p className="border-t border-border-subtle pt-3 pb-1 label-caps text-foreground-muted">
                         Piso {floor}
                       </p>
                     ) : null}
@@ -301,7 +301,7 @@ export function EdificioInfoPanel({
                       className={cn(
                         "flex w-full items-center gap-3 py-2.5 text-left transition-colors duration-200",
                         forSale
-                          ? "hover:bg-background-elevated focus-visible:bg-background-elevated focus-visible:outline-none"
+                          ? "hover:bg-surface-muted focus-visible:bg-surface-muted focus-visible:outline-none"
                           : "cursor-default opacity-55",
                         !header && "border-t border-border-subtle",
                       )}

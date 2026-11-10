@@ -13,25 +13,24 @@ export default async function OpengraphImage() {
         flexDirection: "column",
         justifyContent: "center",
         padding: "80px",
-        backgroundColor: "#0a0a0b",
-        backgroundImage:
-          "radial-gradient(circle at 75% 25%, rgba(240,166,59,0.25), transparent 55%)",
-        color: "#f4f2ec",
+        backgroundColor: "#f7f6f2",
+        borderLeft: "16px solid #344b50",
+        color: "#292d2e",
         fontFamily: "sans-serif",
       }}
     >
       <div
         style={{
           fontSize: 28,
-          letterSpacing: 4,
+          letterSpacing: 2,
           textTransform: "uppercase",
-          color: "#f0a63b",
+          color: "#344b50",
         }}
       >
         Digital EOS
       </div>
-      <div style={{ fontSize: 88, marginTop: 24, lineHeight: 1.1 }}>MiUnidad360</div>
-      <div style={{ fontSize: 34, marginTop: 24, color: "#9b9890", maxWidth: 900 }}>
+      <div style={{ fontSize: 88, marginTop: 24, lineHeight: 1.1 }}>miunidad360</div>
+      <div style={{ fontSize: 34, marginTop: 24, color: "#5f6564", maxWidth: 900 }}>
         Transformá tu propiedad en una experiencia 3D interactiva.
       </div>
     </div>,

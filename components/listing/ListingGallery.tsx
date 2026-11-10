@@ -53,12 +53,12 @@ export function ListingGallery({
       <Container className="max-w-[1400px]">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent-strong">
+            <p className="eyebrow">
               Fotos
             </p>
-            <h2 className="mt-2 font-display text-3xl">{title}</h2>
+            <h2 className="mt-2 font-display text-3xl leading-tight">{title}</h2>
           </div>
-          <p className="text-xs text-foreground-muted">
+          <p className="text-sm text-foreground-muted">
             {galeria.length} renders{credit ? ` · ${credit}` : ""}
           </p>
         </div>
@@ -69,7 +69,7 @@ export function ListingGallery({
               <button
                 type="button"
                 onClick={() => setOpen(i)}
-                className="group block h-full w-full overflow-hidden rounded-lg bg-background-elevated focus-visible:outline-2 focus-visible:outline-accent"
+                className="group block h-full w-full overflow-hidden rounded-md bg-surface-muted transition-opacity duration-150 hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                 aria-label={`Ver ${img.alt}`}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -78,7 +78,7 @@ export function ListingGallery({
                   alt={img.alt}
                   loading="lazy"
                   decoding="async"
-                  className="aspect-video h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                  className="aspect-video h-full w-full object-cover"
                 />
               </button>
             </li>
@@ -91,7 +91,7 @@ export function ListingGallery({
           role="dialog"
           aria-modal="true"
           aria-label={current.alt}
-          className="fixed inset-0 z-50 flex flex-col bg-black/92 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex flex-col bg-foreground/95"
           onClick={close}
         >
           <div className="flex items-center justify-between px-4 py-3 text-sm text-white/80">
@@ -101,7 +101,7 @@ export function ListingGallery({
             <button
               type="button"
               onClick={close}
-              className="rounded-full px-3 py-1 text-white hover:bg-white/10"
+              className="rounded-md px-3 py-1 text-white hover:bg-white/10"
               aria-label="Cerrar"
             >
               ✕
@@ -121,7 +121,7 @@ export function ListingGallery({
                 e.stopPropagation();
                 step(-1);
               }}
-              className="absolute top-1/2 left-3 -translate-y-1/2 rounded-full bg-white/10 px-3 py-2 text-xl text-white hover:bg-white/20"
+              className="absolute top-1/2 left-3 -translate-y-1/2 rounded-md bg-white/10 px-3 py-2 text-xl text-white hover:bg-white/20"
               aria-label="Anterior"
             >
               ‹
@@ -132,7 +132,7 @@ export function ListingGallery({
                 e.stopPropagation();
                 step(1);
               }}
-              className="absolute top-1/2 right-3 -translate-y-1/2 rounded-full bg-white/10 px-3 py-2 text-xl text-white hover:bg-white/20"
+              className="absolute top-1/2 right-3 -translate-y-1/2 rounded-md bg-white/10 px-3 py-2 text-xl text-white hover:bg-white/20"
               aria-label="Siguiente"
             >
               ›

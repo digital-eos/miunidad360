@@ -14,26 +14,26 @@ export default async function OpengraphImage() {
           flexDirection: "column",
           justifyContent: "center",
           padding: "80px",
-          backgroundColor: "#f7f5f0",
-          backgroundImage: "radial-gradient(circle at 75% 25%, rgba(240,166,59,0.18), transparent 55%)",
-          color: "#1c1c1c",
+          backgroundColor: "#f7f6f2",
+          borderLeft: "16px solid #344b50",
+          color: "#292d2e",
           fontFamily: "sans-serif",
         }}
       >
         <div
           style={{
             fontSize: 26,
-            letterSpacing: 4,
+            letterSpacing: 2,
             textTransform: "uppercase",
-            color: "#9c5f08",
+            color: "#344b50",
           }}
         >
-          MiUnidad360 · Modelo BIM
+          miunidad360 · Modelo BIM
         </div>
         <div style={{ fontSize: 70, marginTop: 24, lineHeight: 1.1 }}>
           Unidades, avance de obra y corte
         </div>
-        <div style={{ fontSize: 32, marginTop: 24, color: "#6e6a62", maxWidth: 900 }}>
+        <div style={{ fontSize: 32, marginTop: 24, color: "#5f6564", maxWidth: 900 }}>
           Un modelo BIM real, explorado capa por capa de construcción.
         </div>
       </div>

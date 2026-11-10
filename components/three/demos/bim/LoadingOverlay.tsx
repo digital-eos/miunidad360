@@ -28,14 +28,14 @@ export function LoadingOverlay({
           <img src={posterSrc} alt="" className="h-full w-full object-cover" />
         </picture>
         <div className="absolute inset-x-0 bottom-6 flex justify-center">
-          <div className="flex items-center gap-3 rounded-full border border-border-subtle bg-background/90 px-4 py-2 backdrop-blur-md">
+          <div className="flex items-center gap-3 rounded-md border border-border-subtle bg-surface px-4 py-2">
             <span className="h-px w-16 overflow-hidden rounded-full bg-border-subtle">
               <span
-                className="block h-full bg-accent transition-[width] duration-200"
+                className="block h-full bg-primary transition-[width] duration-200"
                 style={{ width: `${Math.max(4, progress)}%` }}
               />
             </span>
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-foreground-muted">
+            <p className="label-caps text-foreground-muted">
               Cargando…
             </p>
           </div>
@@ -51,16 +51,16 @@ export function LoadingOverlay({
         active ? "opacity-100" : "opacity-0"
       )}
     >
-      <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent-strong">
+      <p className="eyebrow">
         Modelo BIM
       </p>
       <div className="h-px w-40 overflow-hidden rounded-full bg-border-subtle">
         <div
-          className="h-full bg-accent transition-[width] duration-200"
+          className="h-full bg-primary transition-[width] duration-200"
           style={{ width: `${Math.max(4, progress)}%` }}
         />
       </div>
-      <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-foreground-muted">
+      <p className="label-caps text-foreground-muted">
         Cargando el modelo 3D…
       </p>
     </div>

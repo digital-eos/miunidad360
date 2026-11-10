@@ -65,7 +65,7 @@ function StageImage({ stage }: { stage: Stage }) {
       loading="lazy"
       decoding="async"
       draggable={false}
-      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+      className="h-full w-full object-cover"
     />
   );
 }
@@ -74,7 +74,7 @@ function PlayIcon() {
   return (
     <span
       aria-hidden
-      className="absolute top-1/2 left-1/2 grid h-14 w-14 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white/90 text-neutral-900 shadow-[0_2px_14px_rgba(0,0,0,0.3)] transition-transform duration-200 group-hover:scale-110"
+      className="absolute top-1/2 left-1/2 grid h-14 w-14 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-surface text-primary shadow-[var(--shadow-panel)] transition-colors duration-150 group-hover:bg-primary group-hover:text-primary-foreground"
     >
       <svg viewBox="0 0 24 24" className="ml-0.5 h-6 w-6" fill="currentColor">
         <path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z" />
@@ -100,7 +100,7 @@ function StepArrow() {
 }
 
 const frameClass =
-  "group relative block aspect-[3/2] w-full overflow-hidden rounded-2xl border border-border-subtle bg-background-elevated focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
+  "group relative block aspect-[3/2] w-full overflow-hidden rounded-lg border border-border-subtle bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
 function StageCard({
   stage,
@@ -112,14 +112,14 @@ function StageCard({
   onZoom: (stage: Stage) => void;
 }) {
   const label = (
-    <span className="pointer-events-none absolute top-3 left-3 rounded-full bg-black/60 px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-white sm:text-[11px]">
+    <span className="pointer-events-none absolute top-3 left-3 rounded-sm bg-surface px-2 py-1 label-caps text-foreground tabular-nums">
       {String(index + 1).padStart(2, "0")}
     </span>
   );
 
   return (
     <li className="flex w-[80%] shrink-0 snap-start flex-col sm:w-[60%] md:w-auto">
-      <h3 className="mb-3 font-display text-xl leading-tight">{stage.title}</h3>
+      <h3 className="mb-3 text-lg font-semibold leading-tight">{stage.title}</h3>
       {stage.zoomable ? (
         <button
           type="button"
@@ -202,7 +202,7 @@ function Lightbox({ stage, onClose }: { stage: Stage | null; onClose: () => void
         setOffset({ x: 0, y: 0 });
       }}
       aria-label={stage?.caption}
-      className="m-0 h-dvh max-h-none w-screen max-w-none cursor-zoom-out bg-transparent p-0 backdrop:bg-black/85"
+      className="m-0 h-dvh max-h-none w-screen max-w-none cursor-zoom-out bg-transparent p-0 backdrop:bg-foreground/90"
       style={{ touchAction: "none" }}
     >
       {stage ? (
@@ -213,7 +213,7 @@ function Lightbox({ stage, onClose }: { stage: Stage | null; onClose: () => void
             width={stage.width}
             height={stage.height}
             draggable={false}
-            className="max-h-[85dvh] w-auto max-w-full rounded-xl object-contain select-none"
+            className="max-h-[85dvh] w-auto max-w-full rounded-lg object-contain select-none"
             style={{
               transform: `translate(${offset.x}px, ${offset.y}px)`,
               opacity: fade,
@@ -223,7 +223,7 @@ function Lightbox({ stage, onClose }: { stage: Stage | null; onClose: () => void
           <p className="text-sm text-white/80">{stage.caption}</p>
           <button
             type="button"
-            className="absolute top-4 right-4 grid h-10 w-10 place-items-center rounded-full bg-white/15 text-xl text-white hover:bg-white/25"
+            className="absolute top-4 right-4 grid h-10 w-10 place-items-center rounded-md bg-white/15 text-xl text-white hover:bg-white/25"
             aria-label="Cerrar"
           >
             ×

@@ -394,7 +394,7 @@ export function BimModel({
               onPointerEnter={() => onUnitHover(tag.name)}
               onPointerLeave={() => onUnitHover(null)}
               style={{ opacity: 0, visibility: "hidden" }}
-              className="flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-full border border-black/5 bg-white/85 py-0.5 pr-2 pl-1.5 font-mono text-[10px] font-medium leading-4 text-neutral-800 shadow-sm backdrop-blur-sm transition-[background-color,transform] duration-150 select-none hover:scale-105 hover:bg-white"
+              className="flex cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-md border border-border-subtle bg-surface py-0.5 pr-2 pl-1.5 tabular-nums text-[10px] font-medium leading-4 text-foreground shadow-sm transition-colors duration-150 select-none hover:border-primary"
               aria-label={`Ver ${unit.codigo}`}
             >
               <span

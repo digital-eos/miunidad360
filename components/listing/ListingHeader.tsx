@@ -28,27 +28,27 @@ export function ListingHeader({
       <Container className="max-w-[1400px]">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-xs font-medium text-foreground-muted transition-colors duration-200 hover:text-accent-strong sm:text-sm"
+          className="inline-flex items-center gap-2 text-sm font-medium text-foreground-muted transition-colors duration-150 hover:text-primary"
         >
           ← Volver al inicio
         </Link>
 
         <div className="mt-5 flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
           <div className="min-w-0">
-            <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent-strong">
+            <p className="eyebrow">
               {eyebrow}
             </p>
-            <h1 className="mt-2 font-display text-4xl sm:text-5xl">{title}</h1>
+            <h1 className="mt-2 font-display text-4xl leading-tight sm:text-5xl">{title}</h1>
             <p className="mt-2 text-sm text-foreground-muted sm:text-base">{location}</p>
           </div>
           <div className="text-left sm:text-right">
             {priceLabel ? (
               <>
-                <p className="text-xs text-foreground-muted">Desde</p>
-                <p className="font-display text-3xl sm:text-4xl">{priceLabel}</p>
+                <p className="label-caps text-foreground-muted">Desde</p>
+                <p className="mt-1 text-3xl font-semibold tabular-nums sm:text-4xl">{priceLabel}</p>
               </>
             ) : (
-              <p className="font-display text-2xl text-foreground-muted">Precio a consultar</p>
+              <p className="text-xl font-semibold text-foreground-muted">Precio a consultar</p>
             )}
           </div>
         </div>
@@ -59,14 +59,19 @@ export function ListingHeader({
           </p>
         ) : null}
 
-        <dl className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
-          {stats.map((stat) => (
+        <dl className="mt-6 grid grid-cols-2 overflow-hidden rounded-lg border border-border-subtle bg-surface sm:grid-cols-4">
+          {stats.map((stat, i) => (
             <div
               key={stat.label}
-              className="rounded-xl border border-border-subtle bg-background-elevated px-4 py-3"
+              className={
+                "border-border-subtle px-4 py-3 " +
+                (i % 2 === 1 ? "border-l " : "") +
+                (i >= 2 ? "border-t sm:border-t-0 " : "") +
+                (i === 2 ? "sm:border-l" : "")
+              }
             >
-              <dt className="text-xs text-foreground-muted">{stat.label}</dt>
-              <dd className="mt-0.5 font-display text-xl">{stat.value}</dd>
+              <dt className="label-caps text-foreground-muted">{stat.label}</dt>
+              <dd className="mt-0.5 text-xl font-semibold tabular-nums">{stat.value}</dd>
             </div>
           ))}
         </dl>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { Logo } from "@/components/brand/Logo";
 import { adminLogin, type AdminLoginResult } from "./actions";
 
 const initialState: AdminLoginResult = { success: false };
@@ -11,7 +12,8 @@ export function AdminLoginForm() {
   return (
     <form action={formAction} className="w-full max-w-sm space-y-4">
       <div>
-        <p className="font-mono text-xs uppercase tracking-[0.25em] text-accent-strong">Admin</p>
+        <Logo className="mb-6 h-7" />
+        <p className="eyebrow">Admin</p>
         <h1 className="mt-2 font-display text-2xl">Acceso al back-office</h1>
       </div>
 
@@ -25,12 +27,12 @@ export function AdminLoginForm() {
           type="password"
           required
           autoFocus
-          className="w-full rounded-lg border border-border-subtle bg-background-elevated px-4 py-3 text-sm text-foreground focus:border-accent focus:outline-none"
+          className="field"
         />
       </div>
 
       {state.error ? (
-        <p role="alert" className="text-sm text-red-400">
+        <p role="alert" className="text-sm text-danger">
           {state.error}
         </p>
       ) : null}
@@ -38,7 +40,7 @@ export function AdminLoginForm() {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full rounded-full bg-accent px-6 py-3 text-sm font-medium text-accent-foreground transition-colors duration-200 hover:bg-[#ffb84f] disabled:opacity-60"
+        className="btn btn-primary w-full"
       >
         {isPending ? "Verificando…" : "Entrar"}
       </button>

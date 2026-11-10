@@ -115,12 +115,12 @@ export function DepartamentoExperience({
                   onPointerEnter={() => setHoveredRoom(room.id)}
                   onPointerLeave={() => setHoveredRoom(null)}
                   className={cn(
-                    "invisible absolute top-0 left-0 z-[5] whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-medium shadow-sm backdrop-blur-md transition-colors duration-200",
+                    "invisible absolute top-0 left-0 z-[5] whitespace-nowrap rounded-md px-2.5 py-1 text-[11px] font-medium shadow-sm transition-colors duration-200",
                     selectedRoom === room.id
                       ? "bg-foreground text-background"
                       : hoveredRoom === room.id
                         ? "bg-background text-foreground"
-                        : "bg-background/80 text-foreground-muted",
+                        : "bg-surface text-foreground-muted",
                   )}
                 >
                   {room.nombre}
@@ -134,10 +134,10 @@ export function DepartamentoExperience({
               sceneReady ? "opacity-0" : "opacity-100",
             )}
           >
-            <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent-strong">
+            <p className="eyebrow">
               {PROYECTO.nombre} · Unidad {UNIDAD.codigo}
             </p>
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-foreground-muted">
+            <p className="label-caps text-foreground-muted">
               Generando el 3D desde el plano…
             </p>
           </div>
@@ -146,14 +146,14 @@ export function DepartamentoExperience({
             <button
               type="button"
               onClick={() => handleSelectRoom(null)}
-              className="absolute top-16 right-3 z-20 rounded-full border border-border-subtle bg-background/85 px-3.5 py-1.5 text-xs font-medium backdrop-blur-md transition-colors duration-200 hover:border-accent sm:top-6 sm:right-6"
+              className="absolute top-16 right-3 z-20 rounded-md border border-border-subtle bg-surface px-3.5 py-1.5 text-xs font-medium transition-colors duration-200 hover:border-primary sm:top-6 sm:right-6"
             >
               Ver todo el departamento
             </button>
           ) : null}
 
           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex justify-center bg-gradient-to-t from-background/90 to-transparent px-3 pb-2 pt-6">
-            <p className="text-center font-mono text-[9px] uppercase tracking-[0.1em] text-foreground-muted/80 sm:text-[10px]">
+            <p className="text-center text-[11px] text-foreground-subtle">
               3D generado desde el plano del folleto · alturas y mobiliario aproximados
             </p>
           </div>

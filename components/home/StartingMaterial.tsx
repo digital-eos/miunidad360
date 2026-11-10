@@ -31,8 +31,8 @@ export function StartingMaterial() {
     <figure className="mx-auto w-full max-w-xl">
       <div className="relative pb-[30%] pr-[14%] sm:pb-[26%]">
         {/* Render del proyecto */}
-        <div className="relative -rotate-2 rounded-md bg-white p-2 shadow-[0_18px_40px_-18px_rgba(28,28,28,0.35)] ring-1 ring-black/5 sm:p-2.5">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-sm bg-background-elevated">
+        <div className="relative rounded-md border border-border-subtle bg-surface p-2 shadow-[var(--shadow-panel)] sm:p-2.5">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-sm bg-surface-muted">
             {render && !renderFailed ? (
               <Image
                 src={render.src}
@@ -64,14 +64,14 @@ export function StartingMaterial() {
               </div>
             )}
           </div>
-          <p className="px-1 pt-2 font-mono text-[10px] uppercase tracking-[0.15em] text-foreground-muted">
+          <p className="px-1 pt-2 label-caps text-foreground-muted">
             Render del proyecto
           </p>
         </div>
 
         {/* Hoja de plano */}
-        <div className="absolute right-0 bottom-0 w-[62%] rotate-3 rounded-md bg-white p-2 shadow-[0_22px_44px_-16px_rgba(28,28,28,0.4)] ring-1 ring-black/5 sm:p-2.5">
-          <div className="relative aspect-square overflow-hidden rounded-sm bg-white">
+        <div className="absolute right-0 bottom-0 w-[62%] rounded-md border border-border-subtle bg-surface p-2 shadow-[var(--shadow-panel)] sm:p-2.5">
+          <div className="relative aspect-square overflow-hidden rounded-sm bg-surface">
             {/* eslint-disable-next-line @next/next/no-img-element -- static generated SVG */}
             <img
               key={floor.id}
@@ -81,7 +81,7 @@ export function StartingMaterial() {
             />
           </div>
           <div className="flex flex-wrap items-center justify-between gap-1.5 px-1 pt-2">
-            <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-foreground-muted">
+            <p className="label-caps text-foreground-muted">
               Plano · {floor.label}
             </p>
             <div
@@ -99,10 +99,10 @@ export function StartingMaterial() {
                   title={f.label}
                   onClick={() => setFloorIndex(i)}
                   className={cn(
-                    "h-6 min-w-6 rounded-full border px-1.5 font-mono text-[10px] transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-accent",
+                    "h-6 min-w-6 rounded-md border px-1.5 tabular-nums text-[10px] transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-primary",
                     i === floorIndex
-                      ? "border-accent bg-accent text-accent-foreground"
-                      : "border-border-subtle text-foreground-muted hover:border-accent hover:text-foreground"
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border-subtle text-foreground-muted hover:border-primary hover:text-foreground"
                   )}
                 >
                   {i === 0 ? "PB" : i}
@@ -114,8 +114,8 @@ export function StartingMaterial() {
       </div>
 
       <figcaption className="mt-6 sm:mt-8">
-        <p className="font-display text-lg">Material de partida</p>
-        <p className="mt-1 text-[11px] leading-relaxed text-foreground-muted">
+        <p className="text-sm font-semibold">Material de partida</p>
+        <p className="mt-1 text-xs leading-relaxed text-foreground-subtle">
           Render: tamar benashvili · Planos generados por MiUnidad360 desde el modelo IFC
           · Dataset Schependomlaan (ROOT bv, Hendriks Bouw en Ontwikkeling, TU Eindhoven),
           CC BY 4.0

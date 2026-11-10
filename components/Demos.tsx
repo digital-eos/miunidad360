@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { Reveal } from "@/components/ui/Reveal";
 import { trackDemoClick, type DemoKind } from "@/lib/analytics";
 import { BIM_DEMO_PATH } from "@/lib/bim/route";
 import { featuredProject } from "@/config/featured";
@@ -82,75 +81,63 @@ const BLOQUES: Bloque[] = [
 ];
 
 const cardClasses =
-  "group block h-full overflow-hidden rounded-2xl border border-border-subtle bg-background-elevated transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-accent hover:shadow-[0_16px_36px_-20px_rgba(28,28,28,0.35)] focus-visible:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
+  "group flex h-full flex-col overflow-hidden rounded-lg border border-border-subtle bg-surface transition-colors duration-150 hover:border-primary focus-visible:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
 export function Demos() {
   return (
-    <section
-      id="demos"
-      className="scroll-mt-6 border-t border-border-subtle py-20 sm:py-24"
-    >
+    <section id="demos" className="border-t border-border-subtle py-20 sm:py-24">
       <Container>
         <SectionHeading title="Demos por tipo de unidad" />
 
-        <div className="mt-10 space-y-14">
+        <div className="mt-12 border-b border-border-subtle">
           {BLOQUES.map((bloque) => (
-            <div key={bloque.titulo}>
-              <h3 className="font-mono text-xs uppercase tracking-[0.2em] text-accent-strong">
-                {bloque.titulo}
-              </h3>
+            <div
+              key={bloque.titulo}
+              className="grid gap-5 border-t border-border-subtle py-8 lg:grid-cols-[180px_1fr] lg:gap-10"
+            >
+              <h3 className="text-lg font-semibold">{bloque.titulo}</h3>
 
-              <div className="mt-5 grid gap-6 sm:grid-cols-2">
-                {bloque.cards.map((demo, index) => (
-                  <Reveal key={demo.kind} delay={index * 0.06}>
-                    <Link
-                      href={demo.href}
-                      onClick={() => trackDemoClick(demo.kind)}
-                      className={cardClasses}
-                    >
-                      <div className="relative aspect-[16/10] overflow-hidden bg-background">
-                        <Image
-                          src={`/images/demos/${demo.kind}.webp`}
-                          alt={`Captura de la demo «${demo.title}»`}
-                          fill
-                          sizes="(max-width: 640px) 100vw, 560px"
-                          className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-                        />
-                      </div>
-                      <div className="p-5 sm:p-6">
-                        <p className="font-display text-xl">{demo.title}</p>
-                        <p className="mt-2 text-sm leading-relaxed text-foreground-muted">
-                          {demo.description}
-                        </p>
-                        <p className="mt-4 text-sm font-medium text-accent-strong">
-                          Abrir demo{" "}
-                          <span
-                            aria-hidden="true"
-                            className="inline-block transition-transform duration-200 group-hover:translate-x-1"
-                          >
-                            →
-                          </span>
-                        </p>
-                      </div>
-                    </Link>
-                  </Reveal>
+              <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                {bloque.cards.map((demo) => (
+                  <Link
+                    key={demo.kind}
+                    href={demo.href}
+                    onClick={() => trackDemoClick(demo.kind)}
+                    className={cardClasses}
+                  >
+                    <div className="relative aspect-[16/10] overflow-hidden border-b border-border-subtle bg-surface-muted">
+                      <Image
+                        src={`/images/demos/${demo.kind}.webp`}
+                        alt={`Captura de la demo «${demo.title}»`}
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1280px) 45vw, 330px"
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="flex flex-1 flex-col p-4 sm:p-5">
+                      <p className="text-base font-semibold">{demo.title}</p>
+                      <p className="mt-1.5 text-sm leading-relaxed text-foreground-muted">
+                        {demo.description}
+                      </p>
+                      <p className="mt-auto pt-4 text-sm font-semibold text-primary group-hover:underline group-hover:underline-offset-4">
+                        Abrir demo <span aria-hidden="true">→</span>
+                      </p>
+                    </div>
+                  </Link>
                 ))}
 
                 {bloque.proximamente ? (
                   <div
                     aria-disabled="true"
-                    className="flex h-full min-h-40 flex-col justify-between rounded-2xl border border-dashed border-border-subtle p-5 sm:p-6"
+                    className="flex h-full flex-col rounded-lg border border-dashed border-border-strong p-4 sm:p-5"
                   >
-                    <p className="w-fit rounded-full border border-border-subtle px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-foreground-muted">
-                      Próximamente
-                    </p>
-                    <p className="mt-6 text-sm leading-relaxed text-foreground-muted">
+                    <p className="label-caps text-foreground-subtle">Próximamente</p>
+                    <p className="mt-2 text-sm leading-relaxed text-foreground-muted">
                       {bloque.proximamente}
                     </p>
                   </div>
                 ) : null}
               </div>
-
             </div>
           ))}
         </div>

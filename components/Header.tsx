@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
+import { Logo } from "@/components/brand/Logo";
 
 const NAV_LINKS = [
   { href: "/#fidelidad", label: "Fidelidad" },
@@ -12,19 +13,30 @@ const NAV_LINKS = [
 
 export function Header() {
   return (
-    <header className="absolute inset-x-0 top-0 z-40">
-      <Container className="flex items-center justify-between gap-4 py-6">
-        <Link href="/" className="font-display text-lg tracking-tight">
-          MiUnidad360
+    <header className="sticky top-0 z-40 border-b border-border-subtle bg-background">
+      <Container className="flex h-16 items-center justify-between gap-4">
+        <Link href="/" aria-label="miunidad360, inicio" className="shrink-0">
+          <Logo className="h-6 sm:h-7" />
         </Link>
-        <nav className="hidden items-center gap-7 text-sm text-foreground-muted md:flex">
+        <nav
+          aria-label="Principal"
+          className="hidden items-center gap-1 text-sm font-medium text-foreground-muted md:flex"
+        >
           {NAV_LINKS.map((link) => (
-            <Link key={link.href} href={link.href} className="hover:text-foreground">
+            <Link
+              key={link.href}
+              href={link.href}
+              className="rounded-md px-3 py-2 transition-colors duration-150 hover:bg-surface-muted hover:text-foreground"
+            >
               {link.label}
             </Link>
           ))}
         </nav>
-        <WhatsAppButton source="header" label="WhatsApp" className="px-4 py-2" />
+        <WhatsAppButton
+          source="header"
+          label="WhatsApp"
+          className="btn-sm hidden min-[380px]:inline-flex"
+        />
       </Container>
     </header>
   );

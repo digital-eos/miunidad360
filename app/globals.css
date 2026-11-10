@@ -1,46 +1,210 @@
 @import "tailwindcss";
 
+/*
+ * MiUnidad360 design tokens.
+ * Every color in the interface comes from this list. Components use the Tailwind names
+ * mapped in @theme below (bg-primary, text-foreground-muted, border-border-subtle, ...).
+ */
 :root {
-  --background: #f7f5f0;
-  --background-elevated: #efebe3;
-  --foreground: #1c1c1c;
-  --foreground-muted: #6e6a62;
-  --grid-line: rgba(28, 28, 28, 0.06);
-  --accent: #f0a63b;
-  --accent-strong: #9c5f08;
-  --accent-soft: rgba(240, 166, 59, 0.14);
-  --accent-foreground: #1c1c1c;
-  --border-subtle: rgba(28, 28, 28, 0.12);
+  /* Palette */
+  --slate: #344b50; /* primary */
+  --slate-deep: #283b3f; /* primary hover / pressed */
+  --sage: #82958a; /* secondary, positive status */
+  --terracotta: #b77b5c; /* accent, used sparingly */
+  --terracotta-deep: #94573a; /* error text (terracotta darkened for contrast) */
+  --paper: #f7f6f2; /* page background */
+  --white: #ffffff; /* surfaces */
+  --stone: #efeee8; /* muted surface */
+  --charcoal: #292d2e; /* primary text */
+  --gray: #777d7c; /* captions and meta */
+  --gray-deep: #5f6564; /* secondary body text: #777d7c darkened to pass WCAG AA */
+  --line: #e7e5df; /* borders */
+  --line-strong: #d3d0c7; /* input borders, separators that need to be seen */
+
+  /* Semantic roles */
+  --background: var(--paper);
+  --surface: var(--white);
+  --surface-muted: var(--stone);
+  --foreground: var(--charcoal);
+  --foreground-muted: var(--gray-deep);
+  --foreground-subtle: var(--gray);
+  --primary: var(--slate);
+  --primary-hover: var(--slate-deep);
+  --primary-foreground: var(--white);
+  --primary-soft: rgba(52, 75, 80, 0.08);
+  --secondary: var(--sage);
+  --secondary-soft: rgba(130, 149, 138, 0.16);
+  --highlight: var(--terracotta);
+  --danger: var(--terracotta-deep);
+  --border-subtle: var(--line);
+  --border-strong: var(--line-strong);
+  --grid-line: rgba(41, 45, 46, 0.05);
 }
 
 @theme inline {
   --color-background: var(--background);
-  --color-background-elevated: var(--background-elevated);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
   --color-foreground: var(--foreground);
   --color-foreground-muted: var(--foreground-muted);
-  --color-grid-line: var(--grid-line);
-  --color-accent: var(--accent);
-  --color-accent-strong: var(--accent-strong);
-  --color-accent-soft: var(--accent-soft);
-  --color-accent-foreground: var(--accent-foreground);
+  --color-foreground-subtle: var(--foreground-subtle);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-secondary: var(--secondary);
+  --color-secondary-soft: var(--secondary-soft);
+  --color-highlight: var(--highlight);
+  --color-danger: var(--danger);
   --color-border-subtle: var(--border-subtle);
-  --font-display: var(--font-fraunces);
-  --font-sans: var(--font-manrope);
-  --font-mono: var(--font-plex-mono);
+  --color-border-strong: var(--border-strong);
+  --color-grid-line: var(--grid-line);
+
+  /* Typography: Source Sans 3 for the interface, DM Serif Display for editorial headlines. */
+  --font-sans: var(--font-source-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-dm-serif), Georgia, serif;
+  --font-mono: var(--font-source-sans), ui-sans-serif, system-ui, sans-serif;
+
+  /* Radii: moderate, never pill-shaped for buttons. */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+
+  /* Elevation: one quiet shadow for floating panels over the 3D view. */
+  --shadow-panel: 0 1px 2px rgba(41, 45, 46, 0.06), 0 6px 16px -6px rgba(41, 45, 46, 0.12);
 }
 
-* {
-  border-color: var(--border-subtle);
+/* In the base layer so utilities (border-primary, bg-*, font-*) can override them. */
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--border-subtle);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 4.5rem;
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
+  ::selection {
+    background: var(--primary);
+    color: var(--primary-foreground);
+  }
 }
 
-html {
-  scroll-behavior: smooth;
+/* ---------- Shared component styles ---------- */
+
+/* Small section label above a heading. */
+@utility eyebrow {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary);
 }
 
-body {
-  background: var(--background);
+/* Compact uppercase label for panels, tables and captions. Color set by the caller. */
+@utility label-caps {
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+@utility btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease;
+  &:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+  &:disabled,
+  &[aria-disabled="true"] {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+@utility btn-primary {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  &:hover:not(:disabled) {
+    background-color: var(--primary-hover);
+  }
+}
+
+@utility btn-secondary {
+  background-color: var(--surface);
+  border-color: var(--border-strong);
   color: var(--foreground);
-  font-family: var(--font-sans);
+  &:hover:not(:disabled) {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+}
+
+@utility btn-sm {
+  min-height: 2.25rem;
+  padding: 0.375rem 0.875rem;
+  font-size: 0.8125rem;
+}
+
+/* Text input, select and textarea. */
+@utility field {
+  display: block;
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background-color: var(--surface);
+  color: var(--foreground);
+  font-size: 0.9375rem;
+  line-height: 1.375rem;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+  &::placeholder {
+    color: var(--foreground-subtle);
+  }
+  &:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-soft);
+  }
+}
+
+/* Floating control over the 3D view: solid surface, thin border, quiet shadow. */
+@utility viewer-panel {
+  background-color: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
 }
 
 .bg-grid {
@@ -50,41 +214,18 @@ body {
   background-size: 48px 48px;
 }
 
-.text-gradient-accent {
-  background: linear-gradient(135deg, var(--accent-strong), var(--accent));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-@keyframes pulse-once {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.08);
-  }
-}
-
-.animate-pulse-once {
-  animation: pulse-once 700ms ease-in-out 1;
-}
-
 /* Flyover captions in the selector. */
 @keyframes caption-in {
   from {
     opacity: 0;
-    transform: translateY(4px);
   }
   to {
     opacity: 1;
-    transform: none;
   }
 }
 
 .animate-caption-in {
-  animation: caption-in 700ms ease-out 1;
+  animation: caption-in 500ms ease-out 1;
 }
 
 @media (prefers-reduced-motion: reduce) {

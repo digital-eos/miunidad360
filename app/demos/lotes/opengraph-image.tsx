@@ -14,27 +14,26 @@ export default async function OpengraphImage() {
           flexDirection: "column",
           justifyContent: "center",
           padding: "80px",
-          backgroundColor: "#0a0a0b",
-          backgroundImage:
-            "radial-gradient(circle at 75% 25%, rgba(240,166,59,0.25), transparent 55%)",
-          color: "#f4f2ec",
+          backgroundColor: "#f7f6f2",
+          borderLeft: "16px solid #344b50",
+          color: "#292d2e",
           fontFamily: "sans-serif",
         }}
       >
         <div
           style={{
             fontSize: 26,
-            letterSpacing: 4,
+            letterSpacing: 2,
             textTransform: "uppercase",
-            color: "#f0a63b",
+            color: "#344b50",
           }}
         >
-          MiUnidad360 · Barrio demo
+          miunidad360 · Barrio demo
         </div>
         <div style={{ fontSize: 76, marginTop: 24, lineHeight: 1.1 }}>
           Cada lote, en 3D
         </div>
-        <div style={{ fontSize: 32, marginTop: 24, color: "#9b9890", maxWidth: 900 }}>
+        <div style={{ fontSize: 32, marginTop: 24, color: "#5f6564", maxWidth: 900 }}>
           Superficie, frente, fondo, precio y disponibilidad de cada lote.
         </div>
       </div>

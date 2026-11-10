@@ -77,15 +77,15 @@ function placeLabels(ways: Way[], radius: number): Label[] {
   return labels;
 }
 
-/** The site's mono font, as next/font registered it. */
+/** The site's interface font, as next/font registered it. */
 function monoFamily() {
-  const read = (el: Element) => getComputedStyle(el).getPropertyValue("--font-plex-mono").trim();
-  return read(document.documentElement) || read(document.body) || "monospace";
+  const read = (el: Element) => getComputedStyle(el).getPropertyValue("--font-source-sans").trim();
+  return read(document.documentElement) || read(document.body) || "sans-serif";
 }
 
 async function drawAtlas(names: string[]) {
   const family = monoFamily();
-  const font = `500 ${FONT_PX}px ${family}`;
+  const font = `600 ${FONT_PX}px ${family}`;
   await document.fonts.load(font).catch(() => undefined);
   const canvas = document.createElement("canvas");
   canvas.width = ATLAS_WIDTH;

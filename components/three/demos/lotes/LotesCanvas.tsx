@@ -12,7 +12,7 @@ const LotesExperience = dynamic(
 function LotesFallback() {
   return (
     <div className="flex h-full w-full items-center justify-center bg-background bg-grid">
-      <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent-strong">
+      <p className="eyebrow">
         Cargando el barrio…
       </p>
     </div>

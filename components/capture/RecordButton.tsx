@@ -66,7 +66,7 @@ export function RecordButton({
           checked={withBranding}
           onChange={(e) => setWithBranding(e.target.checked)}
           disabled={state === "recording"}
-          className="h-3.5 w-3.5 accent-accent"
+          className="h-3.5 w-3.5 primary-primary"
         />
         Logo y frase
       </label>
@@ -74,7 +74,7 @@ export function RecordButton({
         type="button"
         onClick={handleRecord}
         disabled={state === "recording"}
-        className="flex items-center gap-2 whitespace-nowrap rounded-full bg-accent px-5 py-2.5 text-sm font-medium text-accent-foreground shadow-lg shadow-black/30 transition-opacity duration-200 disabled:opacity-80"
+        className="btn btn-primary shadow-[var(--shadow-panel)] disabled:opacity-80"
       >
         {state === "recording" ? (
           <>
@@ -83,13 +83,13 @@ export function RecordButton({
           </>
         ) : (
           <>
-            <span className="h-2.5 w-2.5 rounded-full bg-red-600" />
+            <span className="h-2.5 w-2.5 rounded-full bg-highlight" />
             Grabar video
           </>
         )}
       </button>
       {error ? (
-        <p role="alert" className="max-w-[220px] text-center text-[11px] text-red-400">
+        <p role="alert" className="max-w-[220px] text-center text-[11px] text-danger">
           {error}
         </p>
       ) : null}

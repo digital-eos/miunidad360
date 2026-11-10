@@ -55,11 +55,11 @@ function drawBranding(
   const taglineSize = Math.round(titleSize * 0.6);
   ctx.textBaseline = "alphabetic";
 
-  ctx.fillStyle = "#f0a63b";
-  ctx.font = `700 ${titleSize}px system-ui, sans-serif`;
-  ctx.fillText("MiUnidad360", padding, height - barHeight * 0.52);
+  ctx.fillStyle = "#f7f6f2";
+  ctx.font = `600 ${titleSize}px system-ui, sans-serif`;
+  ctx.fillText("miunidad360", padding, height - barHeight * 0.52);
 
-  ctx.fillStyle = "#f4f2ec";
+  ctx.fillStyle = "#c9d0cb";
   ctx.font = `400 ${taglineSize}px system-ui, sans-serif`;
   ctx.fillText(tagline, padding, height - barHeight * 0.16);
 }
@@ -108,7 +108,7 @@ export async function recordCanvasSequence(opts: RecordOptions): Promise<RecordR
 
   function drawFrame() {
     const elapsed = performance.now() - start;
-    ctx.fillStyle = "#0a0a0b";
+    ctx.fillStyle = "#292d2e";
     ctx.fillRect(0, 0, width, height);
     ctx.drawImage(
       sourceCanvas,

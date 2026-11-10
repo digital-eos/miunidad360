@@ -13,9 +13,9 @@ export default function PrivacyPage() {
   return (
     <>
       <Header />
-      <main className="flex-1 pt-32 pb-24">
+      <main className="flex-1 pt-12 pb-24 sm:pt-16">
         <Container className="max-w-2xl">
-          <h1 className="font-display text-3xl">Privacidad</h1>
+          <h1 className="font-display text-4xl">Privacidad</h1>
           <div className="mt-6 space-y-4 text-sm leading-relaxed text-foreground-muted">
             <p>
               Los datos que nos dejás a través de los formularios del sitio (de contacto, o de

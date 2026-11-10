@@ -7,7 +7,7 @@ export function FidelitySection() {
   return (
     <section
       id="fidelidad"
-      className="scroll-mt-6 border-t border-border-subtle py-20 sm:py-24"
+      className="border-t border-border-subtle py-20 sm:py-24"
     >
       <Container>
         <SectionHeading
@@ -30,7 +30,7 @@ export function FidelitySection() {
         <div className="mt-8">
           <a
             href="#resultado"
-            className="inline-flex items-center justify-center rounded-full border border-border-subtle px-6 py-3 text-sm font-medium transition-colors duration-200 hover:border-accent hover:text-accent-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            className="btn btn-secondary"
           >
             Recorrer en 3D ↓
           </a>

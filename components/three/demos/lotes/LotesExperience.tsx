@@ -52,10 +52,10 @@ function viewFrom(target: Vec2, distance: number, dir = VIEW_DIR): Viewpoint {
 }
 
 const selectClasses =
-  "w-full rounded-lg border border-border-subtle bg-background px-3 py-2 text-sm text-foreground focus:border-accent focus:outline-none";
+  "w-full rounded-lg border border-border-subtle bg-background px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none";
 
 const pillClasses =
-  "pointer-events-auto rounded-full border border-border-subtle bg-background/85 px-4 py-2 text-xs font-medium backdrop-blur-md transition-colors duration-200 hover:border-accent hover:text-accent-strong sm:text-sm";
+  "pointer-events-auto rounded-md border border-border-subtle bg-surface px-4 py-2 text-xs font-medium transition-colors duration-200 hover:border-primary hover:text-primary sm:text-sm";
 
 export function LotesExperience() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -216,8 +216,8 @@ export function LotesExperience() {
       {capturing ? null : (
         <>
           {/* Counter and legend */}
-          <div className="pointer-events-none absolute left-4 top-16 rounded-2xl border border-border-subtle bg-background/85 px-4 py-3 backdrop-blur-md sm:left-6 sm:top-20">
-            <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent-strong">
+          <div className="pointer-events-none absolute left-4 top-16 rounded-lg border border-border-subtle bg-surface px-4 py-3 sm:left-6 sm:top-20">
+            <p className="label-caps text-primary">
               {LOTES_PROJECT_NAME}
             </p>
             <p className="mt-1 text-sm font-medium">
@@ -252,7 +252,7 @@ export function LotesExperience() {
                 type="button"
                 onClick={() => setPlano((p) => !p)}
                 aria-pressed={plano}
-                className={cn(pillClasses, plano && "border-accent text-accent-strong")}
+                className={cn(pillClasses, plano && "border-primary text-primary")}
               >
                 {plano ? "Ver 3D" : "Ver plano"}
               </button>
@@ -262,7 +262,7 @@ export function LotesExperience() {
                 aria-expanded={filtersOpen}
                 className={cn(
                   pillClasses,
-                  panelActive && "border-accent text-accent-strong"
+                  panelActive && "border-primary text-primary"
                 )}
               >
                 Filtros{panelActive ? " ·" : ""}
@@ -270,7 +270,7 @@ export function LotesExperience() {
             </div>
 
             {filtersOpen ? (
-              <div className="pointer-events-auto w-64 space-y-3 rounded-2xl border border-border-subtle bg-background/95 p-4 backdrop-blur-md">
+              <div className="pointer-events-auto w-64 space-y-3 rounded-lg border border-border-subtle bg-surface p-4">
                 <label className="block">
                   <span className="mb-1 block text-xs font-medium text-foreground-muted">
                     Superficie
@@ -341,7 +341,7 @@ export function LotesExperience() {
                     onChange={(e) =>
                       updateFilters({ ...filters, frenteLaguna: e.target.checked })
                     }
-                    className="h-4 w-4 accent-accent"
+                    className="h-4 w-4 primary-primary"
                   />
                   Frente a la laguna
                 </label>
@@ -352,7 +352,7 @@ export function LotesExperience() {
                     onChange={(e) =>
                       updateFilters({ ...filters, soloDisponibles: e.target.checked })
                     }
-                    className="h-4 w-4 accent-accent"
+                    className="h-4 w-4 primary-primary"
                   />
                   Solo disponibles
                 </label>
@@ -362,7 +362,7 @@ export function LotesExperience() {
                     onClick={() =>
                       updateFilters({ ...EMPTY_LOTE_FILTERS, manzana: filters.manzana })
                     }
-                    className="w-full rounded-full border border-border-subtle py-1.5 text-xs font-medium transition-colors duration-200 hover:border-accent hover:text-accent-strong"
+                    className="w-full rounded-md border border-border-subtle py-1.5 text-xs font-medium transition-colors duration-200 hover:border-primary hover:text-primary"
                   >
                     Limpiar filtros
                   </button>
@@ -378,7 +378,7 @@ export function LotesExperience() {
               unidadSeleccionada && "sm:pr-[25.5rem]"
             )}
           >
-            <p className="pointer-events-auto self-start rounded-full bg-background/80 px-3 py-1 text-[11px] text-foreground-muted backdrop-blur-md">
+            <p className="pointer-events-auto self-start rounded-md bg-surface px-3 py-1 text-[11px] text-foreground-muted">
               Barrio ficticio. Datos e imágenes ilustrativos.
             </p>
             <div
@@ -398,10 +398,10 @@ export function LotesExperience() {
                       updateFilters({ ...filters, manzana: numero });
                     }}
                     className={cn(
-                      "shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-medium backdrop-blur-md transition-colors duration-200",
+                      "shrink-0 rounded-md border px-3.5 py-1.5 text-xs font-medium transition-colors duration-200",
                       active
-                        ? "border-accent bg-accent text-accent-foreground"
-                        : "border-border-subtle bg-background/85 hover:border-accent hover:text-accent-strong"
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border-subtle bg-surface hover:border-primary hover:text-primary"
                     )}
                   >
                     {numero == null ? "Todas" : `Manzana ${numero}`}
@@ -414,7 +414,7 @@ export function LotesExperience() {
       )}
 
       {unidadSeleccionada ? (
-        <div className="fixed inset-x-0 bottom-0 z-30 max-h-[60vh] sm:max-h-none overflow-y-auto rounded-t-2xl border-t border-border-subtle bg-background shadow-[0_-12px_40px_-20px_rgba(28,28,28,0.35)] sm:absolute sm:inset-y-0 sm:right-0 sm:left-auto sm:max-h-none sm:w-full sm:max-w-sm sm:rounded-none sm:border-l sm:border-t-0">
+        <div className="fixed inset-x-0 bottom-0 z-30 max-h-[60vh] sm:max-h-none overflow-y-auto rounded-t-lg border-t border-border-subtle bg-background shadow-[var(--shadow-panel)] sm:absolute sm:inset-y-0 sm:right-0 sm:left-auto sm:max-h-none sm:w-full sm:max-w-sm sm:rounded-none sm:border-l sm:border-t-0">
           <FichaUnidad
             key={unidadSeleccionada.codigo}
             unidad={unidadSeleccionada}

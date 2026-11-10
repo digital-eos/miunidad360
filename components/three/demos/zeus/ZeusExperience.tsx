@@ -136,7 +136,7 @@ export function ZeusExperience({
         <button
           type="button"
           onClick={() => selectFloor(null)}
-          className="absolute top-4 right-4 z-10 rounded-full border border-border-subtle bg-background/90 px-3.5 py-1.5 text-xs font-medium text-foreground shadow-sm backdrop-blur-md transition-colors hover:bg-background"
+          className="absolute top-4 right-4 z-10 rounded-md border border-border-subtle bg-surface px-3.5 py-1.5 text-xs font-medium text-foreground shadow-sm transition-colors hover:bg-background"
         >
           Ver edificio completo
         </button>

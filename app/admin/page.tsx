@@ -8,6 +8,7 @@ import { leads, projects, unidades } from "@/db/schema";
 import { toUnidad } from "@/lib/unidades/types";
 import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/admin/auth";
 import { cn } from "@/lib/utils";
+import { LogoSymbol } from "@/components/brand/Logo";
 import { AdminLoginForm } from "./AdminLoginForm";
 import { UnitsTable } from "./UnitsTable";
 import { LeadsTable } from "./LeadsTable";
@@ -62,13 +63,16 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
       <div className="mx-auto max-w-6xl space-y-12">
         <header className="flex items-center justify-between gap-4">
           <div>
-            <p className="font-mono text-xs uppercase tracking-[0.25em] text-accent-strong">Admin</p>
+            <div className="mb-3 flex items-center gap-3">
+              <LogoSymbol className="h-6 w-6" />
+              <p className="eyebrow">Admin</p>
+            </div>
             <h1 className="font-display text-3xl">{project?.name ?? "Sin proyectos"}</h1>
           </div>
           <form action={adminLogout}>
             <button
               type="submit"
-              className="rounded-full border border-border-subtle px-4 py-2 text-sm font-medium transition-colors duration-200 hover:border-accent hover:text-accent-strong"
+              className="btn btn-secondary btn-sm"
             >
               Cerrar sesión
             </button>
@@ -83,10 +87,10 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
                 href={`/admin?proyecto=${p.slug}`}
                 aria-current={p.id === project?.id ? "page" : undefined}
                 className={cn(
-                  "rounded-full border px-4 py-1.5 text-sm transition-colors duration-200",
+                  "rounded-md border px-4 py-1.5 text-sm transition-colors duration-200",
                   p.id === project?.id
-                    ? "border-accent bg-accent text-accent-foreground"
-                    : "border-border-subtle hover:border-accent hover:text-accent-strong",
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border-subtle hover:border-primary hover:text-primary",
                 )}
               >
                 {p.name}
@@ -96,12 +100,12 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
         ) : null}
 
         <section>
-          <h2 className="mb-4 font-display text-xl">Unidades ({unidadList.length})</h2>
+          <h2 className="mb-3 text-lg font-semibold">Unidades ({unidadList.length})</h2>
           <UnitsTable key={project?.id} unidades={unidadList} />
         </section>
 
         <section>
-          <h2 className="mb-4 font-display text-xl">Leads recibidos ({leadList.length})</h2>
+          <h2 className="mb-3 text-lg font-semibold">Leads recibidos ({leadList.length})</h2>
           <LeadsTable leads={leadList} />
         </section>
       </div>

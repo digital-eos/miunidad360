@@ -62,7 +62,7 @@ export function ZeusInfoPanel({ viewer, className }: { viewer: ZeusViewer; class
       className={cn("flex scroll-mt-4 flex-col overflow-hidden bg-background", className)}
     >
       <div className="border-b border-border-subtle px-5 py-4">
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent-strong">
+        <p className="label-caps text-primary">
           {proyecto.nombre} · {proyecto.ubicacion}
         </p>
         <label className="mt-3 block">
@@ -72,7 +72,7 @@ export function ZeusInfoPanel({ viewer, className }: { viewer: ZeusViewer; class
             onChange={(e) =>
               selectFloor(e.target.value === ALL_FLOORS ? null : Number(e.target.value))
             }
-            className="mt-1.5 w-full rounded-lg border border-border-subtle bg-background px-3 py-2.5 text-sm font-medium text-foreground focus:border-accent focus:outline-none"
+            className="field mt-1.5 font-medium"
           >
             <option value={ALL_FLOORS}>
               Edificio completo · {pluralAvailable(availableOn(unidades, null))}
@@ -102,7 +102,7 @@ export function ZeusInfoPanel({ viewer, className }: { viewer: ZeusViewer; class
                   href={plano}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-4 block overflow-hidden rounded-xl border border-border-subtle bg-white"
+                  className="mt-4 block overflow-hidden rounded-lg border border-border-subtle bg-surface"
                   aria-label={`Ver el plano de ${unit.codigo} en grande`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -147,7 +147,7 @@ export function ZeusInfoPanel({ viewer, className }: { viewer: ZeusViewer; class
                   <button
                     type="button"
                     onClick={() => u.objeto3d && openUnit(u.objeto3d)}
-                    className="flex w-full items-center gap-3 py-3 text-left transition-colors duration-200 hover:bg-background-elevated focus-visible:bg-background-elevated focus-visible:outline-none"
+                    className="flex w-full items-center gap-3 py-3 text-left transition-colors duration-200 hover:bg-surface-muted focus-visible:bg-surface-muted focus-visible:outline-none"
                   >
                     <span
                       className="h-2.5 w-2.5 shrink-0 rounded-full"

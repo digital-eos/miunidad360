@@ -58,7 +58,7 @@ export function useFullscreenFrame<T extends HTMLElement>() {
 /** Classes for the frame: a rounded card in the page, the whole window when expanded. */
 export function fullscreenFrameClass(expanded: boolean, className?: string) {
   return cn(
-    "relative overflow-hidden rounded-2xl border border-border-subtle bg-background",
+    "relative overflow-hidden rounded-lg border border-border-subtle bg-background",
     className,
     expanded && "fixed inset-0 z-[60] h-[100dvh] rounded-none border-0 lg:h-[100dvh]"
   );
@@ -79,7 +79,7 @@ export function FullscreenButton({
       onClick={onToggle}
       aria-label={expanded ? "Salir de pantalla completa" : "Ver en pantalla completa"}
       className={cn(
-        "absolute top-4 left-4 z-30 inline-flex items-center gap-2 rounded-full border border-border-subtle bg-background/85 px-3.5 py-1.5 text-xs font-medium backdrop-blur-md transition-colors duration-200 hover:border-accent hover:text-accent-strong",
+        "absolute top-4 left-4 z-30 inline-flex items-center gap-2 rounded-md border border-border-subtle bg-surface px-3.5 py-1.5 text-xs font-medium transition-colors duration-200 hover:border-primary hover:text-primary",
         className
       )}
     >

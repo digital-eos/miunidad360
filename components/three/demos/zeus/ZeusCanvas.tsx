@@ -20,7 +20,7 @@ const ZeusExperience = dynamic(
 function ZeusFallback() {
   return (
     <div className="flex h-full w-full items-center justify-center bg-background bg-grid">
-      <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent-strong">
+      <p className="eyebrow">
         Cargando el edificio…
       </p>
     </div>
@@ -51,7 +51,7 @@ export function ZeusCanvas({ children }: { children?: ReactNode }) {
           alt={zeusData.galeria[0].alt}
           className="h-full w-full object-cover"
         />
-        <p className="absolute inset-x-0 bottom-6 mx-auto w-fit rounded-full bg-background/90 px-4 py-2 text-sm">
+        <p className="absolute inset-x-0 bottom-6 mx-auto w-fit rounded-md bg-surface px-4 py-2 text-sm">
           Tu navegador no soporta WebGL: elegí las unidades en la lista.
         </p>
       </div>

@@ -1,6 +1,5 @@
 import { Container } from "@/components/ui/Container";
 import { SectionHeading } from "@/components/ui/SectionHeading";
-import { Reveal } from "@/components/ui/Reveal";
 
 const CHANNELS = [
   {
@@ -24,23 +23,23 @@ export function HowYouReceiveIt() {
   return (
     <section
       id="como-lo-recibis"
-      className="scroll-mt-6 border-t border-border-subtle bg-background-elevated py-24"
+      className="border-t border-border-subtle bg-surface-muted py-20 sm:py-24"
     >
       <Container>
         <SectionHeading eyebrow="Cómo lo recibís" title="Un link listo para compartir" />
-        <div className="mt-14 grid gap-10 sm:grid-cols-3">
+        <ol className="mt-12 grid gap-8 sm:grid-cols-3 sm:gap-10">
           {CHANNELS.map((channel, index) => (
-            <Reveal key={channel.title} delay={index * 0.08}>
-              <span className="font-display text-5xl text-foreground-muted/30">
-                {index + 1}
+            <li key={channel.title} className="border-t-2 border-primary pt-5">
+              <span className="label-caps text-foreground-subtle tabular-nums">
+                {String(index + 1).padStart(2, "0")}
               </span>
-              <h3 className="mt-4 font-display text-xl">{channel.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-foreground-muted">
+              <h3 className="mt-2 text-lg font-semibold">{channel.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-foreground-muted">
                 {channel.description}
               </p>
-            </Reveal>
+            </li>
           ))}
-        </div>
+        </ol>
       </Container>
     </section>
   );

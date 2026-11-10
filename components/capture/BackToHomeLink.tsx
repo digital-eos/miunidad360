@@ -12,7 +12,7 @@ export function BackToHomeLink({ className }: { className?: string }) {
     <Link
       href="/"
       className={cn(
-        "absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-full border border-border-subtle bg-background/80 px-4 py-2 text-xs font-medium backdrop-blur-md transition-colors duration-200 hover:border-accent hover:text-accent-strong sm:left-6 sm:top-6 sm:text-sm",
+        "absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-md border border-border-subtle bg-surface px-4 py-2 text-xs font-medium transition-colors duration-200 hover:border-primary hover:text-primary sm:left-6 sm:top-6 sm:text-sm",
         className,
       )}
     >

@@ -102,7 +102,7 @@ export function LotesPlano({
               points={toPoints(lote.poligono)}
               fill={color}
               fillOpacity={active ? 0.95 : 0.7}
-              stroke={selected === lote.codigo ? "#1c1c1c" : "#ffffff"}
+              stroke={selected === lote.codigo ? "#344b50" : "#ffffff"}
               strokeWidth={selected === lote.codigo ? 1.4 : 0.8}
             />
             <text
@@ -111,8 +111,8 @@ export function LotesPlano({
               textAnchor="middle"
               dominantBaseline="central"
               fontSize={7}
-              fontFamily="var(--font-plex-mono), monospace"
-              fill="#1c1c1c"
+              fontFamily="var(--font-source-sans), sans-serif"
+              fill="#292d2e"
               pointerEvents="none"
             >
               {lote.numero}
@@ -130,7 +130,7 @@ export function LotesPlano({
           dominantBaseline="central"
           fontSize={6}
           letterSpacing={1}
-          fill="#6b675e"
+          fill="#5f6564"
           pointerEvents="none"
           style={{ textTransform: "uppercase" }}
         >
@@ -154,7 +154,7 @@ export function LotesPlano({
           dominantBaseline="central"
           fontSize={6.5}
           letterSpacing={1.2}
-          fill="#4a473f"
+          fill="#292d2e"
           pointerEvents="none"
         >
           {l.t}
@@ -164,16 +164,16 @@ export function LotesPlano({
       {/* North arrow */}
       <g transform="translate(190 -200)" pointerEvents="none">
         <circle r={10} fill="#ffffff" stroke="#c9c1b1" strokeWidth={0.6} />
-        <path d="M0 -7 L4 4 L0 1.5 L-4 4 Z" fill="#1c1c1c" />
-        <text y={-13} textAnchor="middle" fontSize={6} fill="#1c1c1c">
+        <path d="M0 -7 L4 4 L0 1.5 L-4 4 Z" fill="#292d2e" />
+        <text y={-13} textAnchor="middle" fontSize={6} fill="#292d2e">
           N
         </text>
       </g>
       {/* Scale bar: 50 m */}
       <g transform="translate(-200 245)" pointerEvents="none">
-        <rect width={50} height={2.5} fill="#1c1c1c" />
-        <rect width={25} height={2.5} fill="#ffffff" stroke="#1c1c1c" strokeWidth={0.4} />
-        <text x={25} y={-4} textAnchor="middle" fontSize={5.5} fill="#1c1c1c">
+        <rect width={50} height={2.5} fill="#292d2e" />
+        <rect width={25} height={2.5} fill="#ffffff" stroke="#292d2e" strokeWidth={0.4} />
+        <text x={25} y={-4} textAnchor="middle" fontSize={5.5} fill="#292d2e">
           50 m
         </text>
       </g>

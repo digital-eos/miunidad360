@@ -392,7 +392,7 @@ export function MapGround({
 /** Google logo and data credits, required by the Map Tiles API policies. */
 export function MapAttribution({ text }: { text: string | null }) {
   return (
-    <div className="pointer-events-none absolute right-2 bottom-7 z-20 flex max-w-[60%] items-center gap-2 rounded bg-black/35 px-2 py-0.5 text-[10px] text-white/90 backdrop-blur-sm">
+    <div className="pointer-events-none absolute right-2 bottom-7 z-20 flex max-w-[60%] items-center gap-2 rounded bg-black/35 px-2 py-0.5 text-[10px] text-white/90">
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="https://maps.gstatic.com/mapfiles/api-3/images/google_white5_hdpi.png"

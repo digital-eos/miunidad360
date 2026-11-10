@@ -30,10 +30,8 @@ export function WhatsAppButton({
       rel="noopener noreferrer"
       onClick={() => trackWhatsAppClick(source)}
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium transition-colors duration-200",
-        variant === "solid"
-          ? "bg-[#25D366] text-white hover:bg-[#1EBE5A]"
-          : "border border-border-subtle text-foreground hover:border-[#25D366] hover:text-[#1EBE5A]",
+        "btn",
+        variant === "solid" ? "btn-primary" : "btn-secondary",
         className
       )}
     >

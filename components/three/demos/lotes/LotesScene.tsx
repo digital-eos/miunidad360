@@ -248,8 +248,8 @@ function Lots({
               <span
                 className={
                   emphasized
-                    ? "whitespace-nowrap rounded-full bg-foreground px-2 py-0.5 font-mono text-[11px] text-background shadow"
-                    : "whitespace-nowrap rounded-full bg-background/85 px-1.5 py-px font-mono text-[10px] text-foreground"
+                    ? "whitespace-nowrap rounded-md bg-foreground px-2 py-0.5 tabular-nums text-[11px] text-background shadow"
+                    : "whitespace-nowrap rounded-md bg-surface px-1.5 py-px tabular-nums text-[10px] text-foreground"
                 }
               >
                 {emphasized ? l.geom.codigo : l.geom.numero}
@@ -558,7 +558,7 @@ function PlaceLabels() {
           zIndexRange={[10, 0]}
           style={{ pointerEvents: "none" }}
         >
-          <span className="whitespace-nowrap rounded-full border border-border-subtle bg-background/90 px-2.5 py-1 text-[11px] font-medium text-foreground shadow-sm">
+          <span className="whitespace-nowrap rounded-md border border-border-subtle bg-surface px-2.5 py-1 text-[11px] font-medium text-foreground shadow-sm">
             {l.label}
           </span>
         </Html>

@@ -3,7 +3,7 @@
 import { useActionState, useId, useState, type ReactNode } from "react";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { submitUnitLead, type UnitLeadActionResult } from "@/app/actions/unit-lead";
-import { STATUS_COLORS, STATUS_LABELS } from "@/lib/units/status-colors";
+import { StatusBadge } from "@/components/ui/StatusBadge";
 import { TIPOS } from "@/lib/unidades/tipos";
 import {
   formatCampo,
@@ -17,7 +17,7 @@ import type { Unidad } from "@/lib/unidades/types";
 const initialState: UnitLeadActionResult = { success: false };
 
 const fieldClasses =
-  "w-full rounded-lg border border-border-subtle bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-foreground-muted/60 focus:border-accent focus:outline-none";
+  "w-full rounded-lg border border-border-subtle bg-background px-3.5 py-2.5 text-sm text-foreground placeholder:text-foreground-muted/60 focus:border-primary focus:outline-none";
 
 export type FichaUnidadProps = {
   unidad: Unidad;
@@ -89,8 +89,6 @@ export function FichaUnidad({
     }
   };
 
-  const statusColor = STATUS_COLORS[unidad.estado];
-
   return (
     <div>
       <div className="flex items-start justify-between gap-3 border-b border-border-subtle px-5 py-4">
@@ -99,12 +97,12 @@ export function FichaUnidad({
             <button
               type="button"
               onClick={onClose}
-              className="mb-3 text-xs font-medium text-foreground-muted transition-colors duration-200 hover:text-accent-strong"
+              className="mb-3 text-xs font-medium text-foreground-muted transition-colors duration-200 hover:text-primary"
             >
               ← {backLabel}
             </button>
           ) : null}
-          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent-strong">
+          <p className="label-caps text-primary">
             {config.singular}
           </p>
           <h3 className="font-display text-2xl leading-tight">{unidad.codigo}</h3>
@@ -117,7 +115,7 @@ export function FichaUnidad({
             type="button"
             onClick={onClose}
             aria-label="Cerrar"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-border-subtle text-lg transition-colors duration-200 hover:border-accent hover:text-accent-strong"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-border-subtle text-lg transition-colors duration-200 hover:border-primary hover:text-primary"
           >
             ×
           </button>
@@ -134,12 +132,7 @@ export function FichaUnidad({
               <p className="text-xs text-foreground-muted">Precio ilustrativo, no es una oferta real.</p>
             ) : null}
           </div>
-          <span
-            className="shrink-0 rounded-full px-3 py-1 text-xs font-medium"
-            style={{ backgroundColor: `${statusColor}26`, color: statusColor }}
-          >
-            {STATUS_LABELS[unidad.estado]}
-          </span>
+          <StatusBadge status={unidad.estado} />
         </div>
 
         <dl className="grid grid-cols-2 gap-x-3 gap-y-3 text-sm">
@@ -163,7 +156,7 @@ export function FichaUnidad({
           <button
             type="button"
             onClick={copyLink}
-            className="w-full rounded-full border border-border-subtle py-2.5 text-sm font-medium transition-colors duration-200 hover:border-accent hover:text-accent-strong"
+            className="btn btn-secondary w-full"
           >
             {copied ? "Link copiado ✓" : "Copiar link de esta unidad"}
           </button>
@@ -171,7 +164,7 @@ export function FichaUnidad({
 
         <div className="border-t border-border-subtle pt-5">
           {state.success ? (
-            <div className="rounded-xl border border-accent/40 bg-accent-soft p-4">
+            <div className="rounded-lg border border-primary/40 bg-primary-soft p-4">
               <p className="font-display text-lg">¡Gracias!</p>
               <p className="mt-1 text-sm text-foreground-muted">
                 Recibimos tu consulta por {unidad.codigo}. Te vamos a contactar a la brevedad.
@@ -211,7 +204,7 @@ export function FichaUnidad({
               />
 
               {state.error ? (
-                <p role="alert" className="text-sm text-red-500">
+                <p role="alert" className="text-sm text-danger">
                   {state.error}
                 </p>
               ) : null}
@@ -219,7 +212,7 @@ export function FichaUnidad({
               <button
                 type="submit"
                 disabled={isPending}
-                className="w-full rounded-full border border-border-subtle py-2.5 text-sm font-medium transition-colors duration-200 hover:border-accent hover:text-accent-strong disabled:opacity-60"
+                className="btn btn-secondary w-full disabled:opacity-60"
               >
                 {isPending ? "Enviando…" : "Quiero que me contacten"}
               </button>

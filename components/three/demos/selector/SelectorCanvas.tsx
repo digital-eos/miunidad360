@@ -11,13 +11,13 @@ const SelectorExperience = dynamic(
 );
 
 function SelectorFallback({
-  className = "h-[65svh] rounded-2xl lg:h-[80svh]",
+  className = "h-[65svh] rounded-lg lg:h-[80svh]",
 }: {
   className?: string;
 }) {
   return (
     <div className={`flex w-full items-center justify-center bg-background bg-grid ${className}`}>
-      <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent-strong">
+      <p className="eyebrow">
         Cargando el selector…
       </p>
     </div>
@@ -40,7 +40,7 @@ export function SelectorCanvas({
   if (supportsWebGL === false) {
     return (
       <div
-        className={`flex w-full flex-col items-center justify-center gap-3 bg-background bg-grid px-6 text-center ${embedded ? "h-[65vh] rounded-2xl" : "h-[100svh]"}`}
+        className={`flex w-full flex-col items-center justify-center gap-3 bg-background bg-grid px-6 text-center ${embedded ? "h-[65vh] rounded-lg" : "h-[100svh]"}`}
       >
         <p className="font-display text-2xl">Tu navegador no soporta WebGL</p>
         <p className="max-w-sm text-sm text-foreground-muted">
@@ -51,12 +51,12 @@ export function SelectorCanvas({
   }
 
   if (supportsWebGL === null) {
-    return <SelectorFallback className={embedded ? "h-[65vh] rounded-2xl" : undefined} />;
+    return <SelectorFallback className={embedded ? "h-[65vh] rounded-lg" : undefined} />;
   }
 
   if (embedded) {
     return (
-      <Suspense fallback={<SelectorFallback className="h-[65vh] rounded-2xl" />}>
+      <Suspense fallback={<SelectorFallback className="h-[65vh] rounded-lg" />}>
         <SelectorExperience projectSlug={projectSlug} embedded>
           {children}
         </SelectorExperience>

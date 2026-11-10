@@ -71,7 +71,7 @@ export function CaptureStage({
     <div className="relative flex h-[100svh] w-full flex-col items-center justify-center gap-4 bg-black py-6">
       <div
         ref={stageRef}
-        className="relative overflow-hidden rounded-xl shadow-2xl shadow-black/70"
+        className="relative overflow-hidden rounded-lg shadow-2xl shadow-black/70"
         style={{ width: frameSize.width, height: frameSize.height }}
       >
         {children}
@@ -80,13 +80,13 @@ export function CaptureStage({
       <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between p-4">
         <a
           href={exitHref}
-          className="pointer-events-auto rounded-full border border-white/20 bg-black/60 px-4 py-2 text-xs font-medium text-white/80 backdrop-blur-md transition-colors hover:border-white/40 hover:text-white"
+          className="pointer-events-auto rounded-md border border-white/20 bg-black/60 px-4 py-2 text-xs font-medium text-white/80 transition-colors hover:border-white/40 hover:text-white"
         >
           ✕ Salir del modo video
         </a>
         <a
           href={formatHref}
-          className="pointer-events-auto rounded-full border border-white/20 bg-black/60 px-4 py-2 text-xs font-medium text-white/80 backdrop-blur-md transition-colors hover:border-white/40 hover:text-white"
+          className="pointer-events-auto rounded-md border border-white/20 bg-black/60 px-4 py-2 text-xs font-medium text-white/80 transition-colors hover:border-white/40 hover:text-white"
         >
           Formato: {format === "9x16" ? "9:16" : "4:5"} · cambiar a {otherFormat}
         </a>

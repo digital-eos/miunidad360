@@ -10,16 +10,15 @@ import { trackFormSubmit } from "@/lib/analytics";
 
 const initialState: ContactActionResult = { success: false };
 
-const fieldClasses =
-  "w-full rounded-lg border border-border-subtle bg-background px-4 py-3 text-sm text-foreground placeholder:text-foreground-muted/60 focus:border-accent focus:outline-none";
+const fieldClasses = "field";
 
 export function Contact() {
   const [state, formAction, isPending] = useActionState(submitContactForm, initialState);
 
   return (
-    <section id="contacto" className="border-t border-border-subtle py-24">
+    <section id="contacto" className="border-t border-border-subtle bg-surface-muted py-20 sm:py-24">
       <Container>
-        <div className="grid gap-12 sm:grid-cols-2">
+        <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
           <Reveal>
             <SectionHeading
               eyebrow="Contacto"
@@ -33,8 +32,8 @@ export function Contact() {
 
           <Reveal delay={0.1}>
             {state.success ? (
-              <div className="rounded-2xl border border-accent/40 bg-accent-soft p-6">
-                <p className="font-display text-xl">¡Gracias por escribirnos!</p>
+              <div className="rounded-lg border border-secondary bg-secondary-soft p-6">
+                <p className="text-lg font-semibold">¡Gracias por escribirnos!</p>
                 <p className="mt-2 text-sm text-foreground-muted">
                   Recibimos tu mensaje y te vamos a responder a la brevedad.
                 </p>
@@ -43,7 +42,7 @@ export function Contact() {
               <form
                 action={formAction}
                 onSubmit={() => trackFormSubmit("contact-section")}
-                className="space-y-4"
+                className="space-y-4 rounded-lg border border-border-subtle bg-surface p-5 sm:p-7"
               >
                 <input type="hidden" name="source" value="contacto-home" />
                 <div
@@ -61,14 +60,14 @@ export function Contact() {
                 </div>
 
                 <div>
-                  <label htmlFor="name" className="mb-1.5 block text-sm font-medium">
+                  <label htmlFor="name" className="mb-1.5 block text-sm font-semibold">
                     Nombre
                   </label>
                   <input id="name" name="name" required className={fieldClasses} />
                 </div>
 
                 <div>
-                  <label htmlFor="email" className="mb-1.5 block text-sm font-medium">
+                  <label htmlFor="email" className="mb-1.5 block text-sm font-semibold">
                     Email
                   </label>
                   <input
@@ -82,13 +81,13 @@ export function Contact() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="phone" className="mb-1.5 block text-sm font-medium">
+                    <label htmlFor="phone" className="mb-1.5 block text-sm font-semibold">
                       Teléfono
                     </label>
                     <input id="phone" name="phone" className={fieldClasses} />
                   </div>
                   <div>
-                    <label htmlFor="company" className="mb-1.5 block text-sm font-medium">
+                    <label htmlFor="company" className="mb-1.5 block text-sm font-semibold">
                       Empresa
                     </label>
                     <input id="company" name="company" className={fieldClasses} />
@@ -96,7 +95,7 @@ export function Contact() {
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="mb-1.5 block text-sm font-medium">
+                  <label htmlFor="message" className="mb-1.5 block text-sm font-semibold">
                     Mensaje
                   </label>
                   <textarea
@@ -109,7 +108,7 @@ export function Contact() {
                 </div>
 
                 {state.error ? (
-                  <p role="alert" className="text-sm text-red-400">
+                  <p role="alert" className="text-sm text-danger">
                     {state.error}
                   </p>
                 ) : null}
@@ -117,7 +116,7 @@ export function Contact() {
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="w-full rounded-full bg-accent px-6 py-3 text-sm font-medium text-accent-foreground transition-colors duration-200 hover:bg-[#ffb84f] disabled:opacity-60"
+                  className="btn btn-primary w-full"
                 >
                   {isPending ? "Enviando…" : "Enviar mensaje"}
                 </button>

@@ -28,18 +28,18 @@ export function ModeSwitcher({
         topClassName
       )}
     >
-      <div className="pointer-events-auto flex max-w-full flex-wrap justify-center gap-1 rounded-full border border-border-subtle bg-background/85 p-1.5 backdrop-blur-md">
+      <div className="pointer-events-auto flex max-w-full flex-wrap justify-center gap-1 rounded-lg border border-border-subtle bg-surface p-1 shadow-[var(--shadow-panel)]">
         {MODES.map(({ id, label }) => (
           <button
             key={id}
             type="button"
             onClick={() => onSelectMode(id)}
             className={cn(
-              "rounded-full px-3.5 py-1.5 text-xs font-medium tracking-wide whitespace-nowrap transition-colors duration-200 sm:text-sm",
+              "rounded-md px-3.5 py-1.5 text-xs font-medium tracking-wide whitespace-nowrap transition-colors duration-200 sm:text-sm",
               mode === id
-                ? "bg-accent text-accent-foreground"
+                ? "bg-primary text-primary-foreground"
                 : "text-foreground-muted hover:text-foreground",
-              pulseMode === id && "animate-pulse-once"
+              pulseMode === id && "ring-1 ring-highlight"
             )}
           >
             {label}

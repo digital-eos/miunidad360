@@ -12,7 +12,7 @@ const DepartamentoExperience = dynamic(
 function DepartamentoFallback() {
   return (
     <div className="flex h-[100svh] w-full items-center justify-center bg-background bg-grid">
-      <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent-strong">
+      <p className="eyebrow">
         Cargando el departamento…
       </p>
     </div>

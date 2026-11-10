@@ -18,7 +18,7 @@ function Room({ room }: { room: FloorPlanRoom }) {
         y={y}
         width={w}
         height={h}
-        fill="var(--background-elevated)"
+        fill="var(--surface-muted)"
         stroke="var(--border-subtle)"
         strokeWidth={1.5}
       />
@@ -38,7 +38,7 @@ function Room({ room }: { room: FloorPlanRoom }) {
         textAnchor="middle"
         fontSize={8.5}
         fill="var(--foreground-muted)"
-        fontFamily="var(--font-mono)"
+        fontFamily="var(--font-source-sans), sans-serif"
       >
         {room.width.toFixed(1)} × {room.depth.toFixed(1)} m
       </text>
@@ -81,7 +81,7 @@ export function FloorPlanSvg({
         width={plan.balcony.width * PX_PER_M}
         height={plan.balcony.depth * PX_PER_M}
         fill="none"
-        stroke="var(--accent)"
+        stroke="var(--primary)"
         strokeWidth={1.5}
         strokeDasharray="3 3"
       />
@@ -90,7 +90,7 @@ export function FloorPlanSvg({
         y={PADDING_TOP + (plan.balcony.y + plan.balcony.depth / 2) * PX_PER_M + 3}
         textAnchor="middle"
         fontSize={9}
-        fill="var(--accent)"
+        fill="var(--primary)"
         fontFamily="var(--font-sans)"
       >
         Balcón · {balconyM2.toFixed(1)} m²
@@ -111,7 +111,7 @@ export function FloorPlanSvg({
         textAnchor="middle"
         fontSize={9}
         fill="var(--foreground-muted)"
-        fontFamily="var(--font-mono)"
+        fontFamily="var(--font-source-sans), sans-serif"
       >
         {plan.totalWidth.toFixed(1)} m
       </text>
@@ -131,7 +131,7 @@ export function FloorPlanSvg({
         textAnchor="middle"
         fontSize={9}
         fill="var(--foreground-muted)"
-        fontFamily="var(--font-mono)"
+        fontFamily="var(--font-source-sans), sans-serif"
         transform={`rotate(90 ${rightX + 20} ${(PADDING_TOP * 2 + plan.totalDepth * PX_PER_M) / 2})`}
       >
         {plan.totalDepth.toFixed(1)} m

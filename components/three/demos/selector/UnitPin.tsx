@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import { formatArea } from "@/lib/units/format";
 import { formatPrecio } from "@/lib/unidades/format";
 import { attrNumber, type Unidad } from "@/lib/unidades/types";
-import { STATUS_COLORS, STATUS_LABELS } from "@/lib/units/status-colors";
+import { StatusBadge } from "@/components/ui/StatusBadge";
 
 const PHOTO_SLOTS = 2;
 
@@ -36,28 +36,17 @@ export function UnitPin({
   return (
     <div
       className={cn(
-        "rounded-2xl border bg-background/95 shadow-xl backdrop-blur-md",
+        "rounded-lg border bg-surface shadow-[var(--shadow-panel)]",
         pinned
-          ? "pointer-events-auto w-full border-accent p-4 md:w-[30rem] md:p-5"
+          ? "pointer-events-auto w-full border-primary p-4 md:w-[30rem] md:p-5"
           : "pointer-events-none w-[min(16rem,calc(100vw-2.5rem))] -translate-x-1/2 -translate-y-[calc(100%+12px)] border-border-subtle p-4",
       )}
     >
       <div className="flex items-center justify-between gap-2">
-        <span className={cn("font-mono text-foreground-muted", pinned ? "text-base" : "text-sm")}>
+        <span className={cn("tabular-nums text-foreground-muted", pinned ? "text-base" : "text-sm")}>
           {unit.codigo}
         </span>
-        <span
-          className={cn(
-            "rounded-full font-medium",
-            pinned ? "px-3 py-1 text-sm" : "px-2.5 py-0.5 text-xs",
-          )}
-          style={{
-            backgroundColor: `${STATUS_COLORS[unit.estado]}26`,
-            color: STATUS_COLORS[unit.estado],
-          }}
-        >
-          {STATUS_LABELS[unit.estado]}
-        </span>
+        <StatusBadge status={unit.estado} size={pinned ? "md" : "sm"} />
       </div>
       <p className={cn("mt-1 font-display", pinned ? "text-2xl md:text-3xl" : "text-2xl")}>
         {formatPrecio(unit.precio, unit.moneda)}
@@ -85,7 +74,7 @@ export function UnitPin({
                 <div
                   key={i}
                   aria-hidden
-                  className="aspect-[4/3] w-full rounded-lg border border-dashed border-border-subtle bg-background-elevated"
+                  className="aspect-[4/3] w-full rounded-lg border border-dashed border-border-subtle bg-surface-muted"
                 />
               ),
             )}
@@ -95,14 +84,14 @@ export function UnitPin({
             <button
               type="button"
               onClick={action(onView)}
-              className="flex-1 rounded-full bg-accent px-4 py-2 text-sm font-medium text-accent-foreground transition-opacity duration-200 hover:opacity-90"
+              className="btn btn-primary btn-sm flex-1"
             >
               Ver
             </button>
             <button
               type="button"
               onClick={action(onClose)}
-              className="flex-1 rounded-full border border-border-subtle px-4 py-2 text-sm font-medium text-foreground-muted transition-colors duration-200 hover:border-accent hover:text-foreground"
+              className="btn btn-secondary btn-sm flex-1"
             >
               Cerrar
             </button>

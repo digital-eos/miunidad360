@@ -664,7 +664,7 @@ export function SelectorExperience({
 
       {gpuFailed ? (
         <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-4 bg-background px-6 text-center">
-          <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent-strong">
+          <p className="eyebrow">
             La vista 3D se interrumpió
           </p>
           <p className="max-w-sm text-sm text-foreground-muted">
@@ -674,7 +674,7 @@ export function SelectorExperience({
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="rounded-full bg-foreground px-5 py-2 text-sm text-background"
+            className="rounded-md bg-foreground px-5 py-2 text-sm text-background"
           >
             Volver a cargar
           </button>
@@ -689,7 +689,7 @@ export function SelectorExperience({
           <div className="pointer-events-none absolute inset-x-0 top-20 z-20 flex justify-center px-4 md:top-8">
             <p
               key={caption ?? "none"}
-              className="animate-caption-in rounded-full bg-background/70 px-4 py-1.5 font-mono text-[10px] uppercase tracking-[0.3em] text-foreground backdrop-blur-md sm:text-xs"
+              className="animate-caption-in rounded-md bg-surface px-4 py-1.5 label-caps text-foreground sm:text-xs"
             >
               {caption ?? SITE.city}
             </p>
@@ -697,7 +697,7 @@ export function SelectorExperience({
           <button
             type="button"
             onClick={skipIntro}
-            className="absolute right-4 bottom-12 z-30 rounded-full border border-border-subtle bg-background/80 px-4 py-2 text-xs font-medium backdrop-blur-md transition-colors duration-200 hover:border-accent hover:text-accent-strong md:right-6"
+            className="absolute right-4 bottom-12 z-30 rounded-md border border-border-subtle bg-surface px-4 py-2 text-xs font-medium transition-colors duration-200 hover:border-primary hover:text-primary md:right-6"
           >
             Saltar vuelo →
           </button>
@@ -735,10 +735,10 @@ export function SelectorExperience({
           ready && sceneReady ? "opacity-0" : "opacity-100",
         )}
       >
-        <p className="px-6 text-center font-mono text-xs uppercase tracking-[0.3em] text-accent-strong">
+        <p className="px-6 text-center eyebrow">
           {realLocation ? `${SITE.address} · ${SITE.city}` : PROJECT_NAME}
         </p>
-        <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-foreground-muted">
+        <p className="label-caps text-foreground-muted">
           {!ready
             ? "Cargando unidades…"
             : geo
@@ -757,7 +757,7 @@ export function SelectorExperience({
             onSelectFloor={handleSelectFloor}
           />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex justify-center bg-gradient-to-t from-background/90 to-transparent px-3 pb-2 pt-6">
-            <p className="text-center font-mono text-[9px] uppercase tracking-[0.1em] text-foreground-muted/80 sm:text-[10px]">
+            <p className="text-center text-[11px] text-foreground-subtle">
               {geo || map
                 ? `Ubicación real: ${SITE.address}, ${SITE.city} · modelo 3D ilustrativo`
                 : `${PROJECT_NAME} · modelo 3D ilustrativo`}
@@ -802,11 +802,11 @@ export function SelectorExperience({
               <button
                 type="button"
                 onClick={() => switchVista("edificio")}
-                className="inline-flex items-center gap-2 rounded-full border border-border-subtle bg-background/85 px-4 py-2 text-xs font-medium backdrop-blur-md transition-colors duration-200 hover:border-accent hover:text-accent-strong sm:text-sm"
+                className="inline-flex items-center gap-2 rounded-md border border-border-subtle bg-surface px-4 py-2 text-xs font-medium transition-colors duration-200 hover:border-primary hover:text-primary sm:text-sm"
               >
                 ← Volver al edificio
               </button>
-              <p className="rounded-full bg-background/80 px-3 py-1 font-mono text-[9px] uppercase tracking-[0.15em] text-foreground-muted backdrop-blur-md sm:text-[10px]">
+              <p className="rounded-md bg-surface px-3 py-1 label-caps text-foreground-muted sm:text-[10px]">
                 Interior de ejemplo · Cataluña II, unidad 103
               </p>
             </div>
@@ -837,7 +837,7 @@ export function SelectorExperience({
         <div
           className={
             embedded
-              ? "relative h-[65vh] w-full overflow-hidden rounded-2xl border border-border-subtle bg-background-elevated lg:h-[70vh]"
+              ? "relative h-[65vh] w-full overflow-hidden rounded-lg border border-border-subtle bg-surface-muted lg:h-[70vh]"
               : frameExpanded
                 ? "relative min-h-0 w-full flex-1 lg:h-full"
                 : "relative h-[65svh] w-full lg:h-full lg:flex-1"
@@ -869,7 +869,7 @@ export function SelectorExperience({
           }
           className={
             embedded
-              ? "h-[70vh] rounded-2xl border border-border-subtle"
+              ? "h-[70vh] rounded-lg border border-border-subtle"
               : frameExpanded
                 ? "max-h-[40dvh] border-t border-border-subtle lg:h-full lg:max-h-none lg:w-[400px] lg:border-t-0 lg:border-l"
                 : "border-t border-border-subtle lg:h-full lg:w-[400px] lg:border-t-0 lg:border-l"

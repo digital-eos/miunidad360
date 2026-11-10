@@ -16,8 +16,7 @@ const DEMO_LABELS: Record<string, string> = {
   zeus: "la demo de Zeus III",
 };
 
-const fieldClasses =
-  "w-full rounded-lg border border-border-subtle bg-background px-4 py-3 text-sm text-foreground placeholder:text-foreground-muted/60 focus:border-accent focus:outline-none";
+const fieldClasses = "field";
 
 export function DemoCTA({
   demo,
@@ -29,12 +28,12 @@ export function DemoCTA({
   const demoLabel = DEMO_LABELS[demo];
 
   return (
-    <section id="demo-cta" className="border-t border-border-subtle bg-background py-20">
+    <section id="demo-cta" className="border-t border-border-subtle bg-surface-muted py-16 sm:py-20">
       <Container className="max-w-2xl text-center">
-        <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent-strong">
+        <p className="eyebrow">
           ¿Te gustó {demoLabel}?
         </p>
-        <h2 className="mt-3 font-display text-3xl sm:text-4xl">
+        <h2 className="mt-3 font-display text-3xl sm:text-[2.5rem]">
           ¿Querés esto para tu proyecto?
         </h2>
         <p className="mt-3 text-sm leading-relaxed text-foreground-muted">
@@ -51,8 +50,8 @@ export function DemoCTA({
 
         <div className="mx-auto mt-8 max-w-sm text-left">
           {state.success ? (
-            <div className="rounded-2xl border border-accent/40 bg-accent-soft p-6 text-center">
-              <p className="font-display text-xl">¡Gracias por escribirnos!</p>
+            <div className="rounded-lg border border-secondary bg-secondary-soft p-6 text-center">
+              <p className="text-lg font-semibold">¡Gracias por escribirnos!</p>
               <p className="mt-2 text-sm text-foreground-muted">
                 Recibimos tu mensaje y te vamos a responder a la brevedad.
               </p>
@@ -97,7 +96,7 @@ export function DemoCTA({
               />
 
               {state.error ? (
-                <p role="alert" className="text-sm text-red-400">
+                <p role="alert" className="text-sm text-danger">
                   {state.error}
                 </p>
               ) : null}
@@ -105,7 +104,7 @@ export function DemoCTA({
               <button
                 type="submit"
                 disabled={isPending}
-                className="w-full rounded-full bg-accent px-6 py-3 text-sm font-medium text-accent-foreground transition-colors duration-200 hover:bg-[#ffb84f] disabled:opacity-60"
+                className="btn btn-primary w-full"
               >
                 {isPending ? "Enviando…" : "Quiero que me contacten"}
               </button>

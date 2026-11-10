@@ -36,19 +36,22 @@ const FAQS = [
 
 export function Faq() {
   return (
-    <section className="border-t border-border-subtle bg-background-elevated py-24">
-      <Container>
+    <section className="border-t border-border-subtle py-20 sm:py-24">
+      <Container className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] lg:gap-16">
         <SectionHeading eyebrow="Preguntas frecuentes" title="Lo que más nos preguntan" />
-        <div className="mt-12 divide-y divide-border-subtle border-y border-border-subtle">
+        <div className="divide-y divide-border-subtle border-y border-border-subtle">
           {FAQS.map((faq) => (
-            <details key={faq.question} className="group py-5">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-display text-lg">
+            <details key={faq.question} className="group py-4">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-sm text-base font-semibold focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">
                 {faq.question}
-                <span className="shrink-0 font-mono text-accent-strong transition-transform duration-200 group-open:rotate-45">
+                <span
+                  aria-hidden="true"
+                  className="flex h-6 w-6 shrink-0 items-center justify-center text-lg font-normal text-primary transition-transform duration-150 group-open:rotate-45"
+                >
                   +
                 </span>
               </summary>
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-foreground-muted">
+              <p className="mt-2 max-w-2xl pr-10 text-sm leading-relaxed text-foreground-muted">
                 {faq.answer}
               </p>
             </details>
