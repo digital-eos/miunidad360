@@ -6,7 +6,7 @@ import { Logo } from "@/components/brand/Logo";
 const NAV_LINKS = [
   { href: "/#como-funciona", label: "Cómo funciona" },
   { href: "/#resultado", label: "El resultado" },
-  { href: "/#demos", label: "Demos" },
+  { href: "/demos", label: "Demos" },
   { href: "/#contacto", label: "Contacto" },
 ];
 

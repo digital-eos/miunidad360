@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
-import { SectionHeading } from "@/components/ui/SectionHeading";
 import { trackDemoClick, type DemoKind } from "@/lib/analytics";
 import { BIM_DEMO_PATH } from "@/lib/bim/route";
 import { featuredProject } from "@/config/featured";
@@ -83,11 +82,17 @@ const BLOQUES: Bloque[] = [
 const cardClasses =
   "group flex h-full flex-col overflow-hidden rounded-lg border border-border-subtle bg-surface transition-colors duration-150 hover:border-primary focus-visible:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
 
+/** The demo catalogue: the whole content of the /demos page. */
 export function Demos() {
   return (
-    <section id="demos" className="border-t border-border-subtle py-20 sm:py-24">
+    <section className="pt-12 pb-20 sm:pt-16 sm:pb-24">
       <Container>
-        <SectionHeading title="Demos por tipo de unidad" />
+        <h1 className="font-display text-4xl leading-tight text-balance sm:text-5xl">
+          Demos por tipo de unidad
+        </h1>
+        <p className="mt-4 max-w-2xl text-base leading-relaxed text-foreground-muted">
+          Abrí una demo y recorrela desde el navegador, igual que lo harían tus clientes.
+        </p>
 
         <div className="mt-12 border-b border-border-subtle">
           {BLOQUES.map((bloque) => (
@@ -95,7 +100,7 @@ export function Demos() {
               key={bloque.titulo}
               className="grid gap-5 border-t border-border-subtle py-8 lg:grid-cols-[180px_1fr] lg:gap-10"
             >
-              <h3 className="text-lg font-semibold">{bloque.titulo}</h3>
+              <h2 className="text-lg font-semibold">{bloque.titulo}</h2>
 
               <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 {bloque.cards.map((demo) => (
