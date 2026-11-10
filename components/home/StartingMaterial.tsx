@@ -16,6 +16,12 @@ const FLOORS = [
 
 const DEFAULT_FLOOR = 1;
 
+/** Street render from Cataluña II's brochure, the project the rest of the homepage shows. */
+const RENDER = {
+  src: "/projects/cataluna-ii/fotos/edificio-fachada.webp",
+  alt: "Render de la fachada de Cataluña II, de noche",
+};
+
 /**
  * "El material de partida": the project's render and a plan sheet, laid out like two
  * documents on a table. Shows what the developer hands over, before it becomes the 3D
@@ -24,7 +30,7 @@ const DEFAULT_FLOOR = 1;
 export function StartingMaterial() {
   const [floorIndex, setFloorIndex] = useState(DEFAULT_FLOOR);
   const [renderFailed, setRenderFailed] = useState(false);
-  const render = featuredProject.fotos[0];
+  const render = RENDER;
   const floor = FLOORS[floorIndex];
 
   return (
@@ -32,15 +38,16 @@ export function StartingMaterial() {
       <div className="relative pb-[30%] pr-[14%] sm:pb-[26%]">
         {/* Render del proyecto */}
         <div className="relative rounded-md border border-border-subtle bg-surface p-2 shadow-[var(--shadow-panel)] sm:p-2.5">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-sm bg-surface-muted">
-            {render && !renderFailed ? (
+          {/* Square: the render is a portrait, a 4:3 frame would cut the building. */}
+          <div className="relative aspect-square overflow-hidden rounded-sm bg-surface-muted">
+            {!renderFailed ? (
               <Image
                 src={render.src}
                 alt={render.alt}
                 fill
                 priority
                 sizes="(max-width: 640px) 960px, 560px"
-                className="object-cover"
+                className="object-cover object-[center_42%]"
                 onError={() => setRenderFailed(true)}
               />
             ) : (
@@ -116,9 +123,9 @@ export function StartingMaterial() {
       <figcaption className="mt-6 sm:mt-8">
         <p className="text-sm font-semibold">Material de partida</p>
         <p className="mt-1 text-xs leading-relaxed text-foreground-subtle">
-          Render: tamar benashvili · Planos generados por MiUnidad360 desde el modelo IFC
-          · Dataset Schependomlaan (ROOT bv, Hendriks Bouw en Ontwikkeling, TU Eindhoven),
-          CC BY 4.0
+          Render: Cataluña II, Cataluña Desarrollos Inmobiliarios · Planos generados por
+          MiUnidad360 desde el modelo IFC del dataset Schependomlaan (ROOT bv, Hendriks
+          Bouw en Ontwikkeling, TU Eindhoven), CC BY 4.0
         </p>
       </figcaption>
     </figure>
