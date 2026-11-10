@@ -3,10 +3,10 @@ import { Container } from "@/components/ui/Container";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { Logo } from "@/components/brand/Logo";
 
+/** Sections of the homepage. The demo catalogue is its own page: see the button below. */
 const NAV_LINKS = [
   { href: "/#como-funciona", label: "Cómo funciona" },
   { href: "/#resultado", label: "El resultado" },
-  { href: "/demos", label: "Demos" },
   { href: "/#contacto", label: "Contacto" },
 ];
 
@@ -31,11 +31,18 @@ export function Header() {
             </Link>
           ))}
         </nav>
-        <WhatsAppButton
-          source="header"
-          label="WhatsApp"
-          className="btn-sm hidden min-[380px]:inline-flex"
-        />
+        <div className="flex shrink-0 items-center gap-2">
+          {/* Leaves the homepage, unlike the section links: drawn as a button with an arrow. */}
+          <Link href="/demos" className="btn btn-secondary btn-sm">
+            Ver demos <span aria-hidden="true">→</span>
+          </Link>
+          <WhatsAppButton
+            source="header"
+            label="WhatsApp"
+            // Phones keep the floating WhatsApp button; two header buttons don't fit there.
+            className="btn-sm hidden min-[480px]:inline-flex"
+          />
+        </div>
       </Container>
     </header>
   );

@@ -73,6 +73,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="es-AR"
+      // Lets Next jump straight to the top on a page change despite the CSS smooth scroll;
+      // without it a new page could open scrolled down.
+      data-scroll-behavior="smooth"
       className={`${sourceSans.variable} ${dmSerif.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
