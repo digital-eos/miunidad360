@@ -28,7 +28,7 @@ export default function Home() {
         <Faq />
         <Contact />
       </main>
-      <Footer />
+      <Footer credits="Créditos de la portada: render del folleto de venta del edificio. Planos generados por MiUnidad360 desde el modelo IFC del dataset Schependomlaan (ROOT bv, Hendriks Bouw en Ontwikkeling, TU Eindhoven), CC BY 4.0." />
     </>
   );
 }

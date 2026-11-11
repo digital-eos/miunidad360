@@ -2,7 +2,8 @@ import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Logo } from "@/components/brand/Logo";
 
-export function Footer() {
+/** `credits`: attribution for third-party material shown on the page (e.g. CC BY licences). */
+export function Footer({ credits }: { credits?: string }) {
   return (
     <footer className="border-t border-border-subtle bg-surface py-10">
       <Container className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
@@ -24,6 +25,11 @@ export function Footer() {
           </Link>
         </nav>
       </Container>
+      {credits ? (
+        <Container>
+          <p className="mt-6 text-xs leading-relaxed text-foreground-subtle">{credits}</p>
+        </Container>
+      ) : null}
     </footer>
   );
 }
