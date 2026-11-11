@@ -8,7 +8,7 @@ const POINTS = [
   },
   {
     title: "Contraseña opcional",
-    text: "Podés pedir una contraseña para entrar al proyecto. Se guarda cifrada y, si la cambiás, todos tienen que ingresar la nueva.",
+    text: "Podés pedir una contraseña para entrar al proyecto. Se guarda como hash, nunca en texto plano y, si la cambiás, todos tienen que ingresar la nueva.",
   },
   {
     title: "Tus archivos quedan con nosotros",

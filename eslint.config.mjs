@@ -12,6 +12,10 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Claude Code worktrees (their own checkout and .next builds).
+    ".claude/**",
+    // Vendored, minified Draco decoder.
+    "public/geo/draco/**",
   ]),
 ]);
 

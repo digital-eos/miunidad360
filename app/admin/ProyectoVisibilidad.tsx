@@ -91,7 +91,7 @@ export function ProyectoVisibilidad({
           </p>
         ) : null}
         <p className="mt-2 text-xs text-foreground-muted">
-          Con contraseña, la página tampoco se indexa. Se guarda cifrada (hash), no se puede ver
+          Con contraseña, la página tampoco se indexa. Se guarda como hash, nunca en texto plano: no se puede ver
           después.
         </p>
       </div>
