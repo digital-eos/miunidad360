@@ -45,9 +45,19 @@ export function civilDateKey(date: CivilDate): string {
   return `${date.year}-${String(date.month).padStart(2, "0")}-${String(date.day).padStart(2, "0")}`;
 }
 
+const DEG = Math.PI / 180;
+
+/**
+ * suncalc 2 (the installed version) returns degrees with the azimuth clockwise from north.
+ * This module keeps the suncalc 1 convention (radians, azimuth from south, positive west),
+ * so convert here.
+ */
 export function getSunPosition(date: Date, lat: number, lng: number): SunPosition {
   const { altitude, azimuth } = SunCalc.getPosition(date, lat, lng);
-  return { altitude, azimuth };
+  // North-based bearing → south-based, wrapped to (-180°, 180°].
+  let fromSouth = azimuth - 180;
+  if (fromSouth <= -180) fromSouth += 360;
+  return { altitude: altitude * DEG, azimuth: fromSouth * DEG };
 }
 
 export type SunTimes = {
