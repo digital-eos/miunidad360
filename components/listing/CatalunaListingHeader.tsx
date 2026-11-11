@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { fetchUnidades } from "@/lib/unidades/fetch";
 import { formatPrecio } from "@/lib/unidades/format";
 import type { Unidad } from "@/lib/unidades/types";
-import { CATALUNA_CONFIG, CATALUNA_SLUG } from "@/lib/three/cataluna-ii";
+import { CATALUNA_SLUG } from "@/lib/three/cataluna-ii";
 import { SITE } from "@/lib/geo/site";
 import { ListingHeader } from "./ListingHeader";
 
@@ -38,12 +38,6 @@ export function CatalunaListingHeader() {
       location="A 800 m del mar"
       priceLabel={prices.length ? formatPrecio(Math.min(...prices), moneda) : null}
       description="15 unidades funcionales de 1, 2 y 3 ambientes, con quincho, terraza con solárium, parrilla y huerta comunitaria."
-      stats={[
-        { label: "Unidades", value: units ? String(units.length) : "—" },
-        { label: "Disponibles", value: available ? String(available.length) : "—" },
-        { label: "Pisos", value: String(CATALUNA_CONFIG.floors) },
-        { label: "Ambientes", value: "1 a 3" },
-      ]}
     />
   );
 }

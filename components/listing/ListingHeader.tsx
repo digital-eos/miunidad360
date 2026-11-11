@@ -1,11 +1,9 @@
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 
-export type ListingStat = { label: string; value: string };
-
 /**
- * Top of a demo shown as a property listing: name, location, "desde" price and the key
- * numbers. The 3D view with its info card sits right below it.
+ * Top of a demo shown as a property listing: name, location and "desde" price. The 3D view
+ * with its info card sits right below it.
  */
 export function ListingHeader({
   eyebrow,
@@ -13,7 +11,6 @@ export function ListingHeader({
   location,
   priceLabel,
   description,
-  stats,
 }: {
   eyebrow: string;
   title: string;
@@ -21,7 +18,6 @@ export function ListingHeader({
   /** "USD 141.500", or null when there are no public prices. */
   priceLabel: string | null;
   description?: string;
-  stats: ListingStat[];
 }) {
   return (
     <header className="pt-6 pb-6 sm:pt-8">
@@ -58,23 +54,6 @@ export function ListingHeader({
             {description}
           </p>
         ) : null}
-
-        <dl className="mt-6 grid grid-cols-2 overflow-hidden rounded-lg border border-border-subtle bg-surface sm:grid-cols-4">
-          {stats.map((stat, i) => (
-            <div
-              key={stat.label}
-              className={
-                "border-border-subtle px-4 py-3 " +
-                (i % 2 === 1 ? "border-l " : "") +
-                (i >= 2 ? "border-t sm:border-t-0 " : "") +
-                (i === 2 ? "sm:border-l" : "")
-              }
-            >
-              <dt className="label-caps text-foreground-muted">{stat.label}</dt>
-              <dd className="mt-0.5 text-xl font-semibold tabular-nums">{stat.value}</dd>
-            </div>
-          ))}
-        </dl>
       </Container>
     </header>
   );
