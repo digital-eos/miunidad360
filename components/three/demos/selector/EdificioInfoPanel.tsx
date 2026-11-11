@@ -144,18 +144,11 @@ export function EdificioInfoPanel({
             proyectoNombre={projectName}
             source="selector-unidad"
             onClose={() => onSelectUnit(null)}
-            backLabel={focusFloor === null ? "Todas las unidades" : `Unidades del piso ${focusFloor}`}
+            backLabel="Volver"
+            sectorEnDatos
             nota="Modelo 3D ilustrativo."
             media={
               <div className="space-y-3">
-                <div className="rounded-lg border border-border-subtle bg-surface-muted p-3">
-                  <FloorPlanSvg
-                    bedrooms={attrNumber(selectedUnit, "dormitorios") ?? 1}
-                    areaM2={selectedUnit.superficieM2}
-                    balconyM2={attrNumber(selectedUnit, "balcon_m2") ?? 0}
-                    className="w-full"
-                  />
-                </div>
                 {selectedPhotos.length ? (
                   <div className="grid grid-cols-2 gap-3">
                     {selectedPhotos.slice(0, 2).map((src, i) => (
@@ -178,6 +171,14 @@ export function EdificioInfoPanel({
                     Ver el interior en 3D <span aria-hidden="true">→</span>
                   </button>
                 ) : null}
+                <div className="rounded-lg border border-border-subtle bg-surface-muted p-3">
+                  <FloorPlanSvg
+                    bedrooms={attrNumber(selectedUnit, "dormitorios") ?? 1}
+                    areaM2={selectedUnit.superficieM2}
+                    balconyM2={attrNumber(selectedUnit, "balcon_m2") ?? 0}
+                    className="w-full"
+                  />
+                </div>
               </div>
             }
           >

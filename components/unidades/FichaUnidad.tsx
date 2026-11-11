@@ -28,12 +28,14 @@ export type FichaUnidadProps = {
   /** Header action: a "← label" back link when `backLabel` is set, a × button otherwise. */
   onClose?: () => void;
   backLabel?: string;
-  /** Shown between the header and the price (a floor plan, a photo…). */
+  /** Shown after the price and data list (a floor plan, a photo…). */
   media?: ReactNode;
   /** Shown after the data list (sun hours…). */
   children?: ReactNode;
   /** Footnote under the form. */
   nota?: string;
+  /** Show the sector ("Piso 5") as the first entry of the data list instead of under the code. */
+  sectorEnDatos?: boolean;
 };
 
 /**
@@ -51,6 +53,7 @@ export function FichaUnidad({
   media,
   children,
   nota = "Precios y estados ficticios, solo para esta demo.",
+  sectorEnDatos = false,
 }: FichaUnidadProps) {
   const config = TIPOS[unidad.tipo];
   const [state, formAction, isPending] = useActionState(submitUnitLead, initialState);
@@ -58,6 +61,16 @@ export function FichaUnidad({
   const honeypotId = useId();
 
   const datos: { etiqueta: string; valor: string }[] = [];
+  if (sectorEnDatos && unidad.sector) {
+    // "Piso 5" reads as label "Piso", value "5" when the sector already starts with the label.
+    const prefijo = `${config.sectorEtiqueta} `;
+    datos.push({
+      etiqueta: config.sectorEtiqueta,
+      valor: unidad.sector.startsWith(prefijo)
+        ? unidad.sector.slice(prefijo.length)
+        : unidad.sector,
+    });
+  }
   datos.push({
     etiqueta: config.superficieEtiqueta,
     valor: formatSuperficie(unidad.superficieM2, config.superficieFormato),
@@ -106,7 +119,7 @@ export function FichaUnidad({
             {config.singular}
           </p>
           <h3 className="font-display text-2xl leading-tight">{unidad.codigo}</h3>
-          {unidad.sector ? (
+          {unidad.sector && !sectorEnDatos ? (
             <p className="mt-0.5 text-sm text-foreground-muted">{unidad.sector}</p>
           ) : null}
         </div>
@@ -123,8 +136,6 @@ export function FichaUnidad({
       </div>
 
       <div className="space-y-6 px-5 py-5">
-        {media}
-
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="font-display text-2xl">{formatPrecio(unidad.precio, unidad.moneda)}</p>
@@ -143,6 +154,8 @@ export function FichaUnidad({
             </div>
           ))}
         </dl>
+
+        {media}
 
         {children}
 
