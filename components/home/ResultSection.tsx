@@ -34,13 +34,20 @@ export function ResultSection() {
           )}
         </div>
 
-        <div className="mt-4 flex justify-end">
+        {/* Main way into the full demo: a large filled button, not a quiet text link. */}
+        <div className="mt-8 flex justify-center">
           <Link
             href="/demos/torre-aldrey"
             onClick={() => trackDemoClick("selector")}
-            className="text-sm font-medium text-foreground transition-colors duration-200 hover:text-primary"
+            className="btn btn-primary group min-h-14 w-full px-8 text-base shadow-[var(--shadow-panel)] sm:w-auto"
           >
-            Abrir en pantalla completa →
+            Abrir en pantalla completa
+            <span
+              aria-hidden="true"
+              className="transition-transform duration-200 group-hover:translate-x-1"
+            >
+              →
+            </span>
           </Link>
         </div>
       </div>
