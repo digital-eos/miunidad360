@@ -32,6 +32,13 @@ export function Header() {
           ))}
         </nav>
         <div className="flex shrink-0 items-center gap-2">
+          {/* Live listings for buyers; phones reach them from the footer. */}
+          <Link
+            href="/publicaciones"
+            className="hidden rounded-md px-3 py-2 text-sm font-medium text-foreground-muted transition-colors duration-150 hover:bg-surface-muted hover:text-foreground sm:inline-flex"
+          >
+            Publicaciones
+          </Link>
           {/* Leaves the homepage, unlike the section links: drawn as a button with an arrow. */}
           <Link href="/demos" className="btn btn-secondary btn-sm">
             Ver demos <span aria-hidden="true">→</span>
