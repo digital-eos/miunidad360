@@ -107,6 +107,29 @@ salen de la migración `0003_proyectos_privados` (`npm run db:migrate`).
 Los comandos de Drizzle leen `.env`; para usar `.env.local`:
 `DOTENV_CONFIG_PATH=.env.local npm run db:migrate`.
 
+### Cuentas de clientes (`/admin`)
+
+Cada **cliente** (desarrolladora, estudio o loteo) es dueño de sus proyectos
+(`projects.cliente_id`). Las personas entran a `/admin` con un **link mágico** por email
+(Better Auth + Resend). No hay registro público: solo entra quien creó un superadmin.
+
+- **superadmin**: ve y edita todo, incluidas las demos sin cliente. En
+  `/admin/clientes` crea clientes y usuarios y asigna proyectos a clientes.
+- **cliente**: solo ve y edita los proyectos, unidades y leads de su cliente.
+- La contraseña `ADMIN_PASSWORD` sigue funcionando como superadmin hasta que se quite.
+
+Los permisos se validan en el servidor, en cada Server Action y en cada consulta
+(`lib/auth/permisos.ts`), no solo en la interfaz. El pedido de link tiene rate limit
+(`lib/rate-limit.ts`) por IP y por email.
+
+Variables: `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `RESEND_API_KEY`, `EMAIL_FROM` (ver
+`.env.example`). Sin `RESEND_API_KEY`, en desarrollo el link se imprime en la consola del
+servidor. Tablas: migración `0004_clientes_usuarios`. El seed crea «Cliente de prueba» con
+el usuario `cliente.prueba@example.com`, dueño de `barrio-demo`.
+
+Test de permisos (usa la base de `.env.local`, crea y borra sus propios datos):
+`npm run test:permisos`.
+
 ## Scripts
 
 | Comando             | Qué hace                                      |
@@ -119,6 +142,7 @@ Los comandos de Drizzle leen `.env`; para usar `.env.local`:
 | `npm run db:migrate`  | Aplica las migraciones a la base de datos       |
 | `npm run db:studio`   | Abre Drizzle Studio                            |
 | `npm run db:seed`     | Carga los proyectos y unidades de demo         |
+| `npm run test:permisos` | Test de permisos por cliente (base de `.env.local`) |
 
 ## Deploy en Vercel
 
@@ -215,6 +239,10 @@ que `.env.example`, valores de producción)
 - [ ] `ADMIN_PASSWORD` y `ADMIN_SESSION_SECRET` — valores únicos y largos para producción,
       distintos de los que se usan en local (`ADMIN_SESSION_SECRET` se genera con
       `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`).
+- [ ] `BETTER_AUTH_SECRET` — otro secreto aleatorio de 32 bytes (mismo comando).
+- [ ] `BETTER_AUTH_URL` — el dominio final, sin barra final (ej. `https://miunidad360.com`).
+- [ ] `RESEND_API_KEY` — clave de Resend, y `EMAIL_FROM` — remitente en un dominio
+      verificado en Resend (ej. `MiUnidad360 <acceso@miunidad360.com>`).
 
 **Base Neon de producción**
 - [ ] Crear (o confirmar) el proyecto/rama de Neon dedicado a producción — no reutilizar la

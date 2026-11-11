@@ -3,13 +3,29 @@ import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import { eq } from "drizzle-orm";
 import * as schema from "./schema";
-import { defaultBuildingConfig, apartmentId, APARTMENT_LETTERS } from "@/lib/three/building-config";
+import {
+  defaultBuildingConfig,
+  apartmentId,
+  APARTMENT_LETTERS,
+} from "@/lib/three/building-config";
 import { apartmentOrientation } from "@/lib/three/building-layout";
-import { UNIT_PLAN_PROFILES, computeUnitPrice, assignUnitStatuses } from "@/lib/units/demo-data";
+import {
+  UNIT_PLAN_PROFILES,
+  computeUnitPrice,
+  assignUnitStatuses,
+} from "@/lib/units/demo-data";
 import { BIM_PROJECT_SLUG, bimFallbackUnidades } from "@/lib/bim/dataset";
-import { LOTES_PROJECT_NAME, LOTES_PROJECT_SLUG, buildLotesUnidades } from "@/lib/lotes/data";
+import {
+  LOTES_PROJECT_NAME,
+  LOTES_PROJECT_SLUG,
+  buildLotesUnidades,
+} from "@/lib/lotes/data";
 import type { Unidad } from "@/lib/unidades/types";
-import { CATALUNA_PROJECT, CATALUNA_SLUG, catalunaUnidades } from "@/lib/three/cataluna-ii";
+import {
+  CATALUNA_PROJECT,
+  CATALUNA_SLUG,
+  catalunaUnidades,
+} from "@/lib/three/cataluna-ii";
 
 /**
  * Seeds the demo projects. Existing units are left untouched (so prices and statuses
@@ -58,7 +74,9 @@ const PROJECTS: ProjectSeed[] = [
 function edificioDemoUnidades(): Unidad[] {
   const { floors, apartmentsPerFloor } = defaultBuildingConfig;
   if (apartmentsPerFloor !== APARTMENT_LETTERS.length) {
-    throw new Error("La configuración del edificio no coincide con las letras de apartamento.");
+    throw new Error(
+      "La configuración del edificio no coincide con las letras de apartamento."
+    );
   }
   const statuses = assignUnitStatuses(floors * apartmentsPerFloor);
   const rows: Unidad[] = [];
@@ -109,7 +127,8 @@ function toRow(u: Unidad, proyectoId: number): schema.NewUnidad {
     codigo: u.codigo,
     sector: u.sector,
     superficieM2: u.superficieM2.toFixed(2),
-    superficieTerrenoM2: u.superficieTerrenoM2 == null ? null : u.superficieTerrenoM2.toFixed(2),
+    superficieTerrenoM2:
+      u.superficieTerrenoM2 == null ? null : u.superficieTerrenoM2.toFixed(2),
     orientacion: u.orientacion,
     precio: u.precio,
     moneda: u.moneda,
@@ -142,13 +161,53 @@ async function main() {
     const inserted = await db
       .insert(schema.unidades)
       .values(rows)
-      .onConflictDoNothing({ target: [schema.unidades.proyectoId, schema.unidades.codigo] })
+      .onConflictDoNothing({
+        target: [schema.unidades.proyectoId, schema.unidades.codigo],
+      })
       .returning({ id: schema.unidades.id });
 
     console.log(
-      `${project.name} (${project.slug}): ${rows.length} unidades, ${inserted.length} nuevas.`,
+      `${project.name} (${project.slug}): ${rows.length} unidades, ${inserted.length} nuevas.`
     );
   }
+
+  await seedCuentas(db);
+}
+
+/**
+ * A test client with one user, owner of barrio-demo, to try the cliente role in /admin.
+ * The other demo projects stay without a client (superadmin only). Idempotent.
+ */
+const CLIENTE_PRUEBA = { nombre: "Cliente de prueba", tipo: "loteo" as const };
+const USUARIO_PRUEBA = {
+  email: "cliente.prueba@example.com",
+  nombre: "Usuario de prueba",
+};
+const PROYECTO_PRUEBA = LOTES_PROJECT_SLUG; // barrio-demo
+
+async function seedCuentas(db: ReturnType<typeof drizzle<typeof schema>>) {
+  let [cliente] = await db
+    .select()
+    .from(schema.clientes)
+    .where(eq(schema.clientes.nombre, CLIENTE_PRUEBA.nombre))
+    .limit(1);
+  if (!cliente) {
+    [cliente] = await db.insert(schema.clientes).values(CLIENTE_PRUEBA).returning();
+  }
+
+  await db
+    .insert(schema.usuarios)
+    .values({ ...USUARIO_PRUEBA, rol: "cliente", clienteId: cliente.id })
+    .onConflictDoNothing({ target: schema.usuarios.email });
+
+  await db
+    .update(schema.projects)
+    .set({ clienteId: cliente.id })
+    .where(eq(schema.projects.slug, PROYECTO_PRUEBA));
+
+  console.log(
+    `Cuentas: «${cliente.nombre}» (id ${cliente.id}), usuario ${USUARIO_PRUEBA.email}, dueño de ${PROYECTO_PRUEBA}.`
+  );
 }
 
 main().catch((error) => {
