@@ -5,7 +5,6 @@ import { Logo } from "@/components/brand/Logo";
 
 /** Sections of the homepage. The demo catalogue is its own page: see the button below. */
 const NAV_LINKS = [
-  { href: "/#para-quien", label: "Para quién" },
   { href: "/#como-funciona", label: "Cómo funciona" },
   { href: "/#resultado", label: "El resultado" },
   { href: "/#contacto", label: "Contacto" },

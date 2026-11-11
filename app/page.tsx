@@ -1,7 +1,6 @@
 import { productJsonLd } from "@/lib/structured-data";
 import { Header } from "@/components/Header";
 import { Hero } from "@/components/home/Hero";
-import { ForWhom } from "@/components/home/ForWhom";
 import { ProjectTypes } from "@/components/home/ProjectTypes";
 import { Privacy } from "@/components/home/Privacy";
 import { HowItWorksSection } from "@/components/home/HowItWorksSection";
@@ -20,7 +19,6 @@ export default function Home() {
       <Header />
       <main className="flex flex-1 flex-col">
         <Hero />
-        <ForWhom />
         <HowItWorksSection />
         <ResultSection />
         <ProjectTypes />

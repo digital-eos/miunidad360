@@ -147,11 +147,7 @@ export function HowItWorksSection() {
           description="Vos nos pasás los planos y los datos de cada unidad. Nosotros armamos tu proyecto en 3D, sea un edificio o un loteo, y te lo entregamos listo para compartir."
         />
 
-        <div className="mt-10">
-          <ResultSlideshow />
-        </div>
-
-        <ol className="mt-14 grid gap-10 md:grid-cols-3 md:gap-8">
+        <ol className="mt-10 grid gap-10 md:grid-cols-3 md:gap-8">
           {STEPS.map((step, index) => (
             <li key={step.title}>
               {step.visual}
@@ -166,24 +162,11 @@ export function HowItWorksSection() {
           ))}
         </ol>
 
-        <p className="mt-8 text-xs leading-relaxed text-foreground-muted/80">
-          Capturas de la demo Torre Aldrey. Precios y estados ficticios.
-        </p>
-
-        {/* The stock: the central promise once the project is live. */}
-        <div className="mt-10 rounded-lg border border-border-subtle bg-surface-muted p-5 sm:p-7">
-          <h3 className="font-display text-2xl leading-tight sm:text-3xl">
-            Precio y disponibilidad, siempre al día
-          </h3>
-          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-foreground-muted sm:text-base">
-            Tus compradores ven el estado de cada unidad, no una lista de precios vieja. Cuando reservás o vendés una
-            unidad, o cambiás un precio, nos avisás y lo actualizamos en el 3D.{" "}
-            <span className="font-semibold text-foreground">Próximamente</span> vas a poder
-            hacerlo vos mismo, con tu propio acceso.
-          </p>
+        <div className="mt-14">
+          <ResultSlideshow />
         </div>
 
-        <div className="mt-6">
+        <div className="mt-10">
           <a href="#resultado" className="btn btn-secondary">
             Recorrer en 3D ↓
           </a>
