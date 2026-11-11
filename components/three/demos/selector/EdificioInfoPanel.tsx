@@ -66,6 +66,10 @@ export type EdificioInfoPanelProps = {
   onHoverUnit: (code: string | null) => void;
   sunHoursVerano: number | null;
   sunHoursInvierno: number | null;
+  /** Interior photos of the selected unit, shown under its floor plan. */
+  selectedPhotos?: string[];
+  /** Opens the sample apartment interior; no button when not set. */
+  onViewInterior?: () => void;
   className?: string;
 };
 
@@ -87,6 +91,8 @@ export function EdificioInfoPanel({
   onHoverUnit,
   sunHoursVerano,
   sunHoursInvierno,
+  selectedPhotos = [],
+  onViewInterior,
   className,
 }: EdificioInfoPanelProps) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -141,13 +147,37 @@ export function EdificioInfoPanel({
             backLabel={focusFloor === null ? "Todas las unidades" : `Unidades del piso ${focusFloor}`}
             nota="Modelo 3D ilustrativo."
             media={
-              <div className="rounded-lg border border-border-subtle bg-surface-muted p-3">
-                <FloorPlanSvg
-                  bedrooms={attrNumber(selectedUnit, "dormitorios") ?? 1}
-                  areaM2={selectedUnit.superficieM2}
-                  balconyM2={attrNumber(selectedUnit, "balcon_m2") ?? 0}
-                  className="w-full"
-                />
+              <div className="space-y-3">
+                <div className="rounded-lg border border-border-subtle bg-surface-muted p-3">
+                  <FloorPlanSvg
+                    bedrooms={attrNumber(selectedUnit, "dormitorios") ?? 1}
+                    areaM2={selectedUnit.superficieM2}
+                    balconyM2={attrNumber(selectedUnit, "balcon_m2") ?? 0}
+                    className="w-full"
+                  />
+                </div>
+                {selectedPhotos.length ? (
+                  <div className="grid grid-cols-2 gap-3">
+                    {selectedPhotos.slice(0, 2).map((src, i) => (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        key={src}
+                        src={src}
+                        alt={`${selectedUnit.codigo}, foto ${i + 1}`}
+                        className="aspect-[4/3] w-full rounded-lg object-cover"
+                      />
+                    ))}
+                  </div>
+                ) : null}
+                {onViewInterior ? (
+                  <button
+                    type="button"
+                    onClick={onViewInterior}
+                    className="btn btn-primary w-full"
+                  >
+                    Ver el interior en 3D <span aria-hidden="true">→</span>
+                  </button>
+                ) : null}
               </div>
             }
           >

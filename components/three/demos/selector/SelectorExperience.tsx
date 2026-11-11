@@ -45,7 +45,7 @@ import {
 const loadDepartamento = () =>
   import("../departamento/DepartamentoExperience").then((mod) => mod.DepartamentoExperience);
 
-/** The apartment interior opened by a card's "Ver"; loaded only when needed. */
+/** The apartment interior opened from the unit panel; loaded only when needed. */
 const DepartamentoExperience = dynamic(loadDepartamento, {
   ssr: false,
   loading: () => <div className="h-[100svh] w-full bg-background" />,
@@ -57,7 +57,7 @@ const FADE_MS = 400;
 const config = CATALUNA_CONFIG;
 const layoutById = new Map(generateApartmentLayout(config).map((apt) => [apt.id, apt]));
 
-/** Interior renders shown in the pinned card, picked by the unit's room count. */
+/** Interior renders shown in the unit panel, picked by the unit's room count. */
 const PHOTOS_BY_TYPE = {
   dosAmbientes: [
     "/projects/edificio-demo/fotos/dos-ambientes-1.webp",
@@ -470,7 +470,7 @@ export function SelectorExperience({
     [selectedUnit],
   );
 
-  // A pinned card offers "Ver": load the apartment view ahead so the switch is instant.
+  // The unit panel offers the interior: load the apartment view ahead so the switch is instant.
   useEffect(() => {
     if (selectedUnit && !embedded) void loadDepartamento();
   }, [selectedUnit, embedded]);
@@ -705,29 +705,10 @@ export function SelectorExperience({
         </>
       ) : null}
 
-      {/* Selected unit's card: docked top right so it never covers the opened unit. */}
-      {selectedUnit && sceneReady ? (
-        // Phones: below the back button and right of the floor selector.
-        <div className="absolute top-16 right-4 left-[4.75rem] z-[25] md:top-6 md:right-6 md:left-auto">
-          <UnitPin
-            unit={selectedUnit}
-            photos={unitPhotos(selectedUnit)}
-            pinned
-            onView={embedded ? undefined : () => switchVista("departamento")}
-            onClose={() => handleSelectUnit(null)}
-          />
-        </div>
-      ) : null}
-      {/* Hover preview, moved over its unit every frame by the scene. */}
+      {/* Hover preview, moved over its unit every frame by the scene. A clicked unit gets
+          no card over the 3D: its details open in the panel beside the view. */}
       <div ref={previewRef} className="pointer-events-none invisible absolute top-0 left-0 z-[26]">
-        {previewUnit && sceneReady ? (
-          <UnitPin
-            key={previewUnit.codigo}
-            unit={previewUnit}
-            photos={unitPhotos(previewUnit)}
-            pinned={false}
-          />
-        ) : null}
+        {previewUnit && sceneReady ? <UnitPin key={previewUnit.codigo} unit={previewUnit} /> : null}
       </div>
 
       <div
@@ -829,7 +810,7 @@ export function SelectorExperience({
         ref={embedded ? undefined : frameRef}
         className={
           embedded
-            ? "grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]"
+            ? "grid gap-4 lg:grid-cols-[minmax(0,1fr)_400px]"
             : fullscreenFrameClass(frameExpanded, "flex flex-col lg:h-[80svh] lg:flex-row")
         }
       >
@@ -866,12 +847,14 @@ export function SelectorExperience({
               ? (sunHoursCache[civilDateKey(invierno)]?.[meshId(selectedUnit)] ?? null)
               : null
           }
+          selectedPhotos={selectedUnit ? unitPhotos(selectedUnit) : []}
+          onViewInterior={embedded ? undefined : () => switchVista("departamento")}
           className={
             embedded
               ? "h-[70vh] rounded-lg border border-border-subtle"
               : frameExpanded
-                ? "max-h-[40dvh] border-t border-border-subtle lg:h-full lg:max-h-none lg:w-[400px] lg:border-t-0 lg:border-l"
-                : "border-t border-border-subtle lg:h-full lg:w-[400px] lg:border-t-0 lg:border-l"
+                ? "max-h-[40dvh] border-t border-border-subtle lg:h-full lg:max-h-none lg:w-[460px] lg:border-t-0 lg:border-l"
+                : "border-t border-border-subtle lg:h-full lg:w-[460px] lg:border-t-0 lg:border-l"
           }
         />
         {embedded ? null : fade}
