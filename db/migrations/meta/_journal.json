@@ -22,6 +22,13 @@
       "when": 1793890847537,
       "tag": "0002_unidades",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794423088982,
+      "tag": "0003_proyectos_privados",
+      "breakpoints": true
     }
   ]
 }

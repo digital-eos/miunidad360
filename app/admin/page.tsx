@@ -12,6 +12,7 @@ import { LogoSymbol } from "@/components/brand/Logo";
 import { AdminLoginForm } from "./AdminLoginForm";
 import { UnitsTable } from "./UnitsTable";
 import { LeadsTable } from "./LeadsTable";
+import { ProyectoVisibilidad } from "./ProyectoVisibilidad";
 import { adminLogout } from "./actions";
 
 export const metadata: Metadata = {
@@ -97,6 +98,21 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
               </Link>
             ))}
           </nav>
+        ) : null}
+
+        {project ? (
+          <section>
+            <h2 className="mb-3 text-lg font-semibold">Visibilidad</h2>
+            <ProyectoVisibilidad
+              key={project.id}
+              proyecto={{
+                id: project.id,
+                slug: project.slug,
+                privado: project.privado,
+                tienePassword: project.passwordHash !== null,
+              }}
+            />
+          </section>
         ) : null}
 
         <section>

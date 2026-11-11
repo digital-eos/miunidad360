@@ -118,9 +118,9 @@ function DeliveryVisual() {
 
 const STEPS: { title: string; description: string; visual: ReactNode }[] = [
   {
-    title: "Nos mandás planos y datos",
+    title: "Nos mandás los planos o el modelo",
     description:
-      "El plano de cada unidad y una planilla con su superficie, su precio y su estado. Nada más.",
+      "Planos, renders o tu modelo 3D, y una planilla con la superficie, el precio y el estado de cada unidad.",
     visual: <InputVisual />,
   },
   {
@@ -130,9 +130,9 @@ const STEPS: { title: string; description: string; visual: ReactNode }[] = [
     visual: <BuildVisual />,
   },
   {
-    title: "Lo recibís como un link",
+    title: "Compartís el link y recibís consultas",
     description:
-      "Lo mandás por WhatsApp, lo sumás a la web del proyecto o lo ponés en un QR en el cartel de obra.",
+      "Cada proyecto con su link privado: lo mandás por WhatsApp, lo sumás a tu web o lo ponés en un QR de obra. Tus compradores te consultan desde la ficha de cada unidad.",
     visual: <DeliveryVisual />,
   },
 ];
@@ -143,8 +143,8 @@ export function HowItWorksSection() {
       <Container>
         <SectionHeading
           eyebrow="Cómo funciona"
-          title="De tus planos a un link que tus clientes recorren"
-          description="Vos nos pasás los planos y los datos de cada unidad. Nosotros armamos tu proyecto en 3D, sea un edificio, un loteo o un parque de galpones, y te lo entregamos listo para compartir."
+          title="De tus planos a un link que tus compradores recorren"
+          description="Vos nos pasás los planos y los datos de cada unidad. Nosotros armamos tu proyecto en 3D, sea un edificio o un loteo, y te lo entregamos listo para compartir."
         />
 
         <div className="mt-10">
@@ -169,6 +169,19 @@ export function HowItWorksSection() {
         <p className="mt-8 text-xs leading-relaxed text-foreground-muted/80">
           Capturas de la demo Torre Aldrey. Precios y estados ficticios.
         </p>
+
+        {/* The stock: the central promise once the project is live. */}
+        <div className="mt-10 rounded-lg border border-border-subtle bg-surface-muted p-5 sm:p-7">
+          <h3 className="font-display text-2xl leading-tight sm:text-3xl">
+            Precio y disponibilidad, siempre al día
+          </h3>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-foreground-muted sm:text-base">
+            Tus compradores ven el estado de cada unidad, no una lista de precios vieja. Cuando reservás o vendés una
+            unidad, o cambiás un precio, nos avisás y lo actualizamos en el 3D.{" "}
+            <span className="font-semibold text-foreground">Próximamente</span> vas a poder
+            hacerlo vos mismo, con tu propio acceso.
+          </p>
+        </div>
 
         <div className="mt-6">
           <a href="#resultado" className="btn btn-secondary">

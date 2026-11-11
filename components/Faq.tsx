@@ -20,7 +20,12 @@ const FAQS = [
   {
     question: "¿Cómo actualizo la disponibilidad de las unidades?",
     answer:
-      "Nos avisás qué unidad se vendió o reservó y actualizamos el estado. Más adelante vas a poder hacerlo vos mismo desde un panel.",
+      "Hoy nos avisás qué unidad se vendió o se reservó, o qué precio cambió, y lo actualizamos en el 3D. Próximamente vas a poder hacerlo vos mismo, con tu propio acceso.",
+  },
+  {
+    question: "¿Mi proyecto queda público?",
+    answer:
+      "No hace falta. Cada proyecto tiene su link privado: podés pedir que no lo indexen los buscadores y protegerlo con una contraseña.",
   },
   {
     question: "¿Dónde se hospeda la experiencia?",

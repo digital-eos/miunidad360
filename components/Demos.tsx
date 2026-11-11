@@ -30,31 +30,18 @@ const BLOQUES: Bloque[] = [
     titulo: "Edificios",
     cards: [
       {
-        kind: "bim",
-        href: BIM_DEMO_PATH,
-        title: featuredProject.nombre,
-        description:
-          "Un modelo de arquitectura real: tocá una unidad, cortalo por piso o mirá el avance de obra.",
-      },
-      {
         kind: "selector",
         href: "/demos/torre-aldrey",
         title: "Torre Aldrey",
         description:
           "El edificio en su ubicación real: filtrá por ambientes, precio y piso, y abrí la ficha de cada departamento.",
       },
-    ],
-  },
-  {
-    id: "departamentos",
-    titulo: "Departamentos",
-    cards: [
       {
-        kind: "departamento",
-        href: "/demos/departamento",
-        title: "Torre Aldrey · Unidad 103",
+        kind: "bim",
+        href: BIM_DEMO_PATH,
+        title: featuredProject.nombre,
         description:
-          "Un departamento real en 3D, generado desde el plano del folleto: tocá un ambiente y mirá sus medidas y renders.",
+          "Un modelo de arquitectura real: tocá una unidad, cortalo por piso o mirá el avance de obra.",
       },
     ],
   },
@@ -72,6 +59,19 @@ const BLOQUES: Bloque[] = [
     ],
   },
   {
+    id: "departamentos",
+    titulo: "Departamentos",
+    cards: [
+      {
+        kind: "departamento",
+        href: "/demos/departamento",
+        title: "Torre Aldrey · Unidad 103",
+        description:
+          "Un departamento real en 3D, generado desde el plano del folleto: tocá un ambiente y mirá sus medidas y renders.",
+      },
+    ],
+  },
+  {
     id: "galpones",
     titulo: "Galpones",
     cards: [],
@@ -81,13 +81,6 @@ const BLOQUES: Bloque[] = [
       src: "/images/demos/galpones.webp",
       alt: "Vista 3D de un parque de galpones: cada nave pintada según su disponibilidad",
     },
-  },
-  {
-    id: "hoteles",
-    titulo: "Hoteles & SPA",
-    cards: [],
-    proximamente:
-      "Una demo para hoteles y spas: habitaciones y suites con su disponibilidad, y los amenities.",
   },
 ];
 
@@ -120,7 +113,7 @@ export function Demos() {
                   <Link
                     key={demo.kind}
                     href={demo.href}
-                    onClick={() => trackDemoClick(demo.kind)}
+                    onClick={() => trackDemoClick(demo.kind, "demos-page")}
                     className={cardClasses}
                   >
                     <div className="relative aspect-[16/10] overflow-hidden border-b border-border-subtle bg-surface-muted">

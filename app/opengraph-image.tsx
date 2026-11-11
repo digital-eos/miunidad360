@@ -31,7 +31,7 @@ export default async function OpengraphImage() {
       </div>
       <div style={{ fontSize: 88, marginTop: 24, lineHeight: 1.1 }}>miunidad360</div>
       <div style={{ fontSize: 34, marginTop: 24, color: "#5f6564", maxWidth: 900 }}>
-        Transformá tu propiedad en una experiencia 3D interactiva.
+        Vendé tus unidades en pozo con un recorrido 3D interactivo.
       </div>
     </div>,
     { ...size }

@@ -10,6 +10,7 @@ import {
   uniqueIndex,
   bigint,
   jsonb,
+  boolean,
 } from "drizzle-orm/pg-core";
 
 /** Estado comercial de una unidad (el nombre del tipo en Postgres se mantiene por compatibilidad). */
@@ -42,6 +43,10 @@ export const projects = pgTable("projects", {
   latitude: doublePrecision("latitude"),
   longitude: doublePrecision("longitude"),
   description: text("description"),
+  /** Privado: la página del proyecto no se indexa ni figura en el sitemap. */
+  privado: boolean("privado").notNull().default(false),
+  /** Hash scrypt de la contraseña de acceso (lib/proyectos/acceso.ts). Null = sin contraseña. */
+  passwordHash: text("password_hash"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

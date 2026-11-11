@@ -2,8 +2,9 @@ import { track } from "@vercel/analytics";
 
 export type DemoKind = "selector" | "bim" | "lotes" | "departamento";
 
-export function trackDemoClick(demo: DemoKind) {
-  track("demo_click", { demo });
+/** `source` says where the click came from (`hero`, `home-result`, `demos-page`…). */
+export function trackDemoClick(demo: DemoKind, source?: string) {
+  track("demo_click", source ? { demo, source } : { demo });
 }
 
 export function trackWhatsAppClick(source: string) {

@@ -22,7 +22,10 @@ export function FloatingWhatsApp() {
   const pathname = usePathname();
   const { active: captureActive } = useCaptureMode();
 
-  if (pathname?.startsWith("/admin") || captureActive) return null;
+  // Client project pages carry the client's own contact, not ours.
+  if (pathname?.startsWith("/admin") || pathname?.startsWith("/proyectos/") || captureActive) {
+    return null;
+  }
 
   const number = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "";
   const message = PAGE_MESSAGES[pathname ?? "/"] ?? DEFAULT_MESSAGE;

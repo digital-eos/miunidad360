@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { unidades } from "@/db/schema";
+import { projects, unidades } from "@/db/schema";
+import { hashPassword, MIN_PASSWORD_LENGTH } from "@/lib/proyectos/acceso";
 import {
   ADMIN_COOKIE_NAME,
   ADMIN_SESSION_TTL_SECONDS,
@@ -84,5 +85,42 @@ export async function updateUnidadPrecio(unidadId: number, precio: number) {
     .update(unidades)
     .set({ precio: Math.round(precio), updatedAt: new Date() })
     .where(eq(unidades.id, unidadId));
+  revalidatePath("/admin");
+}
+
+/** Private link: the project page is not indexed nor listed in the sitemap. */
+export async function updateProyectoPrivado(proyectoId: number, privado: boolean) {
+  await requireAdminSession();
+  await db.update(projects).set({ privado: Boolean(privado) }).where(eq(projects.id, proyectoId));
+  revalidatePath("/admin");
+}
+
+export type ProyectoPasswordResult = { success: boolean; error?: string };
+
+/** Sets (or replaces) the project's password; every visitor has to enter the new one. */
+export async function setProyectoPassword(
+  proyectoId: number,
+  _prev: ProyectoPasswordResult | null,
+  formData: FormData,
+): Promise<ProyectoPasswordResult> {
+  await requireAdminSession();
+  const password = String(formData.get("password") ?? "");
+  if (password.length < MIN_PASSWORD_LENGTH) {
+    return {
+      success: false,
+      error: `La contraseña necesita al menos ${MIN_PASSWORD_LENGTH} caracteres.`,
+    };
+  }
+  await db
+    .update(projects)
+    .set({ passwordHash: hashPassword(password) })
+    .where(eq(projects.id, proyectoId));
+  revalidatePath("/admin");
+  return { success: true };
+}
+
+export async function clearProyectoPassword(proyectoId: number) {
+  await requireAdminSession();
+  await db.update(projects).set({ passwordHash: null }).where(eq(projects.id, proyectoId));
   revalidatePath("/admin");
 }

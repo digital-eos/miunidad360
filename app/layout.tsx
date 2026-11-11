@@ -23,18 +23,18 @@ const dmSerif = DM_Serif_Display({
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://miunidad360.com";
 
 const HERO_DESCRIPTION =
-  "Edificios, departamentos, casas, lotes o galpones: convertimos tus planos, renders o modelo BIM en una publicación 3D con su propio link. Tus compradores tocan cada unidad y ven su superficie, precio y disponibilidad desde el navegador.";
+  "Vendé tus unidades en pozo con un recorrido 3D interactivo: tus compradores exploran el proyecto, ven precio y disponibilidad de cada unidad y te consultan por WhatsApp. Cada proyecto con su link privado.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "MiUnidad360 · Transformá tu propiedad en una experiencia 3D interactiva",
+    default: "MiUnidad360 · Vendé tus unidades en pozo con un recorrido 3D interactivo",
     template: "%s · MiUnidad360",
   },
   description: HERO_DESCRIPTION,
   keywords: [
     "visualización 3D interactiva",
-    "publicaciones 3D inmobiliarias",
+    "recorrido 3D interactivo",
     "propiedades en 3D",
     "edificios en 3D",
     "departamentos en 3D",
@@ -54,12 +54,12 @@ export const metadata: Metadata = {
     locale: "es_AR",
     url: siteUrl,
     siteName: "MiUnidad360",
-    title: "MiUnidad360 · Transformá tu propiedad en una experiencia 3D interactiva",
+    title: "MiUnidad360 · Vendé tus unidades en pozo con un recorrido 3D interactivo",
     description: HERO_DESCRIPTION,
   },
   twitter: {
     card: "summary_large_image",
-    title: "MiUnidad360 · Transformá tu propiedad en una experiencia 3D interactiva",
+    title: "MiUnidad360 · Vendé tus unidades en pozo con un recorrido 3D interactivo",
     description: HERO_DESCRIPTION,
   },
 };

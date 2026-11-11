@@ -85,6 +85,28 @@ npm run dev
 
 Abrí [http://localhost:3000](http://localhost:3000).
 
+## Proyectos de clientes y confidencialidad
+
+Las demos de `/demos` son públicas y se indexan siempre. Los proyectos de clientes viven en
+`/proyectos/<slug>`, cada uno con su link:
+
+1. Creá la fila del proyecto en la tabla `projects` (mismo `slug` que la página).
+2. Registrá su página en `app/proyectos/[slug]/registro.tsx` (`PROYECTOS[slug] = { Contenido }`).
+3. En `/admin`, bloque **Visibilidad** del proyecto:
+   - **Link privado** (`projects.privado`): la página lleva `<meta name="robots" content="noindex">`
+     y no aparece en `/sitemap.xml`.
+   - **Contraseña** (`projects.password_hash`): la página pide la contraseña antes de mostrar
+     el proyecto, y `/api/projects/<slug>/unidades` responde 401 sin acceso (y sin caché
+     compartida). Se guarda como hash scrypt; un proyecto con contraseña tampoco se indexa.
+     Al entrar se guarda una cookie firmada por proyecto (30 días); cambiar o quitar la
+     contraseña la invalida.
+
+La cookie se firma con `ADMIN_SESSION_SECRET` (no hace falta otra variable). Las columnas
+salen de la migración `0003_proyectos_privados` (`npm run db:migrate`).
+
+Los comandos de Drizzle leen `.env`; para usar `.env.local`:
+`DOTENV_CONFIG_PATH=.env.local npm run db:migrate`.
+
 ## Scripts
 
 | Comando             | Qué hace                                      |
@@ -114,8 +136,9 @@ Abrí [http://localhost:3000](http://localhost:3000).
 
 Se trackean estos eventos personalizados con `@vercel/analytics` (`lib/analytics.ts`):
 
-- `demo_click` — clic en una tarjeta de demo (`selector`, `bim`, `lotes`)
-- `whatsapp_click` — clic en cualquier botón de WhatsApp, con el origen (`hero`, `header`,
+- `demo_click` — clic hacia una demo (`selector`, `bim`, `lotes`, `departamento`), con el origen
+  cuando se conoce (`hero`, `home-result`, `demos-page`)
+- `whatsapp_click` — clic en cualquier botón de WhatsApp, con el origen (`header`,
   `contact-section`, `floating-button`, `demo-{demo}-end`, `selector-unidad`, …)
 - `form_submit` — intento de envío de un formulario (contacto general o CTA de fin de demo)
 - `filter_used` — se aplicó un filtro en el selector de unidades

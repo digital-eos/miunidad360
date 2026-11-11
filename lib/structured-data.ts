@@ -20,7 +20,7 @@ export function productJsonLd() {
     "@type": "Product",
     name: "MiUnidad360",
     description:
-      "Departamentos, casas, lotes, locales o naves: tus clientes tocan una unidad en el 3D y ven su superficie, precio, disponibilidad, asoleamiento y avance de obra. Partimos de tus renders, planos o modelo BIM y te devolvemos un link para compartir.",
+      "Recorridos 3D interactivos para vender unidades en pozo: tus compradores tocan una unidad y ven su superficie, precio y disponibilidad, y te consultan por WhatsApp. Partimos de tus planos, renders o modelo 3D; cada proyecto tiene su link privado, con contraseña opcional.",
     brand: {
       "@type": "Brand",
       name: "MiUnidad360",
@@ -33,7 +33,7 @@ export function productJsonLd() {
     image: `${siteUrl}/opengraph-image`,
     audience: {
       "@type": "Audience",
-      audienceType: "Promotores inmobiliarios, inmobiliarias y estudios de arquitectura",
+      audienceType: "Desarrolladoras, loteos y barrios, estudios de arquitectura y render",
     },
   };
 }

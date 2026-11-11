@@ -20,7 +20,7 @@ export function ResultSection() {
     >
       <Container>
         <SectionHeading
-          title="El resultado: lo que recorren tus clientes"
+          title="El resultado: lo que recorren tus compradores"
           description="Tocá una unidad para ver su precio, su plano y su disponibilidad. Filtrá por ambientes, orientación o piso."
         />
       </Container>
@@ -38,7 +38,7 @@ export function ResultSection() {
         <div className="mt-8 flex justify-center">
           <Link
             href="/demos/torre-aldrey"
-            onClick={() => trackDemoClick("selector")}
+            onClick={() => trackDemoClick("selector", "home-result")}
             className="btn btn-primary group min-h-14 w-full px-8 text-base shadow-[var(--shadow-panel)] sm:w-auto"
           >
             Abrir en pantalla completa

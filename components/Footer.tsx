@@ -13,9 +13,6 @@ export function Footer() {
           </p>
         </div>
         <nav aria-label="Pie de página" className="flex flex-wrap gap-6 text-sm text-foreground-muted">
-          <Link href="/publicaciones" className="transition-colors duration-150 hover:text-primary">
-            Publicaciones
-          </Link>
           <Link href="/demos" className="transition-colors duration-150 hover:text-primary">
             Demos
           </Link>

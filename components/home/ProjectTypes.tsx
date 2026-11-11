@@ -23,18 +23,18 @@ const TYPES: ProjectType[] = [
     alt: "Un edificio en 3D sobre el mapa de su barrio",
   },
   {
-    id: "departamentos",
-    title: "Departamentos",
-    unit: "El interior de una unidad: cada ambiente con sus medidas.",
-    image: "departamento",
-    alt: "Un departamento en 3D visto desde arriba, con sus ambientes",
-  },
-  {
     id: "lotes",
     title: "Lotes",
     unit: "Barrios y loteos: cada lote con su superficie y su precio.",
     image: "lotes",
     alt: "Un barrio cerrado en 3D con los lotes pintados según su disponibilidad",
+  },
+  {
+    id: "departamentos",
+    title: "Departamentos",
+    unit: "El interior de una unidad: cada ambiente con sus medidas.",
+    image: "departamento",
+    alt: "Un departamento en 3D visto desde arriba, con sus ambientes",
   },
   {
     id: "galpones",
@@ -90,7 +90,7 @@ export function ProjectTypes() {
         </ul>
 
         <p className="mt-6 text-sm text-foreground-muted">
-          También casas y locales. Y estamos preparando una demo para hoteles y spas.{" "}
+          También casas y locales.{" "}
           <Link
             href="/demos"
             className="font-semibold text-primary hover:underline hover:underline-offset-4"

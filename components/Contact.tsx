@@ -22,8 +22,8 @@ export function Contact() {
           <Reveal>
             <SectionHeading
               eyebrow="Contacto"
-              title="Contanos sobre tu proyecto"
-              description="Dejanos tus datos y te respondemos para coordinar una demo, o escribinos directo por WhatsApp."
+              title="Llevá tu proyecto en pozo a un recorrido 3D"
+              description="Contanos qué estás vendiendo y te mostramos cómo se vería con tus unidades, sus precios y su disponibilidad. Escribinos por WhatsApp o dejanos tus datos."
             />
             <div className="mt-8">
               <WhatsAppButton source="contact-section" />
