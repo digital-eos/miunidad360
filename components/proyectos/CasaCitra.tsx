@@ -5,6 +5,8 @@ import { GaleriaEditorial } from "./GaleriaEditorial";
 import { PlantasInteractivas } from "./PlantasInteractivas";
 import { PortadaCinematica } from "./PortadaCinematica";
 import { VideoProyecto } from "./VideoProyecto";
+import { CasaCitraCanvas } from "@/components/three/proyectos/casa-citra/CasaCitraCanvas";
+import { DIRECCION_FICTICIA } from "@/lib/proyectos/casa-citra-3d";
 import {
   CASA_CITRA_AUTOR,
   DATOS_CASA_CITRA,
@@ -61,6 +63,21 @@ export function CasaCitra() {
               </h2>
             </div>
             <VideoProyecto video={VIDEO_CASA_CITRA} />
+          </div>
+
+          <div id="casa-3d" className="mb-16 sm:mb-24">
+            <div className="mb-8 flex flex-wrap items-end justify-between gap-4 sm:mb-10">
+              <div>
+                <p className="eyebrow">En 3D</p>
+                <h2 className="mt-2 font-display text-4xl leading-tight sm:text-5xl">Recorré la casa</h2>
+                <p className="mt-2 text-sm text-foreground-muted">{DIRECCION_FICTICIA}</p>
+              </div>
+              <p className="max-w-sm text-sm leading-relaxed text-foreground-muted">
+                Elegí un nivel para ver adentro y tocá un ambiente para ver sus medidas. Mové el
+                sol para ver la luz en cada estación.
+              </p>
+            </div>
+            <CasaCitraCanvas />
           </div>
 
           <div className="mb-8 flex flex-wrap items-end justify-between gap-4 sm:mb-10">

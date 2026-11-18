@@ -117,6 +117,8 @@ const PB_FONDO = 3.85;
 const PB_RADIO = 1.6;
 const PB_IZQ = 0.35;
 const PB_DER = 11.0;
+/** The same volume's measurements, for the 3D model. */
+export const VOLUMEN_PB_MEDIDAS = { izq: PB_IZQ, der: PB_DER, fondo: PB_FONDO, radio: PB_RADIO };
 const VOLUMEN_PB = [
   `M${PB_IZQ + PB_RADIO} 0`,
   `H${PB_DER - PB_RADIO}`,
