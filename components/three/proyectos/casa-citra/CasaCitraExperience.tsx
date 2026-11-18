@@ -2,7 +2,8 @@
 
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { PerformanceMonitor } from "@react-three/drei";
 import { AnimatePresence, motion } from "motion/react";
 import { CameraRig, type Viewpoint } from "@/components/three/CameraRig";
 import { PostFX } from "@/components/three/visual/PostFX";
@@ -87,6 +88,55 @@ function moverCorte(plane: THREE.Plane, hasta: number, delta: number) {
     Math.abs(plane.constant - hasta) < 0.005 ? hasta : THREE.MathUtils.damp(plane.constant, hasta, 6, delta);
 }
 
+/**
+ * The shadow map is drawn only when something that casts or receives a shadow changed: the
+ * sun, the cut, the wood growing during the descent. The scene is otherwise still (the camera
+ * moving doesn't change shadows), so this saves the costliest pass on most frames.
+ */
+function modoSombras(gl: THREE.WebGLRenderer, automaticas: boolean) {
+  gl.shadowMap.autoUpdate = automaticas;
+  gl.shadowMap.needsUpdate = true;
+}
+
+type UltimoEstado = { corte: number; blend: number; sol: string };
+
+/** Asks for a new shadow map when the cut, the descent or the sun moved since last frame. */
+function revisarSombras(
+  gl: THREE.WebGLRenderer,
+  u: UltimoEstado,
+  corte: number,
+  blend: number,
+  sol: string
+) {
+  if (u.corte === corte && u.blend === blend && u.sol === sol) return;
+  u.corte = corte;
+  u.blend = blend;
+  u.sol = sol;
+  gl.shadowMap.needsUpdate = true;
+}
+
+function SombrasEstaticas({
+  plane,
+  sol,
+  blendRef,
+}: {
+  plane: THREE.Plane;
+  sol: THREE.Vector3;
+  blendRef: React.RefObject<MapBlend> | null;
+}) {
+  const get = useThree((s) => s.get);
+  const ultimo = useRef<UltimoEstado>({ corte: NaN, blend: NaN, sol: "" });
+  const solKey = sol.toArray().map((v) => v.toFixed(4)).join(",");
+  useEffect(() => {
+    modoSombras(get().gl, false);
+    return () => modoSombras(get().gl, true);
+  }, [get]);
+  useFrame(({ gl }) =>
+    revisarSombras(gl, ultimo.current, plane.constant, blendRef ? blendRef.current.value : 1, solKey)
+  );
+  return null;
+}
+
 /** Glides the cutting plane to its target height instead of snapping. */
 function Corte({ plane, hasta }: { plane: THREE.Plane; hasta: number }) {
   useFrame((_, delta) => moverCorte(plane, hasta, delta));
@@ -107,6 +157,14 @@ function vistaDeNivel(i: number | null, isMobile: boolean): Viewpoint {
 
 export function CasaCitraExperience() {
   const isMobile = useIsMobile();
+  // Same as Torre Aldrey: never above the screen's own density, never below 1 (under it the
+  // lines turn soft and the image pixelates); on a slow GPU the effects go first.
+  const screenDpr = typeof window === "undefined" ? 1 : window.devicePixelRatio || 1;
+  const maxDpr = Math.min(screenDpr, isMobile ? 1.5 : 2);
+  const minDpr = Math.min(1, maxDpr);
+  const [dpr, setDpr] = useState(maxDpr);
+  /** 0 everything, 1 no ambient occlusion, 2 also no soft shadows and half the antialiasing. */
+  const [efectos, setEfectos] = useState<0 | 1 | 2>(0);
   const [nivel, setNivel] = useState<number | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
@@ -206,21 +264,34 @@ export function CasaCitraExperience() {
         onWheel={saltarIntro}
       >
         <Canvas
-          shadows
-          dpr={[1, isMobile ? 1.5 : 2]}
+          shadows="percentage"
+          dpr={dpr}
           frameloop={visible ? "always" : "never"}
           camera={{ fov: 35, near: 0.5, far: conMapa ? 3000 : 600, position: vista.position }}
-          gl={{ antialias: true, localClippingEnabled: true }}
-          onCreated={({ gl }) => {
-            gl.localClippingEnabled = true;
-            gl.toneMapping = THREE.ACESFilmicToneMapping;
+          gl={{
+            // Desktop renders through the effects composer, which antialiases itself: canvas
+            // MSAA there would only cost memory. Mobile has no composer.
+            antialias: isMobile,
+            powerPreference: "high-performance",
+            localClippingEnabled: true,
+            toneMapping: THREE.ACESFilmicToneMapping,
           }}
           onPointerMissed={() => setSelected(null)}
         >
+          <PerformanceMonitor
+            bounds={() => [50, 58]}
+            onDecline={() => {
+              if (!isMobile && efectos < 2) setEfectos((e) => (e < 2 ? ((e + 1) as 1 | 2) : e));
+              else setDpr((d) => Math.max(minDpr, d - 0.25));
+            }}
+            onIncline={() => setDpr((d) => Math.min(maxDpr, d + 0.25))}
+          />
+          <SombrasEstaticas plane={plane} sol={sol} blendRef={conMapa ? blendRef : null} />
           <Corte plane={plane} hasta={nivel === null ? SIN_CORTE : NIVELES[nivel].base + CORTE} />
           <CasaCitraEntorno
             sol={sol}
             isMobile={isMobile}
+            sombrasSuaves={!isMobile && efectos < 2}
             blendRef={conMapa ? blendRef : null}
             calles={conMapa ? calles : null}
           />
@@ -283,7 +354,9 @@ export function CasaCitraExperience() {
             maxDistance={27}
           />
           )}
-          {isMobile ? null : <PostFX aoRadius={1.2} multisampling={4} />}
+          {isMobile ? null : (
+            <PostFX aoRadius={1.2} ssao={efectos < 1} multisampling={efectos >= 2 ? 2 : 4} />
+          )}
         </Canvas>
 
         {conMapa && mapaListo ? <MapAttribution text={atribucion} /> : null}

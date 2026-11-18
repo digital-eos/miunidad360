@@ -244,9 +244,12 @@ function SueloMaqueta({ blendRef, calles }: { blendRef: RefObject<MapBlend>; cal
 export function CasaCitraEntorno({
   sol,
   isMobile,
+  sombrasSuaves = !isMobile,
   blendRef = null,
   calles = null,
 }: {
+  /** Soft penumbras (PCSS): the first thing dropped on a slow GPU. */
+  sombrasSuaves?: boolean;
   /** Unit vector toward the sun, scene frame. */
   sol: THREE.Vector3;
   isMobile: boolean;
@@ -276,17 +279,18 @@ export function CasaCitraEntorno({
         intensity={intensidad}
         color={color}
         castShadow
-        shadow-mapSize={isMobile ? [2048, 2048] : [4096, 4096]}
+        // Same budget as Torre Aldrey: 2048² over ±40 m (≈4 cm a texel); 1024² on phones.
+        shadow-mapSize={isMobile ? [1024, 1024] : [2048, 2048]}
         shadow-camera-near={1}
-        shadow-camera-far={220}
-        shadow-camera-left={-50}
-        shadow-camera-right={50}
-        shadow-camera-top={50}
-        shadow-camera-bottom={-50}
+        shadow-camera-far={200}
+        shadow-camera-left={-40}
+        shadow-camera-right={40}
+        shadow-camera-top={40}
+        shadow-camera-bottom={-40}
         shadow-bias={-0.0004}
         shadow-normalBias={0.03}
       />
-      {isMobile ? null : <SoftShadows size={14} samples={10} focus={0.7} />}
+      {sombrasSuaves ? <SoftShadows size={14} samples={10} focus={0.7} /> : null}
 
       {conMapa && blendRef ? (
         <SueloMaqueta blendRef={blendRef} calles={calles} />
