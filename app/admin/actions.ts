@@ -13,7 +13,7 @@ import {
   createSessionToken,
 } from "@/lib/admin/auth";
 import { requireActor } from "@/lib/auth/actor";
-import { getAuth } from "@/lib/auth/server";
+import { authConfigurada, getAuth } from "@/lib/auth/server";
 import {
   assertProyecto,
   assertUnidad,
@@ -85,6 +85,9 @@ export async function iniciarSesion(
   });
   if (!parsed.success) return { error: CREDENCIALES_INVALIDAS };
   const { email, password } = parsed.data;
+  if (!authConfigurada()) {
+    return { error: "Las cuentas no están activas: falta BETTER_AUTH_SECRET en la configuración del servidor." };
+  }
 
   if (
     isRateLimited(`login:ip:${await clientIp()}`) ||

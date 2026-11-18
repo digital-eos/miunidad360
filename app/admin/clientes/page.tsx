@@ -8,6 +8,7 @@ import { clientes, projects, usuarios } from "@/db/schema";
 import { getActor } from "@/lib/auth/actor";
 import { LogoSymbol } from "@/components/brand/Logo";
 import { proyectoPath } from "@/lib/proyectos/rutas";
+import { authConfigurada } from "@/lib/auth/server";
 import {
   AsignarProyectoForm,
   CrearClienteForm,
@@ -76,6 +77,14 @@ export default async function ClientesPage() {
             Volver al panel
           </Link>
         </header>
+
+        {authConfigurada() ? null : (
+          <p role="alert" className="rounded-lg border border-highlight bg-surface p-4 text-sm">
+            Las cuentas no están activas en este servidor: falta la variable{" "}
+            <code>BETTER_AUTH_SECRET</code> (y <code>BETTER_AUTH_URL</code>). Agregalas en Vercel y
+            volvé a desplegar para poder crear cuentas y contraseñas.
+          </p>
+        )}
 
         <div className="grid gap-6 lg:grid-cols-3">
           <CrearClienteForm />

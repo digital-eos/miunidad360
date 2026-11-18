@@ -7,6 +7,12 @@ import { db } from "@/lib/db";
 import { clientes, projects, usuarios } from "@/db/schema";
 import { requireSuperadmin } from "@/lib/auth/actor";
 import { asignarPasswordNueva } from "@/lib/auth/passwords";
+import { authConfigurada } from "@/lib/auth/server";
+
+const SIN_AUTH: FormResult = {
+  ok: false,
+  error: "Las cuentas no están activas: falta BETTER_AUTH_SECRET en la configuración del servidor.",
+};
 
 /** Superadmin-only actions: every one checks the role on the server before writing. */
 
@@ -72,6 +78,7 @@ export async function crearUsuario(
     clienteId: String(formData.get("clienteId") ?? ""),
   });
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message };
+  if (!authConfigurada()) return SIN_AUTH;
   const { email, nombre, rol } = parsed.data;
   const clienteId =
     rol === "cliente" && parsed.data.clienteId !== "" ? parsed.data.clienteId : null;
@@ -112,6 +119,7 @@ export async function regenerarPassword(
   _prev: FormResult | null
 ): Promise<FormResult> {
   await requireSuperadmin();
+  if (!authConfigurada()) return SIN_AUTH;
   const id = idSchema.safeParse(usuarioId);
   if (!id.success) return { ok: false, error: "Ese usuario no existe." };
   const [usuario] = await db

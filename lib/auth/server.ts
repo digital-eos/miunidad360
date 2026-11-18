@@ -58,6 +58,14 @@ function createAuth() {
   });
 }
 
+/**
+ * False when BETTER_AUTH_SECRET is missing (e.g. not yet set in Vercel). Then client
+ * accounts are off, but /admin still loads and the ADMIN_PASSWORD login keeps working.
+ */
+export function authConfigurada(): boolean {
+  return Boolean(process.env.BETTER_AUTH_SECRET);
+}
+
 let cached: ReturnType<typeof createAuth> | undefined;
 
 export function getAuth() {

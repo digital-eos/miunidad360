@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { usuarios } from "@/db/schema";
 import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/admin/auth";
-import { getAuth } from "./server";
+import { authConfigurada, getAuth } from "./server";
 import { assertSuperadmin, NoAutorizadoError, type Actor } from "./permisos";
 
 export type { Actor } from "./permisos";
@@ -20,6 +20,7 @@ export async function getActor(): Promise<Actor | null> {
     return { rol: "superadmin", usuarioId: null, clienteId: null, email: null };
   }
 
+  if (!authConfigurada()) return null;
   const session = await getAuth().api.getSession({ headers: await headers() });
   if (!session) return null;
 
