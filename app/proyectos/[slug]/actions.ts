@@ -10,6 +10,7 @@ import {
   verifyPassword,
 } from "@/lib/proyectos/acceso";
 import { isRateLimited } from "@/lib/rate-limit";
+import { proyectoPath } from "@/lib/proyectos/rutas";
 
 export type UnlockResult = { error?: string };
 
@@ -30,7 +31,8 @@ export async function unlockProyecto(
   }
 
   const proyecto = await getProyectoAcceso(slug);
-  if (!proyecto?.passwordHash) redirect(`/proyectos/${slug}`);
+  const destino = proyectoPath(slug) ?? "/";
+  if (!proyecto?.passwordHash) redirect(destino);
   if (!verifyPassword(password, proyecto.passwordHash)) {
     return { error: "Contraseña incorrecta." };
   }
@@ -44,5 +46,5 @@ export async function unlockProyecto(
     // "/" so the units API (/api/projects/<slug>/unidades) receives it too.
     path: "/",
   });
-  redirect(`/proyectos/${slug}`);
+  redirect(destino);
 }

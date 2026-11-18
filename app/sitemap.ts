@@ -3,6 +3,7 @@ import { connection } from "next/server";
 import { BIM_DEMO_PATH } from "@/lib/bim/route";
 import { getProyectoAcceso, isNoIndex } from "@/lib/proyectos/acceso";
 import { PROYECTOS } from "@/app/proyectos/[slug]/registro";
+import { proyectoPath } from "@/lib/proyectos/rutas";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://miunidad360.com";
 
@@ -20,7 +21,9 @@ async function publicProjectRoutes(): Promise<string[]> {
   await connection();
   try {
     const rows = await Promise.all(slugs.map((slug) => getProyectoAcceso(slug)));
-    return rows.filter((p) => p !== null && !isNoIndex(p)).map((p) => `/proyectos/${p!.slug}`);
+    return rows
+      .filter((p) => p !== null && !isNoIndex(p))
+      .flatMap((p) => proyectoPath(p!.slug) ?? []);
   } catch {
     return [];
   }

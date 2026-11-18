@@ -10,6 +10,7 @@ import { BIM_PROJECT_SLUG, bimFallbackUnidades } from "@/lib/bim/dataset";
 import { LOTES_PROJECT_NAME, LOTES_PROJECT_SLUG, buildLotesUnidades } from "@/lib/lotes/data";
 import type { Unidad } from "@/lib/unidades/types";
 import { CATALUNA_PROJECT, CATALUNA_SLUG, catalunaUnidades } from "@/lib/three/cataluna-ii";
+import { CASA_CITRA_PROJECT, CASA_CITRA_SLUG } from "@/lib/proyectos/casa-citra";
 
 /**
  * Seeds the demo projects. Existing units are left untouched (so prices and statuses
@@ -53,6 +54,7 @@ const PROJECTS: ProjectSeed[] = [
     longitude: null,
     description: "Barrio ficticio. Datos e imágenes ilustrativos.",
   },
+  CASA_CITRA_PROJECT,
 ];
 
 function edificioDemoUnidades(): Unidad[] {
@@ -100,6 +102,8 @@ const UNIDADES_BY_PROJECT: Record<string, () => Unidad[]> = {
   [CATALUNA_SLUG]: catalunaUnidades,
   [BIM_PROJECT_SLUG]: () => bimFallbackUnidades,
   [LOTES_PROJECT_SLUG]: () => buildLotesUnidades(),
+  // A single house: nothing to sell unit by unit.
+  [CASA_CITRA_SLUG]: () => [],
 };
 
 function toRow(u: Unidad, proyectoId: number): schema.NewUnidad {
@@ -139,11 +143,13 @@ async function main() {
     if (RESET) {
       await db.delete(schema.unidades).where(eq(schema.unidades.proyectoId, project.id));
     }
-    const inserted = await db
-      .insert(schema.unidades)
-      .values(rows)
-      .onConflictDoNothing({ target: [schema.unidades.proyectoId, schema.unidades.codigo] })
-      .returning({ id: schema.unidades.id });
+    const inserted = rows.length
+      ? await db
+          .insert(schema.unidades)
+          .values(rows)
+          .onConflictDoNothing({ target: [schema.unidades.proyectoId, schema.unidades.codigo] })
+          .returning({ id: schema.unidades.id })
+      : [];
 
     console.log(
       `${project.name} (${project.slug}): ${rows.length} unidades, ${inserted.length} nuevas.`,

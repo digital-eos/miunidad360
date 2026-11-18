@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { trackWhatsAppClick } from "@/lib/analytics";
 import { useCaptureMode } from "@/lib/hooks/use-capture-mode";
+import { esPaginaDeCliente } from "@/lib/proyectos/rutas";
 
 const PAGE_MESSAGES: Record<string, string> = {
   "/": "¡Hola! Quiero pedir una demo de MiUnidad360 para mi desarrollo.",
@@ -23,7 +24,12 @@ export function FloatingWhatsApp() {
   const { active: captureActive } = useCaptureMode();
 
   // Client project pages carry the client's own contact, not ours.
-  if (pathname?.startsWith("/admin") || pathname?.startsWith("/proyectos/") || captureActive) {
+  if (
+    pathname?.startsWith("/admin") ||
+    pathname?.startsWith("/proyectos/") ||
+    esPaginaDeCliente(pathname) ||
+    captureActive
+  ) {
     return null;
   }
 
