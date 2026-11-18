@@ -107,6 +107,37 @@ salen de la migración `0003_proyectos_privados` (`npm run db:migrate`).
 Los comandos de Drizzle leen `.env`; para usar `.env.local`:
 `DOTENV_CONFIG_PATH=.env.local npm run db:migrate`.
 
+### Cuentas de clientes (`/admin`)
+
+Cada **cliente** (desarrolladora, estudio o loteo) es dueño de sus proyectos
+(`projects.cliente_id`). Las personas entran a `/admin` con **email y contraseña**
+(Better Auth). No hay registro público ni contraseñas elegidas: un superadmin crea la cuenta
+en `/admin/clientes` y el sitio genera la contraseña, que se muestra una sola vez. Si el
+cliente la olvida, «Nueva contraseña» genera otra y cierra sus sesiones abiertas.
+
+- **superadmin**: ve y edita todo, incluidas las demos sin cliente. En
+  `/admin/clientes` crea clientes y cuentas, genera contraseñas y asigna proyectos.
+- **cliente**: ve sus proyectos con el link de cada página, y edita sus unidades y leads.
+
+Los clientes reales y sus proyectos se definen en código (`lib/proyectos/rutas.ts`):
+`npm run db:seed` los crea y les asigna sus proyectos. Ese mismo archivo da el link de
+cada proyecto, `/<cliente>/<slug>` (ej. `/diegovargas/casa-citra`).
+- La contraseña `ADMIN_PASSWORD` sigue funcionando como superadmin hasta que se quite.
+
+Los permisos se validan en el servidor, en cada Server Action y en cada consulta
+(`lib/auth/permisos.ts`), no solo en la interfaz. El login tiene rate limit
+(`lib/rate-limit.ts`) por IP y por email.
+
+Las páginas de proyecto ya no tienen contraseña propia: se comparten por link privado (no
+indexado). La columna `projects.password_hash` queda en la base, sin uso, por si un cliente
+lo vuelve a pedir.
+
+Variables: `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` (ver `.env.example`). Tablas: migración `0004_clientes_usuarios`. El seed crea «Cliente de prueba» con
+el usuario `cliente.prueba@example.com`, dueño de `barrio-demo`.
+
+Test de permisos (usa la base de `.env.local`, crea y borra sus propios datos):
+`npm run test:permisos`.
+
 ## Scripts
 
 | Comando             | Qué hace                                      |
@@ -119,6 +150,7 @@ Los comandos de Drizzle leen `.env`; para usar `.env.local`:
 | `npm run db:migrate`  | Aplica las migraciones a la base de datos       |
 | `npm run db:studio`   | Abre Drizzle Studio                            |
 | `npm run db:seed`     | Carga los proyectos y unidades de demo         |
+| `npm run test:permisos` | Test de permisos por cliente (base de `.env.local`) |
 
 ## Deploy en Vercel
 
@@ -215,6 +247,8 @@ que `.env.example`, valores de producción)
 - [ ] `ADMIN_PASSWORD` y `ADMIN_SESSION_SECRET` — valores únicos y largos para producción,
       distintos de los que se usan en local (`ADMIN_SESSION_SECRET` se genera con
       `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`).
+- [ ] `BETTER_AUTH_SECRET` — otro secreto aleatorio de 32 bytes (mismo comando).
+- [ ] `BETTER_AUTH_URL` — el dominio final, sin barra final (ej. `https://miunidad360.com`).
 
 **Base Neon de producción**
 - [ ] Crear (o confirmar) el proyecto/rama de Neon dedicado a producción — no reutilizar la

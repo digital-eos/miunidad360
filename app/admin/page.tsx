@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { cookies } from "next/headers";
 import { connection } from "next/server";
-import { asc, desc, eq } from "drizzle-orm";
-import { db } from "@/lib/db";
-import { leads, projects, unidades } from "@/db/schema";
-import { toUnidad } from "@/lib/unidades/types";
-import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/admin/auth";
+import { getActor } from "@/lib/auth/actor";
+import { leadsVisibles, proyectosVisibles, unidadesDeProyecto } from "@/lib/admin/datos";
 import { cn } from "@/lib/utils";
+import { proyectoPath } from "@/lib/proyectos/rutas";
 import { LogoSymbol } from "@/components/brand/Logo";
 import { AdminLoginForm } from "./AdminLoginForm";
 import { UnitsTable } from "./UnitsTable";
@@ -27,11 +24,10 @@ const DEFAULT_PROJECT_SLUG = "edificio-demo";
 
 export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
   await connection();
-  const cookieStore = await cookies();
-  const token = cookieStore.get(ADMIN_COOKIE_NAME)?.value;
-  const authenticated = await verifySessionToken(token);
+  const actor = await getActor();
+  const params = await searchParams;
 
-  if (!authenticated) {
+  if (!actor) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-background px-6">
         <AdminLoginForm />
@@ -39,25 +35,19 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
     );
   }
 
-  const params = await searchParams;
   const requestedSlug = typeof params.proyecto === "string" ? params.proyecto : null;
 
-  const projectList = await db.select().from(projects).orderBy(asc(projects.id));
+  // Scoped to the actor: a cliente never loads another client's project, whatever the URL says.
+  const projectList = await proyectosVisibles(actor);
   const project =
     projectList.find((p) => p.slug === requestedSlug) ??
     projectList.find((p) => p.slug === DEFAULT_PROJECT_SLUG) ??
     projectList[0];
 
-  const unidadList = project
-    ? (
-        await db
-          .select()
-          .from(unidades)
-          .where(eq(unidades.proyectoId, project.id))
-          .orderBy(asc(unidades.id))
-      ).map(toUnidad)
-    : [];
-  const leadList = await db.select().from(leads).orderBy(desc(leads.createdAt)).limit(100);
+  const [unidadList, leadList] = await Promise.all([
+    project ? unidadesDeProyecto(actor, project.id) : Promise.resolve([]),
+    leadsVisibles(actor),
+  ]);
 
   return (
     <main className="min-h-screen bg-background px-6 py-12 sm:px-10">
@@ -66,19 +56,58 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
           <div>
             <div className="mb-3 flex items-center gap-3">
               <LogoSymbol className="h-6 w-6" />
-              <p className="eyebrow">Admin</p>
+              <p className="eyebrow">{actor.rol === "superadmin" ? "Admin" : "Mi cuenta"}</p>
             </div>
             <h1 className="font-display text-3xl">{project?.name ?? "Sin proyectos"}</h1>
+            <p className="mt-1 text-sm text-foreground-muted">
+              {actor.email ?? "Contraseña de administrador"} ·{" "}
+              {actor.rol === "superadmin" ? "Superadmin" : "Cliente"}
+            </p>
           </div>
-          <form action={adminLogout}>
-            <button
-              type="submit"
-              className="btn btn-secondary btn-sm"
-            >
-              Cerrar sesión
-            </button>
-          </form>
+          <div className="flex items-center gap-2">
+            {actor.rol === "superadmin" ? (
+              <Link href="/admin/clientes" className="btn btn-secondary btn-sm">
+                Clientes y cuentas
+              </Link>
+            ) : null}
+            <form action={adminLogout}>
+              <button type="submit" className="btn btn-secondary btn-sm">
+                Cerrar sesión
+              </button>
+            </form>
+          </div>
         </header>
+
+        {projectList.length === 0 ? (
+          <p className="text-sm text-foreground-muted">
+            Todavía no tenés proyectos asignados. Escribinos y lo configuramos.
+          </p>
+        ) : null}
+
+        {projectList.length > 0 ? (
+          <section>
+            <h2 className="mb-3 text-lg font-semibold">
+              {actor.rol === "superadmin" ? "Proyectos" : "Mis proyectos"}
+            </h2>
+            <ul className="divide-y divide-border-subtle rounded-lg border border-border-subtle bg-surface">
+              {projectList.map((p) => {
+                const link = proyectoPath(p.slug);
+                return (
+                  <li key={p.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3 text-sm">
+                    <span className="font-medium">{p.name}</span>
+                    {link ? (
+                      <a href={link} target="_blank" rel="noopener" className="btn btn-secondary btn-sm">
+                        Ver página <span aria-hidden>↗</span>
+                      </a>
+                    ) : (
+                      <span className="text-foreground-muted">Sin página propia</span>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        ) : null}
 
         {projectList.length > 1 ? (
           <nav aria-label="Proyectos" className="flex flex-wrap gap-2">
@@ -91,7 +120,7 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
                   "rounded-md border px-4 py-1.5 text-sm transition-colors duration-200",
                   p.id === project?.id
                     ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border-subtle hover:border-primary hover:text-primary",
+                    : "border-border-subtle hover:border-primary hover:text-primary"
                 )}
               >
                 {p.name}
@@ -109,19 +138,23 @@ export default async function AdminPage({ searchParams }: PageProps<"/admin">) {
                 id: project.id,
                 slug: project.slug,
                 privado: project.privado,
-                tienePassword: project.passwordHash !== null,
               }}
             />
           </section>
         ) : null}
 
-        <section>
-          <h2 className="mb-3 text-lg font-semibold">Unidades ({unidadList.length})</h2>
-          <UnitsTable key={project?.id} unidades={unidadList} />
-        </section>
+        {/* A single house (Casa Citra) has nothing to sell unit by unit. */}
+        {unidadList.length > 0 ? (
+          <section>
+            <h2 className="mb-3 text-lg font-semibold">Unidades ({unidadList.length})</h2>
+            <UnitsTable key={project?.id} unidades={unidadList} />
+          </section>
+        ) : null}
 
         <section>
-          <h2 className="mb-3 text-lg font-semibold">Leads recibidos ({leadList.length})</h2>
+          <h2 className="mb-3 text-lg font-semibold">
+            Leads recibidos ({leadList.length})
+          </h2>
           <LeadsTable leads={leadList} />
         </section>
       </div>

@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { asc, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { projects, unidades } from "@/db/schema";
 import { toUnidad } from "@/lib/unidades/types";
-import { accessCookieName, canAccess } from "@/lib/proyectos/acceso";
 import { CATALUNA_PROJECT, CATALUNA_SLUG, catalunaUnidades } from "@/lib/three/cataluna-ii";
 
 export async function GET(
@@ -30,18 +28,6 @@ export async function GET(
     return NextResponse.json({ error: "Proyecto no encontrado." }, { status: 404 });
   }
 
-  // Password-protected projects: same access cookie as their page, and never a shared cache.
-  const protegido = project.passwordHash !== null;
-  if (protegido) {
-    const cookieStore = await cookies();
-    if (!canAccess(project, cookieStore.get(accessCookieName(slug))?.value)) {
-      return NextResponse.json(
-        { error: "Acceso restringido." },
-        { status: 401, headers: { "Cache-Control": "private, no-store" } },
-      );
-    }
-  }
-
   const rows = await db
     .select()
     .from(unidades)
@@ -49,14 +35,8 @@ export async function GET(
     .orderBy(asc(unidades.id));
 
   return NextResponse.json(
-    // Never send the password hash to the browser (undefined fields are left out of the JSON).
+    // The unused password_hash column never reaches the browser (undefined is left out).
     { project: { ...project, passwordHash: undefined }, unidades: rows.map(toUnidad) },
-    {
-      headers: {
-        "Cache-Control": protegido
-          ? "private, no-store"
-          : "public, s-maxage=20, stale-while-revalidate=40",
-      },
-    },
+    { headers: { "Cache-Control": "public, s-maxage=20, stale-while-revalidate=40" } },
   );
 }
