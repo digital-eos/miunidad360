@@ -346,6 +346,7 @@ export function CasaCitraExperience() {
           {volando ? null : (
           <CameraRig
             startFromCurrent={conMapa}
+            pivotOnTarget
             target={vista}
             targetKey={`${nivel ?? "ext"}-${isMobile}`}
             autoRotateEnabled={nivel === null}

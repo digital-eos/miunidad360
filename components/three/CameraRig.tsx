@@ -32,6 +32,12 @@ type CameraRigProps = {
   startFromCurrent?: boolean;
   /** Length of a transition; defaults to TRANSITION_MS. */
   transitionMs?: number;
+  /**
+   * With startFromCurrent: pivot on the destination's target from the first frame instead of
+   * a point ahead of the camera. If the visitor grabs the view before the glide ends, they
+   * still orbit the building rather than a spot on the ground far from it.
+   */
+  pivotOnTarget?: boolean;
 };
 
 const TRANSITION_MS = 1300;
@@ -51,6 +57,7 @@ export function CameraRig({
   onInteractionChange,
   startFromCurrent = false,
   transitionMs = TRANSITION_MS,
+  pivotOnTarget = false,
 }: CameraRigProps) {
   const { camera, invalidate } = useThree();
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
@@ -77,7 +84,9 @@ export function CameraRig({
       const toTarget = new THREE.Vector3(...target.target);
       const forward = camera.getWorldDirection(new THREE.Vector3());
       const reach = camera.position.distanceTo(toTarget);
-      const fromTarget = camera.position.clone().addScaledVector(forward, reach);
+      const fromTarget = pivotOnTarget
+        ? toTarget.clone()
+        : camera.position.clone().addScaledVector(forward, reach);
       controls?.target.copy(fromTarget);
       if (camera.position.distanceTo(toPos) > 0.05) {
         transitionRef.current = {
