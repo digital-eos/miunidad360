@@ -102,8 +102,6 @@ export type Planta = {
 
 export const ANCHO = 12.25;
 export const PROFUNDIDAD = 6.7;
-/** No section was supplied: a standard 2.80 m floor to floor is assumed until there is one. */
-export const ALTURA_PISO = 2.8;
 
 const RECTANGULO = `M0 0H${ANCHO}V${PROFUNDIDAD}H0Z`;
 const ESCALERA: [number, number, number, number] = [2.95, 0.15, 3.4, 1.2];
@@ -117,8 +115,6 @@ const PB_FONDO = 3.85;
 const PB_RADIO = 1.6;
 const PB_IZQ = 0.35;
 const PB_DER = 11.0;
-/** The same volume's measurements, for the 3D model. */
-export const VOLUMEN_PB_MEDIDAS = { izq: PB_IZQ, der: PB_DER, fondo: PB_FONDO, radio: PB_RADIO };
 const VOLUMEN_PB = [
   `M${PB_IZQ + PB_RADIO} 0`,
   `H${PB_DER - PB_RADIO}`,

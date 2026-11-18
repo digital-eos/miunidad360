@@ -288,7 +288,7 @@ export function CasaCitraEntorno({
         shadow-camera-top={40}
         shadow-camera-bottom={-40}
         shadow-bias={-0.0004}
-        shadow-normalBias={0.03}
+        shadow-normalBias={0.08}
       />
       {sombrasSuaves ? <SoftShadows size={14} samples={10} focus={0.7} /> : null}
 

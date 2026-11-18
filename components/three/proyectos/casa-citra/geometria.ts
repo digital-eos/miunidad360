@@ -42,11 +42,6 @@ export function losa(shape: THREE.Shape, top: number, thickness: number) {
   return g;
 }
 
-/** Points along a room outline (plan meters), arcs sampled. */
-export function contorno(shape: THREE.Shape): THREE.Vector2[] {
-  return shape.getPoints(12);
-}
-
 /** A wall from plan point a to b, `height` tall from `base`, as a box in scene coordinates. */
 export function muroEntre(
   a: THREE.Vector2,
@@ -63,63 +58,48 @@ export function muroEntre(
   return g;
 }
 
-/** Where a facade runs on the plan: its start, its direction along, and its length. */
+/** Where a facade runs on the plan: its start and its direction along. */
 function lineaDeFachada(f: Fachada, grosor: number) {
   const m = grosor / 2;
   switch (f) {
     case "norte":
-      return { origen: new THREE.Vector2(m, 0), dir: new THREE.Vector2(0, 1), largo: PROFUNDIDAD };
+      return { origen: new THREE.Vector2(m, 0), dir: new THREE.Vector2(0, 1) };
     case "sur":
-      return { origen: new THREE.Vector2(ANCHO - m, 0), dir: new THREE.Vector2(0, 1), largo: PROFUNDIDAD };
+      return { origen: new THREE.Vector2(ANCHO - m, 0), dir: new THREE.Vector2(0, 1) };
     case "este":
-      return { origen: new THREE.Vector2(0, m), dir: new THREE.Vector2(1, 0), largo: ANCHO };
+      return { origen: new THREE.Vector2(0, m), dir: new THREE.Vector2(1, 0) };
     case "oeste":
-      return { origen: new THREE.Vector2(0, PROFUNDIDAD - m), dir: new THREE.Vector2(1, 0), largo: ANCHO };
+      return { origen: new THREE.Vector2(0, PROFUNDIDAD - m), dir: new THREE.Vector2(1, 0) };
   }
 }
 
-export type PiezasFachada = {
-  muros: THREE.BufferGeometry[];
+export type Cierres = {
   vidrios: THREE.BufferGeometry[];
   barandas: THREE.BufferGeometry[];
 };
 
-/**
- * One facade of one level: solid wall with its openings cut out (as separate boxes around
- * each hole), glass in the windows and glass railings across the open loggias.
- */
-export function fachada(
+/** What fills one facade's openings: glass in the windows, glass railings across the loggias. */
+export function cierres(
   f: Fachada,
   base: number,
-  altura: number,
   grosor: number,
   aberturas: Abertura[],
   barandaAltura: number
-): PiezasFachada {
-  const { origen, dir, largo } = lineaDeFachada(f, grosor);
+): Cierres {
+  const { origen, dir } = lineaDeFachada(f, grosor);
   const at = (t: number) => origen.clone().addScaledVector(dir, t);
-  const out: PiezasFachada = { muros: [], vidrios: [], barandas: [] };
+  const out: Cierres = { vidrios: [], barandas: [] };
   const push = (list: THREE.BufferGeometry[], g: THREE.BufferGeometry | null) => {
     if (g) list.push(g);
   };
-
-  const holes = [...aberturas].sort((p, q) => p.desde - q.desde);
-  let cursor = 0;
-  for (const h of holes) {
-    push(out.muros, muroEntre(at(cursor), at(h.desde), base, altura, grosor));
-    if (h.piso > 0) push(out.muros, muroEntre(at(h.desde), at(h.hasta), base, h.piso, grosor));
-    if (h.techo < altura) {
-      push(out.muros, muroEntre(at(h.desde), at(h.hasta), base + h.techo, altura - h.techo, grosor));
-    }
+  for (const h of aberturas) {
     if (h.vidrio) {
       push(out.vidrios, muroEntre(at(h.desde), at(h.hasta), base + h.piso, h.techo - h.piso, 0.03));
     }
     if (h.baranda) {
       push(out.barandas, muroEntre(at(h.desde), at(h.hasta), base, barandaAltura, 0.03));
     }
-    cursor = h.hasta;
   }
-  push(out.muros, muroEntre(at(cursor), at(largo), base, altura, grosor));
   return out;
 }
 

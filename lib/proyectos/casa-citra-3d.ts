@@ -1,11 +1,11 @@
 import * as THREE from "three";
 import type { GeoSite } from "@/lib/geo/site";
-import { ALTURA_PISO, ANCHO, PLANTAS, PROFUNDIDAD } from "./casa-citra";
+import { ANCHO, PLANTAS, PROFUNDIDAD } from "./casa-citra";
 
 /**
- * Casa Citra in 3D: the house rebuilt from the architect's plans (lib/proyectos/casa-citra.ts)
- * as a white study model. There is no section, so every level is ALTURA_PISO (2.80 m) floor
- * to floor, a standard height chosen with the client.
+ * Casa Citra in 3D: the architect's SketchUp model (the three-level copy, 12.25 × 6.70 m like
+ * the plans), converted to GLB. In that copy the windows and the stairs sit beside the house,
+ * so the glass, the railings and the stairs are added here, on the model's real openings.
  *
  * Plan coordinates are meters from the top-left corner of the sheets. On the sheets north
  * points left, so: plan left = north, up = east, right = south, down = west.
@@ -37,21 +37,34 @@ export const SITIO_SOL = { lat: SITIO_GEO.lat, lon: SITIO_GEO.lon };
 /** Streets around the lot (OpenStreetMap), meters east / north of SITIO_GEO. */
 export const CALLES_URL = "/geo/streets/casa-citra.json";
 
-export const LOSA = 0.25;
+/**
+ * The GLB and how it sits in the scene: its long side (file Z) becomes the plan's x, and its
+ * finished ground floor (0.15 m above the base plate) lands on y = 0.
+ */
+export const MODELO = {
+  url: "/projects/casa-citra/modelo.glb",
+  position: [0.525, -0.15, 0.592] as [number, number, number],
+  rotationY: Math.PI / 2,
+};
+
+/** Wall thickness used to seat the glass inside the openings. */
 export const MURO = 0.2;
-/** Parapets of the roof terrace and railings. */
+/** Glass railing of the 1st floor loggia. */
 export const BARANDA = 1.05;
 
 export type Nivel = { id: string; nombre: string; base: number };
 
+/** Finished floor of each level in the model, in meters. */
+const BASES = [0, 2.45, 5.35];
+
 export const NIVELES: Nivel[] = PLANTAS.map((p, i) => ({
   id: p.id,
   nombre: p.nombre,
-  base: i * ALTURA_PISO,
+  base: BASES[i],
 }));
 
-/** Top of the white box: the roof terrace's walls rise a full storey, like a frame. */
-export const ALTURA_TOTAL = NIVELES.length * ALTURA_PISO;
+/** Top of the model's roof parapet. */
+export const ALTURA_TOTAL = 7.95;
 
 /** Plan → scene. */
 export function planAEscena(x: number, y: number): [number, number] {
@@ -73,51 +86,35 @@ export type Abertura = {
 export type Fachada = "norte" | "sur" | "este" | "oeste";
 
 /**
- * Openings of the white box, read from the plans and the renders. North and south are the
- * short sides (along plan y); east and west the long ones (along plan x). The renders don't
- * agree with each other on every window, so these follow the plans: the loggias and terraces
- * where the plans show them, windows where a room needs one.
+ * Openings of the upper levels, measured on the model's facades. North and south are the short
+ * sides (along plan y); east and west the long ones (along plan x).
  */
 export const ABERTURAS: Record<string, Record<Fachada, Abertura[]>> = {
   "primer-piso": {
     // Loggia of the 1st floor terrace, open to the north.
-    norte: [{ desde: 1.4, hasta: 6.45, piso: 0, techo: 2.35, baranda: true }],
+    norte: [{ desde: 1.4, hasta: 6.44, piso: 0, techo: 2.58, baranda: true }],
     sur: [
-      { desde: 3.4, hasta: 3.7, piso: 0.3, techo: 2.4, vidrio: true },
-      { desde: 5.0, hasta: 5.3, piso: 0.3, techo: 2.4, vidrio: true },
+      { desde: 0.26, hasta: 0.54, piso: 0, techo: 2.0, vidrio: true },
+      { desde: 2.46, hasta: 2.74, piso: 0, techo: 2.0, vidrio: true },
     ],
-    // Street side: stair and toilette.
-    este: [
-      { desde: 6.6, hasta: 8.2, piso: 1.0, techo: 2.2, vidrio: true },
-      { desde: 10.5, hasta: 11.6, piso: 1.5, techo: 2.2, vidrio: true },
-    ],
-    // Garden side: living, kitchen and suite.
-    oeste: [
-      { desde: 2.2, hasta: 6.1, piso: 0.9, techo: 2.3, vidrio: true },
-      { desde: 6.7, hasta: 8.1, piso: 0.9, techo: 2.3, vidrio: true },
-      { desde: 9.6, hasta: 11.7, piso: 0.9, techo: 2.3, vidrio: true },
-    ],
+    este: [{ desde: 7.52, hasta: 8.6, piso: 0.92, techo: 2.0, vidrio: true }],
+    oeste: [{ desde: 3.26, hasta: 11.52, piso: 0.92, techo: 2.0, vidrio: true }],
   },
   terraza: {
-    norte: [{ desde: 1.4, hasta: 6.45, piso: 0, techo: 2.35, baranda: true }],
-    sur: [{ desde: 2.2, hasta: 4.6, piso: 0.9, techo: 2.2, vidrio: true }],
-    este: [
-      { desde: 0.6, hasta: 2.8, piso: 1.0, techo: 2.35 },
-      { desde: 10.3, hasta: 11.6, piso: 1.5, techo: 2.2, vidrio: true },
+    // The terrace looks out through open bands over its parapet.
+    norte: [{ desde: 1.4, hasta: 6.7, piso: 0.9, techo: 1.98 }],
+    sur: [
+      { desde: 0.26, hasta: 0.54, piso: 0, techo: 1.98, vidrio: true },
+      { desde: 4.96, hasta: 6.44, piso: 0.9, techo: 1.98, vidrio: true },
     ],
-    // The mirador opens to the west over the pines; the quincho has a window band.
+    este: [{ desde: 7.52, hasta: 7.8, piso: 0, techo: 1.98, vidrio: true }],
+    // Open along the mirador, glazed along the quincho.
     oeste: [
-      { desde: 0.6, hasta: 7.3, piso: 0, techo: 2.35, baranda: true },
-      { desde: 8.2, hasta: 11.6, piso: 0.9, techo: 2.3, vidrio: true },
+      { desde: 0, hasta: 7.45, piso: 0.9, techo: 1.98 },
+      { desde: 7.45, hasta: 11.52, piso: 0.9, techo: 1.98, vidrio: true },
     ],
   },
 };
-
-/** Roof slabs over the terrace level, plan [x, y, w, h]: the quincho and the mirador's eave. */
-export const TECHOS: [number, number, number, number][] = [
-  [7.45, 0, ANCHO - 7.45, PROFUNDIDAD],
-  [1.1, 1.3, 5.3, 4.7],
-];
 
 /** Where the camera starts and how far it may go. */
 export const VISTA_INICIAL = {
