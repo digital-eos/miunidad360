@@ -57,6 +57,16 @@ export const FOTOS_CASA_CITRA: Foto[] = [
   foto("maqueta", "Maqueta", "Maqueta de estudio de la casa, vista desde arriba con la terraza mirador"),
 ];
 
+/** Short film above the gallery: a drone rise from the path to above the pines. */
+export const VIDEO_CASA_CITRA = {
+  src: "/projects/casa-citra/video/vuelo.mp4",
+  poster: "/projects/casa-citra/video/vuelo-poster.webp",
+  width: 1280,
+  height: 720,
+  titulo: "Vuelo sobre el bosque",
+  descripcion: "Del sendero a las copas de los pinos: la casa vista desde el suelo hasta el aire.",
+};
+
 /** Renders shown full screen at the top of the page. */
 export const PORTADA_CASA_CITRA = FOTOS_CASA_CITRA.slice(0, 4);
 

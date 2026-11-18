@@ -4,6 +4,7 @@ import { Logo } from "@/components/brand/Logo";
 import { GaleriaEditorial } from "./GaleriaEditorial";
 import { PlantasInteractivas } from "./PlantasInteractivas";
 import { PortadaCinematica } from "./PortadaCinematica";
+import { VideoProyecto } from "./VideoProyecto";
 import {
   CASA_CITRA_AUTOR,
   DATOS_CASA_CITRA,
@@ -11,6 +12,7 @@ import {
   PLANOS_PDF,
   PLANTAS,
   PORTADA_CASA_CITRA,
+  VIDEO_CASA_CITRA,
 } from "@/lib/proyectos/casa-citra";
 
 /** /proyectos/casa-citra: the architect's presentation of the house, renders first. */
@@ -51,6 +53,16 @@ export function CasaCitra() {
 
       <section id="galeria" className="py-16 sm:py-24">
         <Container className="max-w-[1400px]">
+          <div className="mb-16 sm:mb-24">
+            <div className="mb-8 sm:mb-10">
+              <p className="eyebrow">Video</p>
+              <h2 className="mt-2 font-display text-4xl leading-tight sm:text-5xl">
+                {VIDEO_CASA_CITRA.titulo}
+              </h2>
+            </div>
+            <VideoProyecto video={VIDEO_CASA_CITRA} />
+          </div>
+
           <div className="mb-8 flex flex-wrap items-end justify-between gap-4 sm:mb-10">
             <div>
               <p className="eyebrow">Galería</p>
