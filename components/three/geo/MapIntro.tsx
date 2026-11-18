@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, type RefObject } from "react";
 import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
 import type { Viewpoint } from "@/components/three/CameraRig";
-import { SITE } from "@/lib/geo/site";
+import { useGeoSite } from "./site-context";
 import type { FlyoverCaption } from "./AerialFlyover";
 import type { MapBlend } from "./MapGround";
 
@@ -37,10 +37,11 @@ function easeInOutSine(t: number) {
 
 /**
  * Entrance over the 2D map: starts high above the neighborhood looking straight down, then
- * spirals down onto Buenos Aires 2771 and into the selector's overview. While high up, the fog
+ * spirals down onto the lot and into the scene's overview. While high up, the fog
  * is pushed back so the map stays readable; it returns to normal on landing.
  */
 export function MapIntro({ ready, endView, skipToken, onCaption, onComplete, blendRef }: Props) {
+  const site = useGeoSite();
   // Camera and scene are read through get(): they are mutated every frame, outside render.
   const get = useThree((s) => s.get);
   const invalidate = useThree((s) => s.invalidate);
@@ -137,7 +138,7 @@ export function MapIntro({ ready, endView, skipToken, onCaption, onComplete, ble
       if (ready) {
         s.phase = "hold";
         s.since = now;
-        setCaption("Mar del Plata");
+        setCaption(site.region);
       }
       return;
     }
@@ -155,7 +156,7 @@ export function MapIntro({ ready, endView, skipToken, onCaption, onComplete, ble
     const u = easeInOutSine(t);
     place(u);
     invalidate();
-    setCaption(u < 0.45 ? "Mar del Plata" : SITE.address);
+    setCaption(u < 0.45 ? site.region : site.address);
     if (t >= 1) finish();
   });
 

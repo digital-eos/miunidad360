@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import * as THREE from "three";
 import { useFrame, useThree } from "@react-three/fiber";
-import { SITE } from "@/lib/geo/site";
+import type { GeoSite } from "@/lib/geo/site";
+import { useGeoSite } from "./site-context";
 
 /**
  * Real location on a flat Google map: 2D tiles (Map Tiles API, same key as the 3D tiles) drawn
@@ -70,13 +71,13 @@ function pixelToLatLon(x: number, y: number, zoom: number) {
   return { lat: (Math.atan(Math.sinh(n)) * 180) / Math.PI, lon };
 }
 
-function layerLayout({ zoom, radius }: LayerSpec) {
-  const site = mercatorPixel(SITE.lat, SITE.lon, zoom);
+function layerLayout({ zoom, radius }: LayerSpec, geo: GeoSite) {
+  const site = mercatorPixel(geo.lat, geo.lon, zoom);
   const tx0 = Math.floor(site.x / 256) - radius;
   const ty0 = Math.floor(site.y / 256) - radius;
   const count = radius * 2 + 1;
   const worldPx = count * 256;
-  const metersPerPx = (Math.cos(SITE.lat * DEG) * EARTH_CIRCUMFERENCE) / (256 * 2 ** zoom);
+  const metersPerPx = (Math.cos(geo.lat * DEG) * EARTH_CIRCUMFERENCE) / (256 * 2 ** zoom);
   const sx = site.x - tx0 * 256;
   const sy = site.y - ty0 * 256;
   const nw = pixelToLatLon(tx0 * 256, ty0 * 256, zoom);
@@ -147,13 +148,14 @@ async function loadAttribution(
 async function buildLayerTexture(
   apiKey: string,
   spec: LayerSpec,
+  geo: GeoSite,
   look: MapLook,
   hiDpi: boolean,
   maxAnisotropy: number,
   isCancelled: () => boolean,
   onAttribution?: (text: string) => void,
 ) {
-  const layout = layerLayout(spec);
+  const layout = layerLayout(spec, geo);
   const { session, tileWidth } = await createSession(apiKey, look, hiDpi, spec.labels);
   if (isCancelled()) return null;
   if (onAttribution) {
@@ -228,6 +230,13 @@ export type MapGroundProps = {
   onReady: () => void;
   onFallback: (reason: string) => void;
   onAttribution?: (text: string) => void;
+  /**
+   * Street names on the near plan. Off for anonymized projects: the real street names would
+   * give away a lot the page shows under a made-up address.
+   */
+  labels?: boolean;
+  /** Credit for the 3D buildings drawn over the plan (Torre Aldrey's); null when there are none. */
+  buildingsCredit?: string | null;
 };
 
 type LookMaterials = { look: MapLook; layers: BuiltLayer[] };
@@ -239,8 +248,11 @@ export function MapGround({
   onReady,
   onFallback,
   onAttribution,
+  labels = true,
+  buildingsCredit = BUILDINGS_CREDIT,
 }: MapGroundProps) {
   const gl = useThree((s) => s.gl);
+  const site = useGeoSite();
   const [looks, setLooks] = useState<LookMaterials[] | null>(null);
   const [credits, setCredits] = useState<Partial<Record<MapLook, string>>>({});
   const [shownCredit, setShownCredit] = useState<MapLook>("satellite");
@@ -248,9 +260,9 @@ export function MapGround({
   const specs = useMemo<LayerSpec[]>(
     () => [
       { zoom: 16, radius: 2, labels: false, edge: "horizon", lift: 0 },
-      { zoom: 19, radius: isMobile ? 1 : 2, labels: true, edge: "transparent", lift: 0.01 },
+      { zoom: 19, radius: isMobile ? 1 : 2, labels, edge: "transparent", lift: 0.01 },
     ],
-    [isMobile],
+    [isMobile, labels],
   );
 
   const callbacks = useRef({ onFallback, onAttribution });
@@ -274,12 +286,13 @@ export function MapGround({
           buildLayerTexture(
             apiKey,
             spec,
+            site,
             look,
             hiDpi,
             maxAnisotropy,
             () => cancelled,
             // One credit line per look: the wide layer's covers both.
-            spec.labels ? undefined : (text) => setCredits((c) => ({ ...c, [look]: text })),
+            spec.zoom !== 16 ? undefined : (text) => setCredits((c) => ({ ...c, [look]: text })),
           ).then((result) => (result ? { ...result, spec } : null)),
         ),
       );
@@ -307,15 +320,15 @@ export function MapGround({
       clearTimeout(timeout);
       built.forEach((l) => l.layers.forEach((x) => x.texture.dispose()));
     };
-  }, [apiKey, isMobile, specs, gl, blendRef]);
+  }, [apiKey, isMobile, specs, gl, blendRef, site]);
 
   useEffect(() => {
     const text = credits[shownCredit];
     if (!text) return;
     callbacks.current.onAttribution?.(
-      shownCredit === "roadmap" ? `${text} · ${BUILDINGS_CREDIT}` : text,
+      shownCredit === "roadmap" && buildingsCredit ? `${text} · ${buildingsCredit}` : text,
     );
-  }, [shownCredit, credits]);
+  }, [shownCredit, credits, buildingsCredit]);
 
   const satRefs = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
   const roadRefs = useRef<(THREE.MeshBasicMaterial | null)[]>([]);
@@ -348,11 +361,11 @@ export function MapGround({
   });
 
   // Map frame (+X east, −Z north) turned so +Z is the facade bearing (see sceneToEcefMatrix).
-  const rotationY = (SITE.facadeBearing + 180) * DEG;
+  const rotationY = (site.facadeBearing + 180) * DEG;
 
   return (
     <group
-      position={[SITE.addressOffset.x, -0.02, SITE.addressOffset.z]}
+      position={[site.addressOffset.x, -0.02, site.addressOffset.z]}
       rotation={[0, rotationY, 0]}
     >
       {looks?.flatMap(({ look, layers }) =>

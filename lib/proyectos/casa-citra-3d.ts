@@ -1,3 +1,5 @@
+import * as THREE from "three";
+import type { GeoSite } from "@/lib/geo/site";
 import { ALTURA_PISO, ANCHO, PLANTAS, PROFUNDIDAD } from "./casa-citra";
 
 /**
@@ -11,11 +13,29 @@ import { ALTURA_PISO, ANCHO, PLANTAS, PROFUNDIDAD } from "./casa-citra";
  * +Y up.
  */
 
-/** Real lot, used only to aim the sun. It is never shown: the page shows DIRECCION_FICTICIA. */
-export const SITIO_SOL = { lat: -37.0768544, lon: -56.8356954 };
-
 /** The address on the page is made up, like Torre Aldrey's name: the real lot stays private. */
 export const DIRECCION_FICTICIA = "Paseo de los Pinos 1240, Villa Gesell";
+
+/**
+ * Real lot, for the sun and the satellite backdrop; never written on the page. The client gave
+ * a Street View point on the street (-37.0768544, -56.8356954, looking 173°); the house is
+ * placed 20 m along that view, ~17 m back from the street centerline, the north facade (the
+ * loggia) toward the street. Scene +Z is west (north is −X on the sheets), so the bearing is 270°.
+ * Map labels stay off (see MapGround): the real street names would give the lot away.
+ */
+export const SITIO_GEO: GeoSite = {
+  lat: -37.0770328,
+  lon: -56.8356689,
+  facadeBearing: 270,
+  addressOffset: new THREE.Vector3(0, 0, 0),
+  region: "Villa Gesell",
+  address: DIRECCION_FICTICIA,
+};
+
+export const SITIO_SOL = { lat: SITIO_GEO.lat, lon: SITIO_GEO.lon };
+
+/** Streets around the lot (OpenStreetMap), meters east / north of SITIO_GEO. */
+export const CALLES_URL = "/geo/streets/casa-citra.json";
 
 export const LOSA = 0.25;
 export const MURO = 0.2;

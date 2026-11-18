@@ -18,9 +18,26 @@ import { WGS84_ELLIPSOID } from "3d-tiles-renderer/three";
  *   measures the real tile surface at runtime and adjusts (see GroundCalibration).
  * - Paseo Aldrey (OSM way 389391724, Sarmiento 2685): ~0.5 km south-east of the lot.
  */
+/**
+ * A real lot the map layers can be drawn around (see components/three/geo/site-context.tsx).
+ * Scene frame: +Y up, +Z = facadeBearing, +X = +Y × +Z; the site's point sits at
+ * addressOffset in the scene.
+ */
+export type GeoSite = {
+  lat: number;
+  lon: number;
+  /** Compass bearing of the scene's +Z axis (degrees clockwise from north). */
+  facadeBearing: number;
+  addressOffset: THREE.Vector3;
+  /** Captions of the entrance descent: the city high up, then the address. */
+  region: string;
+  address: string;
+};
+
 export const SITE = {
   /** Shown name: a made-up one. The real name, street and city are not displayed. */
   name: "Torre Aldrey",
+  region: "Mar del Plata",
   address: "Buenos Aires 2771",
   city: "Mar del Plata",
   neighborhood: "Paseo Aldrey",

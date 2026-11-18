@@ -7,7 +7,8 @@ import type { TilesRenderer as TilesRendererImpl } from "3d-tiles-renderer";
 import type { Viewpoint } from "@/components/three/CameraRig";
 import { latLonToScene, PASEO_ALDREY, SITE } from "@/lib/geo/site";
 
-export type FlyoverCaption = "Mar del Plata" | "Paseo Aldrey" | typeof SITE.address;
+/** A place name shown during a flyover ("Mar del Plata", an address…). */
+export type FlyoverCaption = string;
 
 type Props = {
   tiles: TilesRendererImpl | null;

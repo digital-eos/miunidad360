@@ -1,15 +1,28 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { AnimatePresence, motion } from "motion/react";
 import { CameraRig, type Viewpoint } from "@/components/three/CameraRig";
 import { PostFX } from "@/components/three/visual/PostFX";
+import { MapAttribution, MapGround, type MapBlend } from "@/components/three/geo/MapGround";
+import { MapIntro } from "@/components/three/geo/MapIntro";
+import { MapClouds } from "@/components/three/geo/MapClouds";
+import { GeoSiteProvider } from "@/components/three/geo/site-context";
+import { geoApiKey } from "@/lib/geo/config";
 import { useIsMobile } from "@/lib/hooks/use-is-mobile";
+import { usePrefersReducedMotion } from "@/lib/hooks/use-prefers-reduced-motion";
 import { cn } from "@/lib/utils";
 import { PLANTAS, superficie } from "@/lib/proyectos/casa-citra";
-import { ALTURA_TOTAL, NIVELES, SITIO_SOL, VISTA_INICIAL } from "@/lib/proyectos/casa-citra-3d";
+import {
+  ALTURA_TOTAL,
+  CALLES_URL,
+  NIVELES,
+  SITIO_GEO,
+  SITIO_SOL,
+  VISTA_INICIAL,
+} from "@/lib/proyectos/casa-citra-3d";
 import {
   buenosAiresDate,
   getSunPosition,
@@ -18,7 +31,17 @@ import {
   type CivilDate,
 } from "@/lib/sun/sun-position";
 import { CasaCitraModelo } from "./CasaCitraModelo";
-import { CasaCitraEntorno } from "./CasaCitraEntorno";
+import { CasaCitraEntorno, type Calles } from "./CasaCitraEntorno";
+
+type CallesFile = { ways: { p: [number, number][] }[] };
+
+/** OSM street file (meters east, north of the lot) → scene points (+X south, +Z west). */
+async function cargarCalles(): Promise<Calles> {
+  const res = await fetch(CALLES_URL);
+  if (!res.ok) throw new Error("calles-" + res.status);
+  const data = (await res.json()) as CallesFile;
+  return data.ways.map((w) => w.p.map(([este, norte]) => [-norte, -este] as [number, number]));
+}
 
 /** Height above a level's floor where the house is cut to look inside. */
 const CORTE = 1.3;
@@ -92,6 +115,62 @@ export function CasaCitraExperience() {
   // Starts drawing at once; only stops once the section is known to be off screen.
   const [visible, setVisible] = useState(true);
   const frameRef = useRef<HTMLDivElement>(null);
+  const reducedMotion = usePrefersReducedMotion();
+
+  // Real location: Google's map under the house and the descent from the sky, like Torre
+  // Aldrey. Without a key (or if the map fails) the sandy ground and no descent.
+  const mapKey = geoApiKey();
+  const [mapaFallo, setMapaFallo] = useState(false);
+  const conMapa = Boolean(mapKey) && !mapaFallo;
+  /** Tiles are only requested once the section gets near the screen. */
+  const [cerca, setCerca] = useState(false);
+  /** The descent starts the first time the section is really in view. */
+  const [visto, setVisto] = useState(false);
+  const [mapaListo, setMapaListo] = useState(false);
+  const [introActiva, setIntroActiva] = useState(() => Boolean(mapKey));
+  const [skipToken, setSkipToken] = useState(0);
+  const [leyenda, setLeyenda] = useState<string | null>(null);
+  const [atribucion, setAtribucion] = useState<string | null>(null);
+  const [calles, setCalles] = useState<Calles | null>(null);
+  // Reduced motion: no flight, straight to the plan with the wood standing.
+  const blendRef = useRef<MapBlend>(
+    reducedMotion ? { target: 1, value: 1 } : { target: 0, value: 0 }
+  );
+  const volando = conMapa && introActiva && !reducedMotion;
+
+  const saltarIntro = useCallback(() => {
+    if (volando) setSkipToken((t) => t + 1);
+  }, [volando]);
+
+  useEffect(() => {
+    const el = frameRef.current;
+    if (!el) return;
+    const lejos = new IntersectionObserver(([e]) => e.isIntersecting && setCerca(true), { rootMargin: "800px" });
+    const adentro = new IntersectionObserver(([e]) => e.isIntersecting && setVisto(true), { threshold: 0.5 });
+    lejos.observe(el);
+    adentro.observe(el);
+    return () => {
+      lejos.disconnect();
+      adentro.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!conMapa || !cerca || calles) return;
+    let cancel = false;
+    cargarCalles()
+      .then((c) => !cancel && setCalles(c))
+      .catch(() => !cancel && setCalles([]));
+    return () => {
+      cancel = true;
+    };
+  }, [conMapa, cerca, calles]);
+
+  const fallbackMapa = useCallback(() => {
+    blendRef.current.target = blendRef.current.value = 1;
+    setMapaFallo(true);
+    setIntroActiva(false);
+  }, []);
 
   const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, -1, 0), SIN_CORTE), []);
   const fecha = useMemo(() => solsticeDates(todayInBuenosAires().year)[estacion], [estacion]);
@@ -107,6 +186,7 @@ export function CasaCitraExperience() {
   }, []);
 
   const elegirNivel = (i: number | null) => {
+    saltarIntro();
     setNivel(i);
     setSelected(null);
     setHovered(null);
@@ -119,12 +199,17 @@ export function CasaCitraExperience() {
 
   return (
     <div ref={frameRef} className="overflow-hidden rounded-lg border border-border-subtle bg-surface">
-      <div className="relative h-[70svh] min-h-[26rem] w-full lg:h-[78svh]">
+      <div
+        className="relative h-[70svh] min-h-[26rem] w-full lg:h-[78svh]"
+        // Any drag or scroll on the view during the flight hands control to the visitor.
+        onPointerDown={saltarIntro}
+        onWheel={saltarIntro}
+      >
         <Canvas
           shadows
           dpr={[1, isMobile ? 1.5 : 2]}
           frameloop={visible ? "always" : "never"}
-          camera={{ fov: 35, near: 0.5, far: 600, position: vista.position }}
+          camera={{ fov: 35, near: 0.5, far: conMapa ? 3000 : 600, position: vista.position }}
           gl={{ antialias: true, localClippingEnabled: true }}
           onCreated={({ gl }) => {
             gl.localClippingEnabled = true;
@@ -133,7 +218,44 @@ export function CasaCitraExperience() {
           onPointerMissed={() => setSelected(null)}
         >
           <Corte plane={plane} hasta={nivel === null ? SIN_CORTE : NIVELES[nivel].base + CORTE} />
-          <CasaCitraEntorno sol={sol} isMobile={isMobile} />
+          <CasaCitraEntorno
+            sol={sol}
+            isMobile={isMobile}
+            blendRef={conMapa ? blendRef : null}
+            calles={conMapa ? calles : null}
+          />
+          {conMapa && mapKey && cerca ? (
+            <GeoSiteProvider site={SITIO_GEO}>
+              <MapGround
+                apiKey={mapKey}
+                blendRef={blendRef}
+                isMobile={isMobile}
+                labels={false}
+                buildingsCredit={null}
+                onReady={() => setMapaListo(true)}
+                onFallback={fallbackMapa}
+                onAttribution={setAtribucion}
+              />
+              {volando ? (
+                <>
+                  <Suspense fallback={null}>
+                    <MapClouds isMobile={isMobile} />
+                  </Suspense>
+                  <MapIntro
+                    ready={mapaListo && visto}
+                    endView={vista}
+                    skipToken={skipToken}
+                    onCaption={setLeyenda}
+                    onComplete={() => {
+                      setIntroActiva(false);
+                      setLeyenda(null);
+                    }}
+                    blendRef={blendRef}
+                  />
+                </>
+              ) : null}
+            </GeoSiteProvider>
+          ) : null}
           <CasaCitraModelo
             clipping={plane}
             nivelActivo={nivel}
@@ -150,7 +272,9 @@ export function CasaCitraExperience() {
             onSelect={setSelected}
             castShadow={!isMobile}
           />
+          {volando ? null : (
           <CameraRig
+            startFromCurrent={conMapa}
             target={vista}
             targetKey={`${nivel ?? "ext"}-${isMobile}`}
             autoRotateEnabled={nivel === null}
@@ -158,8 +282,31 @@ export function CasaCitraExperience() {
             minDistance={8}
             maxDistance={27}
           />
+          )}
           {isMobile ? null : <PostFX aoRadius={1.2} multisampling={4} />}
         </Canvas>
+
+        {conMapa && mapaListo ? <MapAttribution text={atribucion} /> : null}
+
+        {/* The flight: where we are, and a way out. */}
+        {volando && mapaListo && visto ? (
+          <>
+            <div className="pointer-events-none absolute inset-x-0 top-16 z-20 flex justify-center px-4 sm:top-6">
+              {leyenda ? (
+                <p key={leyenda} className="animate-caption-in rounded-md bg-surface px-4 py-1.5 label-caps text-foreground">
+                  {leyenda}
+                </p>
+              ) : null}
+            </div>
+            <button
+              type="button"
+              onClick={saltarIntro}
+              className="absolute right-3 bottom-14 z-30 rounded-md border border-border-subtle bg-surface px-4 py-2 text-xs font-medium transition-colors hover:border-primary hover:text-primary sm:right-4"
+            >
+              Saltar vuelo →
+            </button>
+          </>
+        ) : null}
 
         {/* Levels */}
         <div

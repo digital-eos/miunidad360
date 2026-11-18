@@ -1,17 +1,25 @@
-// Extracts the street network around Cataluña II from OpenStreetMap (Overpass API) once, into
-// public/geo/streets/cataluna-ii.json, in the same local frame as public/geo/buildings/:
-// meters east / north of the site's address point.
+// Extracts the street network around a project's lot from OpenStreetMap (Overpass API) once,
+// into public/geo/streets/<slug>.json, in the same local frame as public/geo/buildings/:
+// meters east / north of the site's point. Defaults to Cataluña II.
 //
 //   node scripts/extract-streets.mjs
+//   node scripts/extract-streets.mjs <slug> <lat> <lon> [radius m]
 //
 // Data © OpenStreetMap contributors, ODbL.
 
 import fs from "node:fs";
 import path from "node:path";
 
-const SITE = { lat: -38.010459, lon: -57.548978 };
-const RADIUS_M = 700;
-const OUT = path.join("public", "geo", "streets", "cataluna-ii.json");
+const [slugArg, latArg, lonArg, radiusArg] = process.argv.slice(2);
+const SLUG = slugArg ?? "cataluna-ii";
+const SITE = slugArg
+  ? { lat: Number(latArg), lon: Number(lonArg) }
+  : { lat: -38.010459, lon: -57.548978 };
+if (!Number.isFinite(SITE.lat) || !Number.isFinite(SITE.lon)) {
+  throw new Error("usage: node scripts/extract-streets.mjs <slug> <lat> <lon> [radius m]");
+}
+const RADIUS_M = Number(radiusArg ?? 700);
+const OUT = path.join("public", "geo", "streets", `${SLUG}.json`);
 
 const KINDS = "primary|secondary|tertiary|residential|unclassified|living_street|pedestrian";
 const query = `[out:json][timeout:60];
