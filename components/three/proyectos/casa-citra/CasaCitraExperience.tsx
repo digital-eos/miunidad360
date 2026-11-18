@@ -131,8 +131,16 @@ function SombrasEstaticas({
     modoSombras(get().gl, false);
     return () => modoSombras(get().gl, true);
   }, [get]);
+  // The map's type counts too: dropping the soft shadows on a slow GPU changes it, and the
+  // recompiled materials can't draw at all with a map of the old type.
   useFrame(({ gl }) =>
-    revisarSombras(gl, ultimo.current, plane.constant, blendRef ? blendRef.current.value : 1, solKey)
+    revisarSombras(
+      gl,
+      ultimo.current,
+      plane.constant,
+      blendRef ? blendRef.current.value : 1,
+      `${solKey}|${gl.shadowMap.type}`
+    )
   );
   return null;
 }
