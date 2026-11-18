@@ -29,22 +29,26 @@ function mulberry32(seed: number) {
 
 type Pino = { x: number; z: number; alto: number; copa: number; giro: number };
 
+/** Radius of the clearing around the house (m). */
+const CLARO = 27;
+
 function plantarPinos(cantidad: number): Pino[] {
   const rand = mulberry32(20261118);
   const out: Pino[] = [];
   let tries = 0;
   while (out.length < cantidad && tries < cantidad * 30) {
     tries++;
-    const r = 9 + Math.sqrt(rand()) * 52;
+    // A clearing around the house, wide enough that the orbiting camera stays out of the
+    // trunks; the wood starts at its edge and thins out toward the fog.
+    const r = CLARO + Math.pow(rand(), 0.8) * 55;
     const a = rand() * Math.PI * 2;
     const x = Math.cos(a) * r;
     const z = Math.sin(a) * r;
-    // Clear of the house (12.25 × 6.70 m) with a margin, and of the drive to the carport (+Z).
-    if (Math.abs(x) < 9.5 && Math.abs(z) < 7.5) continue;
-    if (Math.abs(x) < 4 && z > 0 && z < 30) continue;
-    if (out.some((p) => (p.x - x) ** 2 + (p.z - z) ** 2 < 9)) continue;
-    const alto = 9 + rand() * 9;
-    out.push({ x, z, alto, copa: 2.2 + rand() * 1.6, giro: rand() * Math.PI });
+    // Clear of the drive to the carport (+Z side).
+    if (Math.abs(x) < 4 && z > 0) continue;
+    if (out.some((p) => (p.x - x) ** 2 + (p.z - z) ** 2 < 10)) continue;
+    const alto = 8 + rand() * 7;
+    out.push({ x, z, alto, copa: 2.6 + rand() * 1.8, giro: rand() * Math.PI });
   }
   return out;
 }
@@ -107,7 +111,9 @@ export function CasaCitraEntorno({
   // Lower sun: warmer and dimmer; below the horizon only the sky light remains.
   const intensidad = sol.y <= 0 ? 0 : THREE.MathUtils.lerp(0.9, 3.0, Math.min(altura / 0.6, 1));
   const color = new THREE.Color("#ffd9a8").lerp(new THREE.Color("#fff3df"), Math.min(altura / 0.5, 1));
-  const pos = sol.clone().multiplyScalar(45);
+  // Far enough out that the shadow box holds the house and the nearest pines' long winter
+  // shadows; past its edge the ground would suddenly stop receiving shadows.
+  const pos = sol.clone().multiplyScalar(80);
 
   return (
     <>
@@ -121,13 +127,13 @@ export function CasaCitraEntorno({
         intensity={intensidad}
         color={color}
         castShadow
-        shadow-mapSize={isMobile ? [1024, 1024] : [2048, 2048]}
+        shadow-mapSize={isMobile ? [2048, 2048] : [4096, 4096]}
         shadow-camera-near={1}
-        shadow-camera-far={120}
-        shadow-camera-left={-24}
-        shadow-camera-right={24}
-        shadow-camera-top={24}
-        shadow-camera-bottom={-24}
+        shadow-camera-far={220}
+        shadow-camera-left={-50}
+        shadow-camera-right={50}
+        shadow-camera-top={50}
+        shadow-camera-bottom={-50}
         shadow-bias={-0.0004}
         shadow-normalBias={0.03}
       />
@@ -137,7 +143,7 @@ export function CasaCitraEntorno({
         <circleGeometry args={[160, 64]} />
         <meshStandardMaterial color={SUELO} roughness={1} />
       </mesh>
-      <Pinar cantidad={isMobile ? 70 : 150} castShadow={!isMobile} />
+      <Pinar cantidad={isMobile ? 110 : 220} castShadow={!isMobile} />
     </>
   );
 }

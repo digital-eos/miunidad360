@@ -78,7 +78,8 @@ function vistaDeNivel(i: number | null, isMobile: boolean): Viewpoint {
   }
   const base = NIVELES[i].base;
   const d = isMobile ? 1.4 : 1;
-  return { position: [-7 * d, base + 15 * d, 10 * d], target: [0.6, base, 0.4] };
+  // From above the garden side, steep enough to see into every room over the cut walls.
+  return { position: [-9 * d, base + 21 * d, 14 * d], target: [1.2, base, 0.6] };
 }
 
 export function CasaCitraExperience() {
@@ -88,7 +89,8 @@ export function CasaCitraExperience() {
   const [selected, setSelected] = useState<string | null>(null);
   const [estacion, setEstacion] = useState<Estacion>("verano");
   const [horaSol, setHoraSol] = useState(16);
-  const [visible, setVisible] = useState(false);
+  // Starts drawing at once; only stops once the section is known to be off screen.
+  const [visible, setVisible] = useState(true);
   const frameRef = useRef<HTMLDivElement>(null);
 
   const plane = useMemo(() => new THREE.Plane(new THREE.Vector3(0, -1, 0), SIN_CORTE), []);
@@ -154,7 +156,7 @@ export function CasaCitraExperience() {
             autoRotateEnabled={nivel === null}
             autoRotateSpeed={0.35}
             minDistance={8}
-            maxDistance={60}
+            maxDistance={27}
           />
           {isMobile ? null : <PostFX aoRadius={1.2} multisampling={4} />}
         </Canvas>

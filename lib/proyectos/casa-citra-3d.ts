@@ -101,6 +101,6 @@ export const TECHOS: [number, number, number, number][] = [
 
 /** Where the camera starts and how far it may go. */
 export const VISTA_INICIAL = {
-  position: [-17, 11, 19] as [number, number, number],
-  target: [0, 3.2, 0] as [number, number, number],
+  position: [-19, 9.5, 17] as [number, number, number],
+  target: [0, 3.6, 0] as [number, number, number],
 };
