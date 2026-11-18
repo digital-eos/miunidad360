@@ -7,6 +7,7 @@ import {
   updateProyectoPrivado,
   type ProyectoPasswordResult,
 } from "./actions";
+import { proyectoPath } from "@/lib/proyectos/rutas";
 
 const initialState: ProyectoPasswordResult = { success: false };
 
@@ -16,6 +17,7 @@ export function ProyectoVisibilidad({
 }: {
   proyecto: { id: number; slug: string; privado: boolean; tienePassword: boolean };
 }) {
+  const link = proyectoPath(proyecto.slug);
   const [isPending, startTransition] = useTransition();
   const [state, formAction, isSaving] = useActionState(
     setProyectoPassword.bind(null, proyecto.id),
@@ -26,7 +28,18 @@ export function ProyectoVisibilidad({
     <div className="space-y-5 rounded-lg border border-border-subtle bg-surface p-5">
       <p className="text-sm text-foreground-muted">
         Página del proyecto:{" "}
-        <code className="rounded bg-surface-muted px-1.5 py-0.5">/proyectos/{proyecto.slug}</code>{" "}
+        {link ? (
+          <a
+            href={link}
+            target="_blank"
+            rel="noopener"
+            className="rounded bg-surface-muted px-1.5 py-0.5 font-mono text-foreground underline-offset-2 hover:underline"
+          >
+            {link}
+          </a>
+        ) : (
+          <span>sin página de cliente</span>
+        )}{" "}
         (las demos de /demos son siempre públicas).
       </p>
 
